@@ -16,6 +16,7 @@ class UserController extends Controller
         echo "HAlooo";
         // $users = User::paginate(10);
 
+        // dd($users);
         // return view('nawasara-core::users.index', compact('users'));
     }
 
