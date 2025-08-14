@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    @include('core::layouts.navbar')
+    @include('nawasara-core::layouts.navbar')
 
     <div class="container">
         @yield('content')

@@ -18,9 +18,6 @@ class CoreServiceProvider extends ServiceProvider
         // Register Blade components (prefix: nawasara-core)
         Blade::componentNamespace('Nawasara\\Core\\View\\Components', 'nawasara-core');
 
-        // Alias short prefix: core
-        Blade::componentNamespace('Nawasara\\Core\\View\\Components', 'core');
-
         // Publish config
         $this->publishes([
             __DIR__.'/../config/nawasara.php' => config_path('nawasara.php'),

@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Nawasara\Core\Http\Controllers\RoleController;
 use Nawasara\Core\Http\Controllers\UserController;
+use Nawasara\Core\Http\Controllers\RoleController;
 
 Route::prefix('core')->group(function () {
     Route::get('/test', function () {
