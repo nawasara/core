@@ -2,6 +2,7 @@
 
 namespace Nawasara\Core;
 
+use Livewire\Livewire;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -18,6 +19,9 @@ class CoreServiceProvider extends ServiceProvider
         // Register Blade components (prefix: nawasara-core)
         Blade::componentNamespace('Nawasara\\Core\\View\\Components', 'nawasara-core');
 
+        // Prefix khusus untuk Livewire components di package ini
+        Livewire::component('nawasara-core.utils.loading', \Nawasara\Core\Livewire\Utils\Loading::class);
+
         // Publish config
         $this->publishes([
             __DIR__.'/../config/nawasara.php' => config_path('nawasara.php'),
@@ -28,6 +32,11 @@ class CoreServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../resources/views' => resource_path('views/vendor/nawasara-core'),
         ], 'views');
+
+        // Publish assets ke public Laravel root
+        $this->publishes([
+            __DIR__.'/../public' => public_path('vendor/nawasara-core'),
+        ], 'public');
 
         $this->publishes([
             __DIR__.'/../../vendor/spatie/laravel-permission/database/migrations' => database_path('migrations'),
