@@ -1,6 +1,6 @@
 <div>
     {{-- Knowing others is intelligence; knowing yourself is true wisdom. --}}
-    <div class="border rounded-lg shadow-sm p-6 bg-white dark:bg-neutral-800 dark:border-neutral-700">
+    <div class="border border-gray-200 rounded-lg shadow-sm p-6 bg-white dark:bg-neutral-800 dark:border-neutral-700">
         <div class="flex flex-col">
             <div class="grid grid-cols-3 gap-4">
                 <div
@@ -14,17 +14,16 @@
                 </div>
             </div>
             <div class="-m-1.5 overflow-x-auto mb-5">
-
-                <div class="p-1.5 min-w-full inline-block align-middle ">
+                <div class="p-1.5 min-w-full inline-block align-middle">
                     <div class="overflow-hidden">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
-
                             <thead>
                                 <tr>
                                     @foreach ($headers as $item)
                                         <th scope="col"
                                             class="px-6 py-3 text-xs text-left font-bold text-black uppercase dark:text-neutral-500">
-                                            {{ $item }}</th>
+                                            {{ $item }}
+                                        </th>
                                     @endforeach
                                 </tr>
                             </thead>
