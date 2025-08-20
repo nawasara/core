@@ -14,3 +14,15 @@ Route::prefix('core')->group(function () {
     Route::post('/roles', [RoleController::class, 'store'])->name('nawasara-core.roles.store');
 
 });
+
+Route::middleware(['web'])->group(function () {
+    if (config('nawasara-core.use_default_home')) {
+        Route::get('/', function () {
+            return redirect()->route(config('nawasara-core.home_route'));
+        });
+    }
+
+    Route::get('/dashboard', function () {
+        return view('nawasara-core::dashboard');
+    })->name('nawasara-core.dashboard');
+});
