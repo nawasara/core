@@ -32,4 +32,13 @@ return [
     */
 
     'home_route' => 'nawasara-core.dashboard',
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Authentication Provider
+    |--------------------------------------------------------------------------
+    | Tentukan provider auth yang digunakan core.
+    | Opsi: "jetstream", "keycloak"
+    */
+    'auth_provider' => 'jetstream',
 ];

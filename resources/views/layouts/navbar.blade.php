@@ -54,22 +54,104 @@
         [&::-webkit-scrollbar-thumb]:bg-gray-300 dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500">
                 <div class="py-2 md:py-0 flex flex-col md:flex-row md:items-center md:justify-end gap-0.5 md:gap-1">
 
-                    <a class="p-2 flex items-center text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:text-green-600 dark:focus:text-green-400"
-                        href="/dashboard" aria-current="page">
-                        <svg class="shrink-0 size-4 me-3 md:me-2 block md:hidden" xmlns="http://www.w3.org/2000/svg"
-                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
-                            <path
-                                d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        </svg>
-                        Beranda
-                    </a>
+                    @foreach (app('nawasara.menu') as $menu)
+                        {{-- @can($menu['permission']) --}}
+                        @if (!empty($menu['submenu']))
+                            <div class="hs-dropdown relative inline-block">
+                                <button type="button"
+                                    class="p-2 flex items-center text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:text-green-600 dark:focus:text-green-400 hs-dropdown-toggle"
+                                    aria-haspopup="menu" aria-expanded="false">
+                                    @if (!empty($menu['icon']))
+                                        <i class="{{ $menu['icon'] }} mr-2"></i>
+                                    @endif
+                                    {{ $menu['label'] }}
+                                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div
+                                    class="hs-dropdown-menu hidden absolute z-10 bg-white shadow rounded mt-2 min-w-[160px]">
+                                    @foreach ($menu['submenu'] as $submenu)
+                                        {{-- @can($submenu['permission']) --}}
+                                        <a href="{{ url($submenu['url']) }}"
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            @if (!empty($submenu['icon']))
+                                                <i class="{{ $submenu['icon'] }} mr-2"></i>
+                                            @endif
+                                            {{ $submenu['label'] }}
+                                        </a>
+                                        {{-- @endcan --}}
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <a class="p-2 flex items-center text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:text-green-600 dark:focus:text-green-400"
+                                href="{{ url($menu['url']) }}" aria-current="page">
+                                @if (!empty($menu['icon']))
+                                    <i class="{{ $menu['icon'] }} mr-2"></i>
+                                @endif
+                                {{ $menu['label'] }}
+                            </a>
+                        @endif
+                        {{-- @endcan --}}
+                    @endforeach
 
-                    <a class="p-2 flex items-center text-sm text-gray-800 dark:text-neutral-200 focus:outline-none focus:text-green-600 dark:focus:text-green-400"
-                        href="/planting-activity">
-                        Komponen
-                    </a>
+                    {{-- <div
+                        class="hs-dropdown [--strategy:static] md:[--strategy:fixed] [--adaptive:none] [--is-collapse:true] md:[--is-collapse:false] ">
+                        <button id="hs-header-classic-dropdown" type="button"
+                            class="hs-dropdown-toggle w-full p-2 flex items-center text-sm text-gray-800 hover:text-gray-500 focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500 {{ Request::is('budget-source*') || Request::is('seed-source*') || Request::is('seed*') || Request::is('activity-type*') ? 'text-green-600 font-bold' : 'text-gray-800' }}"
+                            aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
+                            <svg class="shrink-0 size-4 me-3 md:me-2 block md:hidden" xmlns="http://www.w3.org/2000/svg"
+                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m3 10 2.5-2.5L3 5" />
+                                <path d="m3 19 2.5-2.5L3 14" />
+                                <path d="M10 6h11" />
+                                <path d="M10 12h11" />
+                                <path d="M10 18h11" />
+                            </svg>
+                            Master
+                            <svg class="hs-dropdown-open:-rotate-180 md:hs-dropdown-open:rotate-0 duration-300 shrink-0 size-4 ms-auto md:ms-1"
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="m6 9 6 6 6-6" />
+                            </svg>
+                        </button>
+
+                        <div class="hs-dropdown-menu transition-[opacity,margin] duration-[0.1ms] md:duration-[150ms] hs-dropdown-open:opacity-100 opacity-0 relative w-full md:w-52 hidden z-10 top-full ps-7 md:ps-0 md:bg-white md:rounded-lg md:shadow-md before:absolute before:-top-4 before:start-0 before:w-full before:h-5 md:after:hidden after:absolute after:top-1 after:start-[18px] after:w-0.5 after:h-[calc(100%-0.25rem)] after:bg-gray-100 dark:md:bg-neutral-800 dark:after:bg-neutral-700"
+                            role="menu" aria-orientation="vertical" aria-labelledby="hs-header-classic-dropdown">
+                            <div class="py-1 md:px-1 space-y-0.5">
+                                @can('sumber.anggaran.view')
+                                    <a class="py-2.5 px-2 flex items-center text-sm {{ Request::is('budget-source*') ? 'text-green-600 font-bold' : 'text-gray-800' }} hover:text-gray-500 hover:bg-gray-100 rounded-lg focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
+                                        href="" wire:navigate.hover>
+                                        Sumber Anggaran
+                                    </a>
+                                @endcan
+
+
+                                @can('sumber.bibit.view')
+                                    <a class="py-2.5 px-2 flex items-center text-sm {{ Request::is('seed-source*') ? 'text-green-600 font-bold' : 'text-gray-800' }} hover:text-gray-500 hover:bg-gray-100 rounded-lg focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
+                                        href="" wire:navigate.hover>
+                                        Sumber Bibit
+                                    </a>
+                                @endcan
+                                @can('jenis.bibit.view')
+                                    <a class="py-2.5 px-2 flex items-center text-sm {{ Request::is('seed') || Request::is('seed/*') ? 'text-green-600 font-bold' : 'text-gray-800' }} hover:text-gray-500 hover:bg-gray-100 rounded-lg focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
+                                        href="" wire:navigate.hover>
+                                        Jenis Bibit
+                                    </a>
+                                @endcan
+                                @can('jenis.kegiatan.view')
+                                    <a class="py-2.5 px-2 flex items-center text-sm {{ Request::is('activity-type*') ? 'text-green-600 font-bold' : 'text-gray-800' }} hover:text-gray-500 hover:bg-gray-100 rounded-lg focus:outline-none focus:text-gray-500 dark:text-neutral-200 dark:hover:text-neutral-500 dark:focus:text-neutral-500"
+                                        href="" wire:navigate.hover>
+                                        Jenis Kegiatan
+                                    </a>
+                                @endcan
+                            </div>
+                        </div>
+                    </div> --}}
 
                     <!-- Button Group -->
                     <div class="hs-dropdown [--strategy:static] md:[--strategy:fixed]">

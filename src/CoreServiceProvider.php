@@ -22,6 +22,15 @@ class CoreServiceProvider extends ServiceProvider
         // Prefix khusus untuk Livewire components di package ini
         Livewire::component('nawasara-core.utils.loading', \Nawasara\Core\Livewire\Utils\Loading::class);
 
+        // Dynamic menu loader
+        $menus = [];
+        
+        // Scan vendor nawasara/*/config/menu.php
+        foreach (glob(base_path('vendor/nawasara/*/config/menu.php')) as $menuPath) {
+            $menus = array_merge($menus, require $menuPath);
+        }
+        app()->instance('nawasara.menu', $menus);
+
         // Publish config
         $this->publishes([
             __DIR__.'/../config/nawasara.php' => config_path('nawasara.php'),
