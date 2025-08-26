@@ -35,15 +35,15 @@ return [
         'permission' => $prefix.'.view-components',
         'submenu' => [
             [
-                'label' => 'Livewire Komponen',
+                'label' => 'Table',
                 'icon' => 'heroicon-o-puzzle-piece',
-                'url' => $prefix.'/components/livewire',
+                'url' => $prefix.'/components/table',
                 'permission' => $prefix.'.view-components',
             ],
             [
-                'label' => 'Blade Komponen',
+                'label' => 'Base Komponen',
                 'icon' => 'heroicon-o-puzzle-piece',
-                'url' => $prefix.'/components/blade',
+                'url' => $prefix.'/components/base',
                 'permission' => $prefix.'.view-components',
             ],
         ],

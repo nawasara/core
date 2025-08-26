@@ -18,7 +18,8 @@
             Toaster Info
         </x-nawasara-core::button>
 
-        <x-nawasara-core::button color="success" @click="Toast.warning('Loading message!', {showProgress: true})">
+        <x-nawasara-core::button color="success"
+            @click="Toast.warning('<b>Toaster</b> Loading message!', {showProgress: true})">
             Toaster show progress
         </x-nawasara-core::button>
     </div>

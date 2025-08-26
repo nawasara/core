@@ -5,15 +5,15 @@ use Nawasara\Core\Http\Controllers\UserController;
 use Nawasara\Core\Http\Controllers\RoleController;
 
 Route::prefix('nawasara-core')->group(function () {
-    Route::get('/components/blade', function () {
-        session()->flash("toast", [
-            "type" => "success",
-            "message" => "Toaster berhasil diinstall! 🎉"
+    Route::get('/components/table', function () {
+        return view('nawasara-core::pages.examples.table', [
+            'title' => 'Table Component Example'
         ]);
+    });
 
-        
-        return view('nawasara-core::pages.blade-component-example', [
-            'title' => 'Blade Component Example'
+    Route::get('/components/base', function () {
+        return view('nawasara-core::pages.examples.base', [
+            'title' => 'base Component Example'
         ]);
     });
     Route::get('/users', [UserController::class, 'index'])->name('nawasara-core.users.index');
