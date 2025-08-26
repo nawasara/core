@@ -6,12 +6,12 @@
     <div class="py-8">
         <div class="sm:flex sm:items-center mb-5">
             <div class="sm:flex-auto">
-                <h1 class="text-base font-semibold leading-6 text-gray-900">Users</h1>
+                <h1 class="text-base font-semibold leading-6 text-gray-900">Kegiatan</h1>
             </div>
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                <a href="" type="button"
-                    class="block rounded bg-green-800 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm cursor-pointer hover:bg-green-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Buat
-                    Baru</a>
+                <x-nawasara-core::button variant="solid" color="success" href="#">
+                    Buat Baru
+                </x-nawasara-core::button>
             </div>
         </div>
         {{-- <div class="bg-white shadow rounded-lg p-6"> --}}
@@ -20,9 +20,55 @@
                 <!-- Table Content -->
                 <x-slot:table>
                     <tr>
-                        <td class="m-5">1</td>
-                        <td class="m-5">2</td>
-                        <td class="m-5">3</td>
+                        <td class="p-2"><x-nawasara-core::dropdown-menu-action id="1" modalName="deleteModal"
+                                :items="[
+                                    [
+                                        'label' => 'Edit',
+                                        'type' => 'href-navigate',
+                                        'url' => '#',
+                                        'permission' => 'village.edit',
+                                    ],
+                                    [
+                                        'label' => 'Delete',
+                                        'type' => 'delete',
+                                        'permission' => 'village.delete',
+                                    ],
+                                    [
+                                        'label' => 'Custom Action',
+                                        'type' => 'click',
+                                        'action' => 'doSomething',
+                                        'param' => 1,
+                                        'permission' => 'village.custom',
+                                    ],
+                                ]" />
+                        </td>
+                        <td class="p-2">2 Januari 2025</td>
+                        <td class="p-2">Reboisasi</td>
+                    </tr>
+                    <td class="p-2"><x-nawasara-core::dropdown-menu-action id="2" modalName="deleteModal"
+                            :items="[
+                                [
+                                    'label' => 'Edit',
+                                    'type' => 'href-navigate',
+                                    'url' => '#',
+                                    'permission' => 'village.edit',
+                                ],
+                                [
+                                    'label' => 'Delete',
+                                    'type' => 'delete',
+                                    'permission' => 'village.delete',
+                                ],
+                                [
+                                    'label' => 'Custom Action',
+                                    'type' => 'click',
+                                    'action' => 'doSomething',
+                                    'param' => 1,
+                                    'permission' => 'village.custom',
+                                ],
+                            ]" />
+                    </td>
+                    <td class="p-2">03 Juni 2025</td>
+                    <td class="p-2">CSR</td>
                     </tr>
                 </x-slot:table>
 

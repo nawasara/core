@@ -55,13 +55,13 @@
             'link' => 'text-slate-600 hover:underline dark:text-slate-400 p-0 h-auto align-baseline',
         ],
         'success' => [
-            'solid' => 'bg-green-600 hover:bg-green-700 text-white dark:bg-green-500 dark:hover:bg-green-600',
+            'solid' => 'bg-green-800 hover:bg-green-700 text-white dark:bg-green-800 dark:hover:bg-green-700',
             'outline' =>
-                'border border-green-600 text-green-700 hover:bg-green-50 dark:border-green-400 dark:text-green-300 dark:hover:bg-green-950',
+                'border border-green-800 text-green-700 hover:bg-green-50 dark:border-green-400 dark:text-green-300 dark:hover:bg-green-950',
             'ghost' => 'text-green-700 hover:bg-green-50 dark:text-green-300 dark:hover:bg-green-950',
             'flat' =>
                 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-950 dark:text-green-200 dark:hover:bg-green-900',
-            'link' => 'text-green-600 hover:underline dark:text-green-400 p-0 h-auto align-baseline',
+            'link' => 'text-green-800 hover:underline dark:text-green-400 p-0 h-auto align-baseline',
         ],
         'warning' => [
             'solid' => 'bg-amber-600 hover:bg-amber-700 text-white dark:bg-amber-500 dark:hover:bg-amber-600',
