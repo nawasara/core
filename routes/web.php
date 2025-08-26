@@ -6,6 +6,12 @@ use Nawasara\Core\Http\Controllers\RoleController;
 
 Route::prefix('nawasara-core')->group(function () {
     Route::get('/components/blade', function () {
+        session()->flash("toast", [
+            "type" => "success",
+            "message" => "Toaster berhasil diinstall! 🎉"
+        ]);
+
+        
         return view('nawasara-core::pages.blade-component-example', [
             'title' => 'Blade Component Example'
         ]);

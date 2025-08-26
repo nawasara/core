@@ -9,11 +9,21 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Toaster --}}
+    @if (session('toast'))
+        <script>
+            window.Laravel = window.Laravel || {};
+            window.Laravel.toast = @json(session('toast'));
+        </script>
+    @endif
+    <script src="{{ asset('vendor/nawasara-toaster/js/toaster.js') }}"></script>
+    {{-- End Toaster --}}
+
     @livewireStyles
 </head>
 
 <body>
-
 
     <div class="min-h-screen bg-gray-100">
         @include('nawasara-core::layouts.navbar')
@@ -66,6 +76,8 @@
     </div> --}}
 
     @livewireScripts
+    <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
+
 </body>
 
 </html>
