@@ -87,7 +87,7 @@
 
     @livewireScripts
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-
+    <x-nawasara-core::modal />
 </body>
 
 </html>

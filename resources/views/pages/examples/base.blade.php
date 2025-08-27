@@ -12,5 +12,6 @@
         @include('nawasara-core::pages.blade-component.button')
         @include('nawasara-core::pages.blade-component.button-group')
         @include('nawasara-core::pages.blade-component.toaster')
+        @include('nawasara-core::pages.blade-component.modal')
     </div>
 @endsection
