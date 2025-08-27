@@ -1,6 +1,6 @@
 <div>
     {{-- Knowing others is intelligence; knowing yourself is true wisdom. --}}
-    <div class="border border-gray-200 rounded-lg shadow-sm p-6 bg-white dark:bg-neutral-800 dark:border-neutral-700">
+    <div class="border border-gray-100 rounded-lg shadow-sm p-6 bg-white dark:bg-neutral-800 dark:border-neutral-700">
         <div class="flex flex-col">
             <div class="grid grid-cols-3 gap-4">
                 <div

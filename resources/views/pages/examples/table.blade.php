@@ -20,7 +20,7 @@
                 <!-- Table Content -->
                 <x-slot:table>
                     <tr>
-                        <td class="p-2"><x-nawasara-core::dropdown-menu-action id="1" modalName="deleteModal"
+                        <td class="p-4"><x-nawasara-core::dropdown-menu-action id="1" modalName="deleteModal"
                                 :items="[
                                     [
                                         'label' => 'Edit',
@@ -42,10 +42,10 @@
                                     ],
                                 ]" />
                         </td>
-                        <td class="p-2">2 Januari 2025</td>
-                        <td class="p-2">Reboisasi</td>
+                        <td class="p-4">2 Januari 2025</td>
+                        <td class="p-4">Reboisasi</td>
                     </tr>
-                    <td class="p-2"><x-nawasara-core::dropdown-menu-action id="2" modalName="deleteModal"
+                    <td class="p-4"><x-nawasara-core::dropdown-menu-action id="2" modalName="deleteModal"
                             :items="[
                                 [
                                     'label' => 'Edit',
@@ -67,8 +67,8 @@
                                 ],
                             ]" />
                     </td>
-                    <td class="p-2">03 Juni 2025</td>
-                    <td class="p-2">CSR</td>
+                    <td class="p-4">03 Juni 2025</td>
+                    <td class="p-4">CSR</td>
                     </tr>
                 </x-slot:table>
 
