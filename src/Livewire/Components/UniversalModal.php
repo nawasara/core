@@ -6,6 +6,7 @@ use Livewire\Component;
 
 class UniversalModal extends Component
 {
+    public $id;
     public $open = false;
     public $title = '';
     public $component = null;

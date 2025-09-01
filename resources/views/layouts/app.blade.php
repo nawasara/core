@@ -83,19 +83,9 @@
         </footer>
         <!-- ========== END FOOTER ========== -->
     </div>
-    {{--     
-    <div class="container">
-        @yield('content')
-    </div> --}}
 
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-    @livewire('nawasara-core.components.universal-modal', [], 'universal-modal')
-
     @livewireScripts
-
-    {{-- @livewire('nawasara-core..universal-modal') --}}
-    {{-- @livewire('nawasara-core:comModalUniversalponents.universal-modal') --}}
-    {{-- <livewire:nawasara-core.livewire.components.universal-modal /> --}}
 </body>
 
 </html>
