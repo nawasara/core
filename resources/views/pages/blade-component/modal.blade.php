@@ -2,6 +2,14 @@
     <div class="mt-6">
         <h3>Modal</h3>
         <div class="space-y-6">
+            <button class="px-4 py-2 bg-blue-600 text-white rounded"
+                @click="$dispatch('open-modal', {
+        title: 'Form Input Data',
+        component: 'nawasara-core.examples.demo-modal',
+        params: { userId: 5 }
+    })">
+                Buka Modal
+            </button>
             <!-- 1. Static Content via JS Event -->
             <button class="px-4 py-2 bg-blue-600 text-white rounded"
                 onclick="window.dispatchEvent(new CustomEvent('modal-open', {detail: {modalId:'contoh-static-modal', title: 'Modal Static', content: '<p>Ini modal static via JS event.</p>', size: 'md'}}))">Modal

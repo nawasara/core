@@ -3,25 +3,29 @@
 use Illuminate\Support\Facades\Route;
 use Nawasara\Core\Http\Controllers\UserController;
 use Nawasara\Core\Http\Controllers\RoleController;
-
-Route::prefix('nawasara-core')->group(function () {
-    Route::get('/components/table', function () {
-        return view('nawasara-core::pages.examples.table', [
-            'title' => 'Table Component Example'
-        ]);
-    });
-
-    Route::get('/components/base', function () {
-        return view('nawasara-core::pages.examples.base', [
-            'title' => 'base Component Example'
-        ]);
-    });
-    Route::get('/users', [UserController::class, 'index'])->name('nawasara-core.users.index');
-    Route::post('/roles', [RoleController::class, 'store'])->name('nawasara-core.roles.store');
-
-});
-
 Route::middleware(['web'])->group(function () {
+
+    Route::prefix('nawasara-core')->group(function () {
+        Route::get('/test-csrf', function () {
+            echo csrf_token();
+        });
+
+        Route::get('/components/table', function () {
+            return view('nawasara-core::pages.examples.table', [
+                'title' => 'Table Component Example'
+            ]);
+        });
+
+        Route::get('/components/base', function () {
+            return view('nawasara-core::pages.examples.base', [
+                'title' => 'base Component Example'
+            ]);
+        });
+        Route::get('/users', [UserController::class, 'index'])->name('nawasara-core.users.index');
+        Route::post('/roles', [RoleController::class, 'store'])->name('nawasara-core.roles.store');
+
+    });
+
     if (config('nawasara-core.auth_provider') === 'jetstream') {
         // Gunakan login Jetstream bawaan
         Auth::routes(); // atau biarkan Jetstream handle

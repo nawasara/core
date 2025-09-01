@@ -2,6 +2,8 @@
 <html lang="en" class="">
 
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <script>
         if (
             localStorage.getItem('theme') === 'dark' ||
@@ -12,6 +14,7 @@
             document.documentElement.classList.remove('dark');
         }
     </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? config('app.name') }}</title>
@@ -85,9 +88,14 @@
         @yield('content')
     </div> --}}
 
-    @livewireScripts
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-    <x-nawasara-core::modal />
+    @livewire('nawasara-core.components.universal-modal', [], 'universal-modal')
+
+    @livewireScripts
+
+    {{-- @livewire('nawasara-core..universal-modal') --}}
+    {{-- @livewire('nawasara-core:comModalUniversalponents.universal-modal') --}}
+    {{-- <livewire:nawasara-core.livewire.components.universal-modal /> --}}
 </body>
 
 </html>
