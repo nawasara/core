@@ -6,6 +6,7 @@ use Livewire\Livewire;
 use Illuminate\Support\Collection;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
 
 class CoreServiceProvider extends ServiceProvider
@@ -14,6 +15,8 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'nawasara-core');
+        
+        $this->publishSpatiePermission();
         
         $this->offerPublishing();
 
@@ -31,6 +34,17 @@ class CoreServiceProvider extends ServiceProvider
         $this->app->register(\Spatie\Permission\PermissionServiceProvider::class);
     }
 
+    protected function publishSpatiePermission(): void
+    {
+        // publish otomatis saat pertama kali install
+        if ($this->app->runningInConsole()) {
+            Artisan::call('vendor:publish', [
+                '--provider' => "Spatie\Permission\PermissionServiceProvider",
+                '--force' => true, // hati-hati overwrite
+            ]);
+        }
+    }
+
     protected function offerPublishing(): void
     {
         if (! $this->app->runningInConsole()) {
@@ -40,7 +54,6 @@ class CoreServiceProvider extends ServiceProvider
         // Publish config
         $this->publishes([
             __DIR__.'/../config/nawasara.php' => config_path('nawasara.php'),
-            base_path('vendor/spatie/laravel-permission/config/permission.php') => config_path('permission.php'),
         ], 'nawasara-core:config');
 
         // Publish views
@@ -54,11 +67,7 @@ class CoreServiceProvider extends ServiceProvider
         ], 'nawasara-core:public');
 
         $this->publishes([
-            base_path('vendor/spatie/laravel-permission/database/migrations') => database_path('migrations'),
-        ], 'migrations');
-
-        $this->publishes([
-            __DIR__.'/../database/migrations/add_column_group_permission_table.php.stub' => $this->getMigrationFileName('add_column_group_permission_table.php'),
+            __DIR__.'/../database/migrations/update_permission_and_users_table.php.stub' => $this->getMigrationFileName('update_permission_and_users_table.php'),
         ], 'nawasara-core:migrations');
 
         $this->publishes([
