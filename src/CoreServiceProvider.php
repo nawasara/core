@@ -70,10 +70,6 @@ class CoreServiceProvider extends ServiceProvider
             __DIR__.'/../database/migrations/update_permission_and_users_table.php.stub' => $this->getMigrationFileName('update_permission_and_users_table.php'),
         ], 'nawasara-core:migrations');
 
-        $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], 'nawasara-core:migrations');
-
     }
     
     public function menuLoader(): void{
