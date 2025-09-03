@@ -32,6 +32,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/nawasara.php', 'nawasara');
         // Register Spatie Permission
         $this->app->register(\Spatie\Permission\PermissionServiceProvider::class);
+        $this->app->register(\Livewire\Volt\VoltServiceProvider::class);
+
     }
 
     protected function publishSpatiePermission(): void
