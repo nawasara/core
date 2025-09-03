@@ -3,7 +3,9 @@
 namespace Nawasara\Core;
 
 use Livewire\Livewire;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Artisan;
@@ -23,7 +25,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerBlade();
 
         $this->registerLivewire();
-        
+
         $this->menuLoader();
     }
 
@@ -59,14 +61,14 @@ class CoreServiceProvider extends ServiceProvider
         ], 'nawasara-core:config');
 
         // Publish views
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views/vendor/nawasara-core'),
-        ], 'nawasara-core:views');
+        // $this->publishes([
+        //     __DIR__.'/../resources/views' => resource_path('views/vendor/nawasara-core'),
+        // ], 'nawasara-core:views');
 
         // Publish assets ke public Laravel root
-        $this->publishes([
-            __DIR__.'/../public' => public_path('vendor/nawasara-core'),
-        ], 'nawasara-core:public');
+        // $this->publishes([
+        //     __DIR__.'/../public' => public_path('vendor/nawasara-core'),
+        // ], 'nawasara-core:public');
 
         $this->publishes([
             __DIR__.'/../database/migrations/update_permission_and_users_table.php.stub' => $this->getMigrationFileName('update_permission_and_users_table.php'),
@@ -90,9 +92,34 @@ class CoreServiceProvider extends ServiceProvider
 
     public function registerLivewire(): void
     {
-        Livewire::component('nawasara-core.utils.loading', \Nawasara\Core\Livewire\Utils\Loading::class);
-        Livewire::component('nawasara-core.examples.demo-modal', \Nawasara\Core\Livewire\Examples\DemoModal::class);
-        Livewire::component('nawasara-core.components.universal-modal', \Nawasara\Core\Livewire\Components\UniversalModal::class);
+        $namespace = 'Nawasara\\Core\\Livewire';
+        $basePath = __DIR__ . '/Livewire';
+
+        if (! is_dir($basePath)) {
+            return;
+        }
+
+        $finder = new Finder();
+        $finder->files()->in($basePath)->name('*.php');
+
+        foreach ($finder as $file) {
+            $relativePath = str_replace('/', '\\', $file->getRelativePathname());
+            $class = $namespace . '\\' . Str::beforeLast($relativePath, '.php');
+
+            if (class_exists($class)) {
+                // bikin nama komponen otomatis, misal: "nawasara-core.utils.loading"
+                $alias = 'nawasara-core.' .
+                    Str::of($relativePath)
+                        ->replace('.php', '')
+                        ->replace('\\', '.')
+                        ->replace('/', '.')
+                        ->explode('.')
+                        ->map(fn ($segment) => Str::kebab($segment))
+                        ->join('.');
+
+                Livewire::component($alias, $class);
+            }
+        }
     }
 
     private function registerBlade(): void
