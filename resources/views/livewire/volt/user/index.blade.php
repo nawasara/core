@@ -1,9 +1,28 @@
+<?php
+
+use Livewire\Volt\Component;
+use function Livewire\Volt\{layout, state};
+
+// Set layout di luar class
+layout('nawasara-core::components.layouts.app');
+
+state(['count' => 0]);
+
+function increment()
+{
+    $this->count++;
+}
+?>
+
 <div>
     <div class="sm:flex sm:items-center mb-5">
         <div class="sm:flex-auto">
-            <h1 class="text-base font-semibold leading-6 text-gray-900">Users</h1>
+            <h1 class="text-base font-semibold leading-6 text-gray-900">Users {{ $count }}</h1>
             {{-- <p class="mt-2 text-sm text-gray-700">Daftar program dan kegiatan yang telah diimport ke sistem.</p> --}}
         </div>
+        <button wire:click="increment" class="bg-blue-500 text-white px-4 py-2">
+            Increment: {{ $count }}
+        </button>
         {{-- @can('kegiatan.penanaman.pohon.create')
             <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
                 <a href="{{ route('planting-activity.form') }}" type="button"
@@ -14,6 +33,6 @@
     </div>
 
     {{-- @livewire('utils.filter', ['table' => 'pages.planting-activity.section.table', 'useDate' => true, 'useArea' => true, 'useSearch' => true, 'useDownload' => true, 'useActivityType' => true, 'useBudgetSource' => true, 'useSeedSource' => true, 'useSeedType' => true, 'useDateToday' => true, 'useDateThisMonth' => true, 'useDateOtherMonth' => true, 'useDateOtherYear' => true, 'useDateRange' => true]) --}}
-    @livewire('nawasara-core::volt.user.partials.table')
+    {{-- @livewire('nawasara-core::user.partials.table') --}}
 
 </div>

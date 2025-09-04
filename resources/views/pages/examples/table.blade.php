@@ -1,4 +1,4 @@
-@extends('nawasara-core::layouts.app')
+@extends('nawasara-core::components.layouts.app')
 
 @section('title', 'User Management')
 

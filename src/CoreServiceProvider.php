@@ -27,7 +27,7 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->registerLivewire();
 
-        // $this->registerVolt();
+        $this->registerVolt();
 
         $this->menuLoader();
     }
@@ -127,31 +127,7 @@ class CoreServiceProvider extends ServiceProvider
 
     protected function registerVolt(): void
     {
-        Volt::mount([
-            __DIR__.'/../resources/views/volt' => 'nawasara-core',
-        ]);
-
-        // Debug: Check registered components
-        $this->app->booted(function () {
-            $volt = app('livewire.volt');
-            $components = $volt->getComponents();
-            
-            logger('Registered Volt Components:', $components);
-            
-            // Check if our component is registered
-            if (isset($components['nawasara-core::user.index'])) {
-                logger('Component found: nawasara-core::user.index');
-            } else {
-                logger('Component NOT found: nawasara-core::user.index');
-            }
-        });
-        // Method 2: Atau jika ingin explicit
-        // Volt::mount([
-        //     __DIR__.'/../resources/views/volt' => [
-        //         'namespace' => 'Nawasara\\Core\\Livewire\\Volt',
-        //         'prefix' => 'nawasara-core',
-        //     ],
-        // ]);
+        Volt::mount(__DIR__.'/../resources/views/livewire/volt', 'nawasara-core');
     }
 
     private function registerBlade(): void
