@@ -12,9 +12,8 @@
         <!-- Logo w/ Collapse Button -->
         <div class="flex items-center justify-between">
             <a class="flex-none font-semibold text-xl text-black dark:text-white focus:outline-none focus:opacity-80"
-                href="/" aria-label="Brand">
-                <img src="{{ asset('vendor/nawasara-core/assets/images/logo.png') }}" class="h-10 mr-3"
-                    alt="Flowbite Logo" />
+                href="/" aria-label="Nawasara">
+                <img src="{{ asset('vendor/nawasara-core/assets/images/logo.png') }}" class="h-10 mr-3" alt="Logo" />
             </a>
 
             <!-- Collapse Button -->

@@ -21,13 +21,13 @@
                                         'url' => '',
                                         'color' => 'text-gray-800',
                                         'navigate' => false,
-                                        'permission' => null,
+                                        'permission' => 'user.update',
                                     ],
                                     [
                                         'type' => 'delete',
                                         'label' => 'Delete',
                                         'color' => 'text-red-600',
-                                        'permission' => null,
+                                        'permission' => 'user.delete',
                                     ],
                                 ];
                             @endphp
@@ -50,7 +50,7 @@
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                        {{ '-' }}
+                        {!! $item->renderRoles() !!}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
                         {{ date_format_human($item->created_at) }}
@@ -69,16 +69,3 @@
     {{-- <x-utils.modal-delete desc="Anda yakin ingin menghapus data ini ? data yang sudah dihapus tidak dapat dikembalikan!"
         id="modalConfirmDelete" wire:ignore /> --}}
 </div>
-
-
-@script
-    <script>
-        Livewire.hook('morph.updated', ({
-            el,
-            component
-        }) => {
-            initFlowbite();
-            window.HSStaticMethods.autoInit(['dropdown']);
-        })
-    </script>
-@endscript

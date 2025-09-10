@@ -9,8 +9,8 @@ class PermissionService
     public static function create($group = null, $permissions = [])
     {
         foreach ($permissions as $item) {
-            $groupMask = str_replace(' ', '.', $group);
-            $item = str_replace(' ', '.', $item);
+            $groupMask = str_replace(' ', '-', $group);
+            $item = str_replace(' ', '-', $item);
             $name = strtolower($groupMask.'.'.$item);
             $payload = [
                 'name' => $name,

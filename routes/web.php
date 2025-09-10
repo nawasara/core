@@ -7,9 +7,9 @@ use Nawasara\Core\Http\Controllers\RoleController;
 use Nawasara\Core\Http\Controllers\UserController;
 
 // Tambahkan setelah create()
-Volt::mount([
-    __DIR__.'/../resources/views/livewire/volt'
-]);
+// Volt::mount([
+//     __DIR__.'/../resources/views/livewire/volt'
+// ]);
 
 Route::middleware(['web'])->group(function () {
 
@@ -35,7 +35,8 @@ Route::middleware(['web'])->group(function () {
         // Volt::route('/users', 'user-index')->name('nawasara-core.users.index');
         // Kalau masih error, pake route biasa
         
-        Volt::route('/users', 'user.index')->name('nawasara-core.users.index');
+        // Volt::route('/users', 'user.index')->name('nawasara-core.users.index');
+        Route::get('/users', Index::class)->name('nawasara-core.roles.store');
         Route::post('/roles', [RoleController::class, 'store'])->name('nawasara-core.roles.store');
 
     });

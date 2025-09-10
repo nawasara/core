@@ -2,7 +2,7 @@
 
 namespace Nawasara\Core\Traits;
 
-trait HasSearch
+trait HasFilter
 {
     public function scopeFilter($query, $term = [])
     {
@@ -18,5 +18,12 @@ trait HasSearch
     public function scopeOrderByDefault($q)
     {
         $q->orderBy('name');
+    }
+
+    public function scopeRenderRoles($query)
+    {
+        return $this->roles->pluck('name')->map(function ($role) {
+            return "<span class='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 mr-1'>{$role}</span>";
+        })->implode(' ');
     }
 }

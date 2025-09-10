@@ -21,15 +21,16 @@ class PermissionSeeder extends Seeder
 
     public function permission()
     {
-        $group = 'Menu';
-        $permissions = PermissionService::create($group, ['user', 'kegiatan penanaman pohon', 'laporan', 'manajemen user']);
-        $group = 'User';
+        $prefix = 'nawasara-core.';
+        $group = $prefix.'menu';
+        $permissions = PermissionService::create($group, ['user', 'component']);
+        $group = $prefix.'user';
         $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete']);
-        $group = 'Role';
+        $group = $prefix.'role';
         $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete', 'permission']);
-        $group = 'Permission';
+        $group = $prefix.'permission';
         $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete']);
-        $group = 'Component';
+        $group = $prefix.'component';
         $permissions = PermissionService::create($group, ['view']);
     }
 
