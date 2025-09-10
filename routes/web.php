@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use Nawasara\Core\Livewire\Pages\User\Index;
 use Nawasara\Core\Http\Controllers\RoleController;
 use Nawasara\Core\Http\Controllers\UserController;
+use Nawasara\Core\Http\Controllers\Auth\SsoController;
+use Nawasara\Core\Http\Controllers\Auth\LoginController;
+use Nawasara\Core\Http\Controllers\Auth\LogoutController;
 
 // Tambahkan setelah create()
 // Volt::mount([
@@ -56,6 +59,11 @@ Route::middleware(['web'])->group(function () {
             return redirect()->route(config('nawasara-core.home_route'));
         });
     }
+    
+    // SSO
+    Route::get('/sso/redirect', [SsoController::class, 'redirect'])->name('sso.redirect');
+    Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
+
 
     Route::get('/dashboard', function () {
         return view('nawasara-core::dashboard');

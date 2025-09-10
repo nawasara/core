@@ -11,6 +11,7 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\ServiceProvider;
+use Nawasara\Core\FortifyServiceProvider;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -30,6 +31,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerVolt();
 
         $this->menuLoader();
+
     }
 
     public function register(): void
@@ -38,7 +40,11 @@ class CoreServiceProvider extends ServiceProvider
         // Register Spatie Permission
         $this->app->register(\Spatie\Permission\PermissionServiceProvider::class);
         $this->app->register(\Livewire\Volt\VoltServiceProvider::class);
-
+        $this->app->register(\Laravel\Fortify\FortifyServiceProvider::class);
+        // $this->app->register(\Nawasara\Core\Providers\FortifyServiceProvider::class);
+        if (config('nawasara.use_fortify', true) && class_exists(\Laravel\Fortify\Fortify::class)) {
+            $this->app->register(\Nawasara\Core\FortifyServiceProvider::class);
+        }
     }
 
     protected function publishSpatiePermission(): void
@@ -69,9 +75,9 @@ class CoreServiceProvider extends ServiceProvider
         // ], 'nawasara-core:views');
 
         // Publish assets ke public Laravel root
-        // $this->publishes([
-        //     __DIR__.'/../public' => public_path('vendor/nawasara-core'),
-        // ], 'nawasara-core:public');
+        $this->publishes([
+            __DIR__.'/../public' => public_path('vendor/nawasara-core'),
+        ], 'nawasara-core:public');
 
         $this->publishes([
             __DIR__.'/../database/migrations/update_permission_and_users_table.php.stub' => $this->getMigrationFileName('update_permission_and_users_table.php'),
