@@ -65,7 +65,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
 
 
-    Route::get('/dashboard', function () {
+    Route::get('/home', function () {
         return view('nawasara-core::dashboard');
     })->name('nawasara-core.dashboard');
 });

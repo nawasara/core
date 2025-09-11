@@ -5,7 +5,7 @@ return [
     [
         'label' => 'Dashboard',
         'icon' => 'heroicon-o-home',
-        'url' => $prefix.'/dashboard',
+        'url' => 'home',
         'permission' => $prefix.'.view-dashboard',
     ],
     [
