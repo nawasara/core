@@ -1,9 +1,9 @@
-@extends('nawasara-core::components.layouts.app')
+<x-nawasara-core::layouts.app>
+    <x-slot:title>
+        Table Component - Nawasara Core
+    </x-slot:title>
 
-@section('title', 'User Management')
-
-@section('content')
-    <div class="py-8">
+    <div class="py-6">
         <div class="sm:flex sm:items-center mb-5">
             <div class="sm:flex-auto">
                 <h1 class="text-base font-semibold leading-6 text-gray-900">Kegiatan</h1>
@@ -81,4 +81,5 @@
 
         {{-- </div> --}}
     </div>
-@endsection
+
+</x-nawasara-core::layouts.app>

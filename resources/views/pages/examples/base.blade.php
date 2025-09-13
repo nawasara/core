@@ -1,6 +1,7 @@
-@extends('nawasara-core::layouts.app')
-
-@section('content')
+<x-nawasara-core::layouts.app>
+    <x-slot:title>
+        Blade Component - Nawasara Core
+    </x-slot:title>
     <div class="p-6" x-data>
         <div class="bg-white shadow rounded-xl p-6">
             <h1 class="text-2xl font-bold text-gray-800">Blade component</h1>
@@ -14,4 +15,5 @@
         @include('nawasara-core::pages.blade-component.toaster')
         @include('nawasara-core::pages.blade-component.modal')
     </div>
-@endsection
+
+</x-nawasara-core::layouts.app>

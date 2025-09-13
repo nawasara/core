@@ -4,7 +4,7 @@
         <div class="flex flex-col">
             <div class="grid grid-cols-3 gap-4">
                 <div
-                    class="col-span-2 p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+                    class="col-span-2 p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-neutral-800">
                     {{ $title }}
                 </div>
                 <div wire:loading class="content-center justify-end">

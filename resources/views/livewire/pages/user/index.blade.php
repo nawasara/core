@@ -1,7 +1,7 @@
 <div>
     <div class="sm:flex sm:items-center mb-5">
         <div class="sm:flex-auto">
-            <h1 class="text-base font-semibold leading-6 text-gray-900">Users</h1>
+            <h1 class="text-base font-semibold leading-6 text-gray-900 dark:text-white">Users</h1>
             {{-- <p class="mt-2 text-sm text-gray-700">Daftar program dan kegiatan yang telah diimport ke sistem.</p> --}}
         </div>
         @can('nawasara-core.user.create')
