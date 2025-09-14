@@ -33,6 +33,12 @@ Route::middleware(['web'])->group(function () {
             ]);
         });
 
+        Route::get('/components/form', function () {
+            return view('nawasara-core::pages.examples.form', [
+                'title' => 'Form Component Example'
+            ]);
+        });
+
         
         // Volt::route('/users', 'nawasara-core::user.index')->name('nawasara-core.users.index');
         // Volt::route('/users', 'user-index')->name('nawasara-core.users.index');

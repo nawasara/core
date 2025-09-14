@@ -22,7 +22,8 @@
     "spatie/laravel-permission": "^6.0",
     "livewire/livewire": "^3.0",
     "livewire/volt": "^1.0",
-    "laravel/fortify": "^1.0"
+    "laravel/fortify": "^1.0",
+    "mallardduck/blade-lucide-icons": "^1.0"
   },
   "require-dev": {
     "pestphp/pest": "^2.0"

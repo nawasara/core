@@ -46,6 +46,13 @@ return [
                 'url' => $prefix.'/components/base',
                 'permission' => $prefix.'.view-components',
             ],
+            
+            [
+                'label' => 'Form Komponen',
+                'icon' => 'heroicon-o-puzzle-piece',
+                'url' => $prefix.'/components/form',
+                'permission' => $prefix.'.view-components',
+            ],
         ],
     ],
     // Tambahkan menu lain sesuai kebutuhan
