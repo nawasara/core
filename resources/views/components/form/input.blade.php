@@ -13,37 +13,38 @@
         <input :type="hidePassword ? 'password' : 'text'" {{ $disabled ? 'disabled' : '' }}
             {{ $autofocus ? 'autofocus' : '' }} name="password" id="password" autocomplete="off" {!! $attributes->merge([
                 'class' =>
-                    'py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-emerald-300 focus:ring-emerald-300 dark:bg-slate-900 dark:border-gray-700 text-gray-800 dark:text-neutral-200',
+                    'py-3 px-4 block w-full border border-gray-300 rounded-md text-sm transition-all duration-200 focus:border-transparent focus:ring-4 focus:ring-emerald-500/80 focus:!border-transparent outline-none dark:bg-neutral-900 dark:border-gray-800 text-gray-900 dark:text-neutral-100',
             ]) !!}>
 
         <div class="absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-4"
             @click="hidePassword = !hidePassword">
-            <i data-lucide="eye" class="h-6 text-gray-700" :class="{ 'hidden': !hidePassword }"></i>
-            <i data-lucide="eye-off" class="hidden h-6 text-gray-700" :class="{ 'hidden': hidePassword }"></i>
+            <x-lucide-eye class="h-6 text-gray-700" x-bind:class="{ 'hidden': !hidePassword }"></x-lucide-eye>
+            <x-lucide-eye-off class="hidden h-6 text-gray-700"
+                x-bind:class="{ 'hidden': hidePassword }"></x-lucide-eye-off>
         </div>
     </div>
 @else
     <input {{ $disabled ? 'disabled' : '' }} {{ $autofocus ? 'autofocus' : '' }} {!! $attributes->merge([
         'type' => 'text',
         'class' =>
-            'py-3 px-4 block w-full border-gray-200 rounded-md text-sm focus:border-emerald-300 focus:ring-emerald-300 dark:bg-slate-900 dark:border-gray-700 text-gray-800 dark:text-neutral-200',
+            'py-3 px-4 block w-full border border-gray-300 rounded-md text-sm transition-all duration-200 focus:border-transparent focus:ring-4 focus:ring-emerald-500/80 focus:!border-transparent outline-none dark:bg-neutral-900 dark:border-gray-800 text-gray-900 dark:text-neutral-100',
     ]) !!}>
 @endif
 
 @if ($useGenPassword)
     <div class="mt-3 hs-accordion-group" wire:ignore>
-        <div class="space-y-3 hs-accordion" id="bale-generate-password-form">
+        <div class="space-y-3 hs-accordion" id="nawasara-generate-password-form">
 
             <div class="flex justify-end">
-                <button type="button" aria-expanded="true" aria-controls="bale-generate-password-button"
+                <button type="button" aria-expanded="true" aria-controls="nawasara-generate-password-button"
                     class="inline-flex items-center p-3 text-sm font-medium text-gray-700 transition bg-gray-100 border border-transparent rounded-lg hs-accordion-toggle hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-white/10 dark:text-neutral-400 dark:hover:bg-white/20 dark:hover:text-neutral-300 dark:focus:bg-white/20 dark:focus:text-neutral-300">
                     Generate password
                 </button>
             </div>
 
-            <div id="bale-generate-password-button"
+            <div id="nawasara-generate-password-button"
                 class="hs-accordion-content w-full hidden overflow-hidden transition-[height] duration-300"
-                role="region" aria-labelledby="bale-generate-password-form">
+                role="region" aria-labelledby="nawasara-generate-password-form">
 
                 <div class="w-full p-5 mx-auto text-gray-800 border rounded-lg" x-data="app()"
                     x-init="generatePassword()">
@@ -178,7 +179,7 @@
                     <div class="flex items-center justify-end gap-2 mt-3">
                         <button type="button"
                             class="inline-flex items-center p-3 text-sm font-medium text-gray-700 transition bg-gray-100 border border-transparent rounded-lg hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-white/10 dark:text-neutral-400 dark:hover:bg-white/20 dark:hover:text-neutral-300 dark:focus:bg-white/20 dark:focus:text-neutral-300"
-                            @click="HSAccordion.hide('#bale-generate-password-form')">
+                            @click="HSAccordion.hide('#nawasara-generate-password-form')">
                             {{ __('Cancel') }}
                         </button>
                         <button type="button"
@@ -186,9 +187,9 @@
                             @click="generatePassword()">
                             {{ __('Generate') }}
                         </button>
-                        <button type="button" id="bale-generate-password-used"
+                        <button type="button" id="nawasara-generate-password-used"
                             class="inline-flex items-center p-3 text-sm font-medium text-gray-700 transition bg-gray-100 border border-transparent rounded-lg hs-accordion-toggle hover:bg-gray-200 focus:outline-hidden focus:bg-gray-200 disabled:opacity-50 disabled:pointer-events-none dark:bg-white/10 dark:text-neutral-400 dark:hover:bg-white/20 dark:hover:text-neutral-300 dark:focus:bg-white/20 dark:focus:text-neutral-300"
-                            @click="$wire.$set(@js($attributes->whereStartsWith('wire:model')->first()), generatedPassword); HSAccordion.hide('#bale-generate-password-form')">
+                            @click="$wire.$set(@js($attributes->whereStartsWith('wire:model')->first()), generatedPassword); HSAccordion.hide('#nawasara-generate-password-form')">
                             {{ __('Use password') }}
                         </button>
                     </div>

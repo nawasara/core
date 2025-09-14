@@ -12,8 +12,7 @@
             <form class="space-y-6" method="POST" action="#">
                 @csrf
                 <div>
-                    <x-nawasara-core::form.label for="name" value="Name" />
-                    <x-nawasara-core::form.input id="name" name="name" label="" placeholder="Enter your name"
+                    <x-nawasara-core::form.input id="name" name="name" label="Name" placeholder="Enter your name"
                         required autofocus />
                 </div>
                 <div>
@@ -42,9 +41,18 @@
                         <option value="guest">Guest</option>
                     </x-nawasara-core::form.select>
                 </div>
+
+                <div>
+                    <x-nawasara-core::form.label for="dropdown" label="Role (Dropdown)" />
+                    <x-nawasara-core::form.select-dropdown name="dropdown" defaultValue="user">
+                        <button type="button" class="hs-dropdown-item w-full text-left" value="admin">Admin</button>
+                        <button type="button" class="hs-dropdown-item w-full text-left" value="user">User</button>
+                        <button type="button" class="hs-dropdown-item w-full text-left" value="guest">Guest</button>
+                    </x-nawasara-core::form.select-dropdown>
+                </div>
                 <div>
                     <x-nawasara-core::form.label for="bio" label="Bio" />
-                    <x-nawasara-core::form.textarea id="bio" name="bio"
+                    <x-nawasara-core::form.textarea id="bio" name="bio" label="Biodata"
                         placeholder="Tell us about yourself..." rows="3" />
                 </div>
                 <div class="flex items-center">

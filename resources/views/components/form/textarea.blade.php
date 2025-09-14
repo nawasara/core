@@ -7,15 +7,14 @@
 ])
 
 <div class="flex flex-col gap-1">
-    @if ($label)
-        <label for="{{ $name }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {{ $label }}
-        </label>
+    @if ($attributes->has('label'))
+        <x-nawasara-core::form.label :value="$attributes['label']" />
     @endif
 
     <textarea id="{{ $name }}" name="{{ $name }}" rows="{{ $rows }}" placeholder="{{ $placeholder }}"
         {{ $attributes->merge([
-            'class' => 'w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm',
+            'class' =>
+                'w-full py-3 px-4 rounded-md border border-gray-300 text-sm transition-all duration-200 focus:border-transparent focus:ring-4 focus:ring-emerald-500/80 focus:!border-transparent outline-none dark:bg-neutral-900 dark:border-gray-800 text-gray-900 dark:text-neutral-100',
         ]) }}>{{ old($name) }}</textarea>
 
     @if ($hint)

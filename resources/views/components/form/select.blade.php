@@ -7,10 +7,8 @@
 ])
 
 <div class="flex flex-col gap-1">
-    @if ($label)
-        <label for="{{ $name }}" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {{ $label }}
-        </label>
+    @if ($attributes->has('label'))
+        <x-nawasara-core::form.label :value="$attributes['label']" />
     @endif
 
     <select id="{{ $name }}" name="{{ $name }}"
