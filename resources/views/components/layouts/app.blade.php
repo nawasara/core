@@ -39,10 +39,12 @@
         <!-- End Page Content -->
 
         @include('nawasara-core::components.layouts.footer')
+        <livewire:nawasara-core.components.developer-tools />
     </div>
 
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
     <livewire:nawasara-core.components.universal-modal />
+
     @livewireScripts
 </body>
 
