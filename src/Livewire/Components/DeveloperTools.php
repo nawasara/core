@@ -12,6 +12,7 @@ class DeveloperTools extends Component
     public $output = '';
     public $commandRunning = false;
     public $currentCommand = '';
+    public $needsRefresh = false;
 
     public function toggleTools()
     {
@@ -37,6 +38,12 @@ class DeveloperTools extends Component
             // Get the command output
             $this->output .= $output->fetch();
             $this->output .= "\n\nCommand executed successfully!";
+            
+            // Set flag if command requires page refresh
+            if (in_array($command, ['optimize', 'route:clear', 'cache:clear', 'view:clear', 'config:clear'])) {
+                $this->needsRefresh = true;
+                $this->output .= "\n\n⚠️ Page refresh required!";
+            }
         } catch (\Exception $e) {
             $this->output .= "\n\nError: " . $e->getMessage();
         }
@@ -84,12 +91,19 @@ class DeveloperTools extends Component
         $this->runCommand('storage:link');
     }
 
-    public function resetOutput()
+    public function refreshPage()
     {
-        $this->output = null;
-        $this->currentCommand = null;
+        // Redirect to current page to force refresh
+        return redirect()->to(url()->current());
     }
 
+    public function resetOutput()
+    {
+        $this->output = '';
+        $this->currentCommand = '';
+        $this->needsRefresh = false;
+    }
+    
     public function render()
     {
         return view('nawasara-core::livewire.components.developer-tools');

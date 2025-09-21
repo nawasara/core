@@ -1,6 +1,6 @@
 <div>
     <!-- Floating Button -->
-    <button wire:click="toggleTools"
+    <button onclick="toggleDevTools()"
         class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center z-50 transition-all duration-300"
         aria-label="Developer Tools" style="box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -9,7 +9,6 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
-
     </button>
 
     <!-- Popup -->
@@ -18,7 +17,7 @@
             style="box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);">
             <div class="bg-blue-600 text-white px-4 py-2 font-semibold flex justify-between items-center">
                 <span>Developer Tools</span>
-                <button wire:click="toggleTools" class="text-white hover:text-gray-200">
+                <button onclick="closeDevTools()" class="text-white hover:text-gray-200">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -28,6 +27,18 @@
             </div>
 
             <div class="p-4 max-h-96 overflow-y-auto">
+                <!-- Refresh Warning -->
+                @if ($needsRefresh)
+                    <div class="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-md text-sm">
+                        <p class="font-medium">⚠️ Page Refresh Required</p>
+                        <p class="mt-1">Some commands require a page refresh to take effect.</p>
+                        <button onclick="window.location.reload()"
+                            class="mt-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs py-1 px-3 rounded transition-colors">
+                            Refresh Now
+                        </button>
+                    </div>
+                @endif
+
                 <!-- Command Buttons -->
                 <div class="grid grid-cols-2 gap-2 mb-4">
                     <button wire:click="runMigrateFresh" wire:loading.attr="disabled"
@@ -84,7 +95,8 @@
                     <div class="mt-4 border-t pt-3">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-sm font-medium">Output:</span>
-                            <button wire:click="resetOutput" class="text-xs text-gray-500 hover:text-gray-700">
+                            <button wire:click="resetOutput" class="text-xs text-gray-500 hover:text-gray-700"
+                                {{ $needsRefresh ? 'disabled' : '' }}>
                                 Clear
                             </button>
                         </div>
@@ -100,6 +112,30 @@
 
     <!-- Overlay -->
     @if ($isOpen)
-        <div class="fixed inset-0 z-40" wire:click="toggleTools"></div>
+        <div class="fixed inset-0 z-40" onclick="closeDevTools()"></div>
     @endif
+
+    <script>
+        function toggleDevTools() {
+            @this.toggleTools();
+        }
+
+        function closeDevTools() {
+            @this.set('isOpen', false);
+            @this.resetOutput();
+        }
+
+        // Handle Livewire connection errors
+        document.addEventListener('livewire:load', function() {
+            Livewire.onError(function(status, response) {
+                if (status === 500 || status === 419) {
+                    console.error('Livewire connection error. Page will be refreshed.');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1000);
+                    return false;
+                }
+            });
+        });
+    </script>
 </div>
