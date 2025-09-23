@@ -29,7 +29,7 @@ return [
         ],
     ],
     [
-        'label' => 'Komponen',
+        'label' => 'Components',
         'icon' => 'heroicon-o-cube',
         'url' => $prefix.'/components',
         'permission' => $prefix.'.view-components',

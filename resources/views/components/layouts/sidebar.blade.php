@@ -26,8 +26,8 @@
                                 <li>
                                     <a href="{{ url($submenu['url']) }}" @class([
                                         'flex items-center gap-2 px-4 py-1.5 text-sm rounded-none border-l-3 transition',
-                                        'border-transparent text-gray-700 dark:text-gray-200 hover:border-blue-600 hover:text-blue-700 dark:hover:text-blue-200' => !$isActive,
-                                        'border-blue-600 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold' => $isActive,
+                                        'border-transparent text-gray-700 dark:text-gray-300 hover:border-blue-600 hover:text-blue-700 dark:hover:text-gray-100' => !$isActive,
+                                        'border-blue-600 text-blue-700 dark:text-blue-400 font-semibold' => $isActive,
                                     ])>
                                         @if (!empty($submenu['icon']))
                                             <i class="{{ $submenu['icon'] }} text-base"></i>
@@ -43,8 +43,8 @@
                     <li>
                         <a href="{{ url($menu['url']) }}" @class([
                             'flex items-center gap-2 px-4 py-1.5 text-sm font-medium rounded-none border-l-3 transition',
-                            'border-transparent text-gray-700 dark:text-gray-200 hover:border-blue-600 hover:text-blue-700 dark:hover:text-blue-200' => !$isActive,
-                            'border-blue-600 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-semibold' => $isActive,
+                            'border-transparent text-gray-700 dark:text-gray-300 hover:border-blue-600 hover:text-blue-700 dark:hover:text-gray-100' => !$isActive,
+                            'border-blue-600 text-blue-700 dark:text-blue-400 font-semibold' => $isActive,
                         ])>
                             @if (!empty($menu['icon']))
                                 <i class="{{ $menu['icon'] }} text-base"></i>
