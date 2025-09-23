@@ -13,7 +13,7 @@
         </x-slot>
 
         <x-slot name="title">
-            <x-nawasara-core::page.page-title>Tambah User</x-nawasara-core::page.page-title>
+            <x-nawasara-core::page.title>Tambah User</x-nawasara-core::page.title>
         </x-slot>
 
         <x-slot name="actions">

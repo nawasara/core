@@ -6,7 +6,7 @@
     <x-nawasara-core::page.container>
 
         <x-slot name="title">
-            <x-nawasara-core::page.page-title>Form - Nawasara Core</x-nawasara-core::page.page-title>
+            <x-nawasara-core::page.title>Form - Nawasara Core</x-nawasara-core::page.title>
         </x-slot>
         <x-nawasara-core::page.card>
             <form class="space-y-6" method="POST" action="#">

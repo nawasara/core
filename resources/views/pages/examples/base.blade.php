@@ -6,7 +6,7 @@
     <x-nawasara-core::page.container>
 
         <x-slot name="title">
-            <x-nawasara-core::page.page-title>Blade Component - Nawasara Core</x-nawasara-core::page.page-title>
+            <x-nawasara-core::page.title>Blade Component - Nawasara Core</x-nawasara-core::page.title>
         </x-slot>
         <x-nawasara-core::page.card>
             @include('nawasara-core::pages.blade-component.button')
