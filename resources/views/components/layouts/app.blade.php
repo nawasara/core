@@ -30,16 +30,17 @@
 <body>
 
     <div class="min-h-screen bg-gray-100 dark:bg-gray-950">
-        @include('nawasara-core::components.layouts.navbar')
-
-        <!-- Page Content -->
-        <main class="container max-w-screen-xl p-4 mx-auto pt-20">
-            {{ $slot }}
-        </main>
-        <!-- End Page Content -->
-
-        @include('nawasara-core::components.layouts.footer')
-        <livewire:nawasara-core.components.developer-tools />
+        @include('nawasara-core::components.layouts.sidebar')
+        <div class="ml-0 md:ml-64 flex flex-col min-h-screen">
+            <div class="sticky top-0 z-30" style="margin-left:0;">
+                @include('nawasara-core::components.layouts.navbar')
+            </div>
+            <main class="flex-1 p-6 md:p-8 lg:p-10 xl:p-12 pt-24">
+                {{ $slot }}
+            </main>
+            @include('nawasara-core::components.layouts.footer')
+            <livewire:nawasara-core.components.developer-tools />
+        </div>
     </div>
 
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
