@@ -38,7 +38,7 @@
 
 <body>
 
-    <div class="min-h-screen bg-gray-100">
+    <div class="min-h-screen bg-gray-100 dark:bg-neutral-700">
         {{ $slot }}
     </div>
 

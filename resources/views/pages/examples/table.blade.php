@@ -3,9 +3,9 @@
         Table Component - Nawasara Core
     </x-slot:title>
 
-    <x-nawasara-core::layouts.container>
+    <x-nawasara-core::page.container>
         <x-slot name="breadcrumb">
-            <x-nawasara-core::layouts.breadcrumb :items="[
+            <x-nawasara-core::page.breadcrumb :items="[
                 ['label' => 'Dashboard', 'url' => '/'],
                 ['label' => 'Users', 'url' => '/'],
                 ['label' => 'Create'],
@@ -13,18 +13,18 @@
         </x-slot>
 
         <x-slot name="title">
-            <x-nawasara-core::layouts.page-title>Tambah User</x-nawasara-core::layouts.page-title>
+            <x-nawasara-core::page.page-title>Tambah User</x-nawasara-core::page.page-title>
         </x-slot>
 
         <x-slot name="actions">
-            <x-nawasara-core::layouts.actions>
+            <x-nawasara-core::page.actions>
                 <a href="{{ '/' }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
                     Kembali
                 </a>
-            </x-nawasara-core::layouts.actions>
+            </x-nawasara-core::page.actions>
         </x-slot>
 
-        {{-- <x-nawasara-core::layouts.card> --}}
+        {{-- <x-nawasara-core::page.card> --}}
         <x-nawasara-core::table :headers="['Aksi', 'Tanggal', 'Jenis Kegiatan']" title="Data Kegiatan Gerakan Penanaman Pohon">
             <!-- Table Content -->
             <x-slot:table>
@@ -86,7 +86,7 @@
                 {{-- {{ $this->items->links() }} --}}
             </x-slot:footer>
         </x-nawasara-core::table>
-        {{-- </x-nawasara-core::layouts.card> --}}
-    </x-nawasara-core::layouts.container>
+        {{-- </x-nawasara-core::page.card> --}}
+    </x-nawasara-core::page.container>
 
 </x-nawasara-core::layouts.app>

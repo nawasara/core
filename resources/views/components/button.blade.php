@@ -82,7 +82,7 @@
             'link' => 'text-rose-600 hover:underline dark:text-rose-400 p-0 h-auto align-baseline',
         ],
         'neutral' => [
-            'solid' => 'bg-gray-600 hover:bg-gray-700 text-white dark:bg-gray-500 dark:hover:bg-gray-600',
+            'solid' => 'bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-500 dark:hover:bg-gray-600',
             'outline' =>
                 'border border-gray-600 text-gray-700 hover:bg-gray-50 dark:border-gray-400 dark:text-gray-300 dark:hover:bg-gray-950',
             'ghost' => 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-950',

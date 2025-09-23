@@ -3,12 +3,12 @@
         Form Component - Nawasara Core
     </x-slot:title>
 
-    <x-nawasara-core::layouts.container>
+    <x-nawasara-core::page.container>
 
         <x-slot name="title">
-            <x-nawasara-core::layouts.page-title>Form - Nawasara Core</x-nawasara-core::layouts.page-title>
+            <x-nawasara-core::page.page-title>Form - Nawasara Core</x-nawasara-core::page.page-title>
         </x-slot>
-        <x-nawasara-core::layouts.card>
+        <x-nawasara-core::page.card>
             <form class="space-y-6" method="POST" action="#">
                 @csrf
                 <div>
@@ -64,7 +64,7 @@
                         class="px-4 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Submit</button>
                 </div>
             </form>
-        </x-nawasara-core::layouts.card>
-    </x-nawasara-core::layouts.container>
+        </x-nawasara-core::page.card>
+    </x-nawasara-core::page.container>
 
 </x-nawasara-core::layouts.app>
