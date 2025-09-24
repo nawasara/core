@@ -6,7 +6,7 @@ use Livewire\Component;
 
 class DemoModal extends Component
 {
-    public $message = 'Ini konten dari Livewire di modal!';
+    public $message = 'livewire:nawasara-core.examples.demo-modal';
 
     public function render()
     {

@@ -19,7 +19,7 @@
 
     {{-- modal slot --}}
     <button class="px-4 py-2 bg-blue-600 text-white rounded-md" @click="$dispatch('open-modal', {id: 'info-user'})">
-        Modal 2
+        Modal Static
     </button>
     <x-nawasara-core::modal id="info-user" title="Detail User">
         <p>Nama: John Doe</p>
@@ -33,7 +33,7 @@
         Modal Livewire
     </button>
     <x-nawasara-core::modal id="modal-livewire" title="Detail User">
-        @livewire('nawasara-core.examples.demo-modal');
+        @livewire('nawasara-core.examples.demo-modal')
     </x-nawasara-core::modal>
 
     <button class="px-4 py-2 bg-blue-600 text-white rounded"
