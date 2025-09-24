@@ -1,16 +1,36 @@
-<div>
+@props([
+    'title' => '',
+    'headers' => [],
+    'table' => '',
+    'footer' => '',
+    'useSearch' => false,
+])
+
+<div x-data="{
+    searchValue: '',
+    search(value) {
+        $wire.dispatch('search', { search: value });
+        {{-- window.dispatchEvent(new CustomEvent('search', { detail: value })); --}}
+    }
+}" x-init="$watch('searchValue', value => search(value))">
     {{-- Knowing others is intelligence; knowing yourself is true wisdom. --}}
     <div class="border border-gray-100 rounded-lg shadow-sm p-6 bg-white dark:bg-neutral-800 dark:border-neutral-700">
         <div class="flex flex-col">
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid grid-cols-3 gap-4 items-center">
                 <div
-                    class="col-span-2 p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-neutral-800">
+                    class="col-span-2 p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
                     {{ $title }}
                 </div>
-                <div wire:loading class="content-center justify-end">
-                    <div class="-mt-6">
-                        @livewire('nawasara-core.utils.loading', key(\Illuminate\Support\Str::random(10)))
-                    </div>
+                <div class="flex flex-col items-end justify-center">
+                    @if ($useSearch)
+                        <div class="flex flex-row items-center gap-2 mb-2">
+                            <x-nawasara-core::form.input id="search-table" x-model="searchValue" name="name"
+                                label="" placeholder="Search..." required autofocus />
+                            <div wire:loading class="flex items-center justify-center">
+                                @livewire('nawasara-core.utils.loading', key(\Illuminate\Support\Str::random(10)))
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
             <div class="-m-1.5 overflow-x-auto mb-5">

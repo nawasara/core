@@ -25,7 +25,7 @@
         </x-slot>
 
         {{-- <x-nawasara-core::page.card> --}}
-        <x-nawasara-core::table :headers="['Aksi', 'Tanggal', 'Jenis Kegiatan']" title="Data Kegiatan Gerakan Penanaman Pohon">
+        <x-nawasara-core::table :headers="['Aksi', 'Tanggal', 'Jenis Kegiatan']" title="Data Kegiatan Gerakan Penanaman Pohon" useSearch="true">
             <!-- Table Content -->
             <x-slot:table>
                 <tr>

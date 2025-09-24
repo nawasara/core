@@ -2,18 +2,20 @@
     <h3>Modal</h3>
 
     {{-- modal footer --}}
-    <button class="px-4 py-2 bg-blue-600 text-white rounded-md" @click="$dispatch('open-modal', {id: 'delete-user'})">
+    <x-nawasara-core::button class="px-4 py-2 bg-blue-600 text-white rounded-md"
+        @click="$dispatch('open-modal', {id: 'delete-user'})">
         Modal confirm
-    </button>
-    <x-nawasara-core::modal id="delete-user" title="Hapus User?">
-        <h4>Haloo</h4>
-        <x-slot:footer>
-            <button class="px-4 py-2 bg-gray-200 rounded-md"
-                @click="$dispatch('close-modal', {id: 'delete-user'})">Batal</button>
+    </x-nawasara-core::button>
 
-            <button class="px-4 py-2 bg-red-600 text-white rounded-md" wire:click="delete">Hapus</button>
-        </x-slot:footer>
+    <x-nawasara-core::modal id="delete-user" title="Hapus User?">
         Apakah kamu yakin ingin menghapus user ini?
+        <x-slot:footer>
+            <x-nawasara-core::button class="px-4 py-2 bg-gray-200 rounded-md"
+                @click="$dispatch('close-modal', {id: 'delete-user'})">Batal</x-nawasara-core::button>
+
+            <x-nawasara-core::button class="px-4 py-2 bg-red-600 text-white rounded-md"
+                wire:click="delete">Hapus</x-nawasara-core::button>
+        </x-slot:footer>
     </x-nawasara-core::modal>
 
 
