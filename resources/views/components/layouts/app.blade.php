@@ -27,24 +27,23 @@
     @livewireStyles
 </head>
 
-<body>
-
-    <div class="min-h-screen bg-gray-100 dark:bg-gray-950 flex">
-        <div class="flex w-full xl:max-w-screen-xl xl:mx-auto">
+<body x-data>
+    <div class="h-screen bg-white dark:bg-gray-950 flex flex-col w-full">
+        <div class="sticky top-0 left-0 z-30 w-full">
+            @include('nawasara-core::components.layouts.navbar')
+        </div>
+        <div class="flex w-full xl:max-w-screen-xl xl:mx-auto h-screen flex-1">
             @include('nawasara-core::components.layouts.sidebar')
-            <div class="flex flex-col min-h-screen w-full">
-                <div class="sticky top-0 z-30 w-full">
-                    @include('nawasara-core::components.layouts.navbar')
-                </div>
-                <main class="flex-1 p-4 pt-24 w-full">
+            <div class="flex flex-col w-full h-scree">
+                <main class="flex-1 p-4 w-full  flex flex-col">
                     {{ $slot }}
+                    @include('nawasara-core::components.layouts.footer')
                 </main>
-                @include('nawasara-core::components.layouts.footer')
-                <livewire:nawasara-developer-tools.components.developer-tools />
             </div>
         </div>
     </div>
 
+    <livewire:nawasara-developer-tools.components.developer-tools />
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
     <livewire:nawasara-core.components.universal-modal />
 

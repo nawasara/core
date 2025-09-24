@@ -1,16 +1,9 @@
 <aside id="sidebar"
     class="relative w-full md:w-96 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
 
-    <!-- Header -->
-    <div class="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
-        <a href="/" class="flex items-center gap-2">
-            <img src="{{ asset('vendor/nawasara-core/assets/images/logo.png') }}" class="h-8" alt="Logo" />
-            <span class="font-bold text-lg text-gray-900 dark:text-white">{{ config('app.name', 'Nawasara') }}</span>
-        </a>
-    </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto py-6 px-2">
+    <nav class="flex-1 py-6 px-2 overflow-y-auto">
         @php $currentUrl = url()->current(); @endphp
         <ul class="space-y-4 px-3">
             @foreach (app('nawasara.menu') as $menu)

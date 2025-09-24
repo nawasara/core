@@ -1,5 +1,6 @@
 <div>
     <h3>Basic Button</h3>
+
     {{-- Solid default (primary) --}}
     <x-nawasara-core::button>
         Simpan

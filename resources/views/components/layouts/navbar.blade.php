@@ -1,7 +1,13 @@
 <!-- ========== HEADER ========== -->
 <header
-    class="sticky top-0 z-30 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 h-16 flex items-center">
-    <div class="flex-1 flex items-center justify-between px-4 md:px-6">
+    class="sticky top-0 left-0 z-30 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 h-16 flex items-center">
+    <div class="flex-1 flex items-center justify-between px-4 md:px-6 w-full xl:max-w-screen-xl xl:mx-auto">
+
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 mr-6">
+            <img src="{{ asset('vendor/nawasara-core/assets/images/logo.png') }}" class="h-8" alt="Logo" />
+            <span class="font-bold text-lg text-gray-900 dark:text-white">{{ config('app.name', 'Nawasara') }}</span>
+        </a>
         <!-- Search -->
         <form class="w-full max-w-xs">
             <label for="navbar-search" class="sr-only">Search</label>

@@ -1,6 +1,6 @@
 <div>
     <div class="mt-6">
-        <h3>Basic Toaster</h3>
+        <h3 @click="Toast.success('Success message!')">Basic Toaster</h3>
         {{-- @include('nawasara-core::pages.blade-component.toaster') --}}
         <x-nawasara-core::button @click="Toast.success('Success message!')">
             Toaster Success
