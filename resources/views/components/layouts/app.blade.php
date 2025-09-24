@@ -39,7 +39,7 @@
                 {{ $slot }}
             </main>
             @include('nawasara-core::components.layouts.footer')
-            <livewire:nawasara-core.components.developer-tools />
+            <livewire:nawasara-developer-tools.components.developer-tools />
         </div>
     </div>
 
