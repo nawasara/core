@@ -1,5 +1,5 @@
 <aside id="sidebar"
-    class="fixed top-0 left-0 z-40 w-64 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+    class="relative w-full md:w-96 h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col">
 
     <!-- Header -->
     <div class="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">

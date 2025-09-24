@@ -1,7 +1,7 @@
 <!-- ========== HEADER ========== -->
 <header
     class="sticky top-0 z-30 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-200 dark:border-gray-800 h-16 flex items-center">
-    <div class="flex-1 flex items-center justify-between px-6">
+    <div class="flex-1 flex items-center justify-between px-4 md:px-6">
         <!-- Search -->
         <form class="w-full max-w-xs">
             <label for="navbar-search" class="sr-only">Search</label>
