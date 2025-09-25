@@ -16,21 +16,19 @@
     @livewireStyles
 </head>
 
-<body x-data>
-    <div class="h-screen bg-white dark:bg-gray-950 flex flex-col w-full">
-        <div class="sticky top-0 left-0 z-30 w-full">
-            @include('nawasara-core::components.layouts.navbar')
+<body x-data class="dark:bg-neutral-900">
+    <livewire:nawasara-core.shared-components.topbar />
+    <livewire:nawasara-core.shared-components.breadcrumb />
+    <livewire:nawasara-core.shared-components.sidebar />
+
+
+    <!-- Content -->
+    <div class="w-full lg:ps-64">
+        <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            {{ $slot }}
         </div>
-        <div class="flex w-full xl:max-w-screen-xl xl:mx-auto h-screen flex-1">
-            @include('nawasara-core::components.layouts.sidebar')
-            <div class="flex flex-col w-full h-screen">
-                <main class="flex-1 p-4 w-full  flex flex-col">
-                    {{ $slot }}
-                </main>
-            </div>
-        </div>
-        @include('nawasara-core::components.layouts.footer')
     </div>
+    <!-- End Content -->
 
     <livewire:nawasara-developer-tools.components.developer-tools />
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
