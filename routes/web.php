@@ -73,5 +73,5 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/home', function () {
         return view('nawasara-core::dashboard');
-    })->name('nawasara-core.dashboard');
+    })->name('nawasara-core.dashboard')->middleware('auth');
 });

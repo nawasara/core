@@ -4,8 +4,6 @@
 <head>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? config('app.name') }}</title>
@@ -14,16 +12,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Toaster --}}
-    @if (session('toast'))
-        <script>
-            window.Laravel = window.Laravel || {};
-            window.Laravel.toast = @json(session('toast'));
-        </script>
-    @endif
-    <script src="{{ asset('vendor/nawasara-toaster/js/toaster.js') }}"></script>
-    {{-- End Toaster --}}
-
+    <x-nawasara-toaster::script />
     @livewireStyles
 </head>
 
@@ -34,13 +23,13 @@
         </div>
         <div class="flex w-full xl:max-w-screen-xl xl:mx-auto h-screen flex-1">
             @include('nawasara-core::components.layouts.sidebar')
-            <div class="flex flex-col w-full h-scree">
+            <div class="flex flex-col w-full h-screen">
                 <main class="flex-1 p-4 w-full  flex flex-col">
                     {{ $slot }}
-                    @include('nawasara-core::components.layouts.footer')
                 </main>
             </div>
         </div>
+        @include('nawasara-core::components.layouts.footer')
     </div>
 
     <livewire:nawasara-developer-tools.components.developer-tools />
