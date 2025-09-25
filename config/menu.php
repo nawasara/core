@@ -3,10 +3,18 @@
 $prefix = 'nawasara-core';
 return [
     [
-        'label' => 'Dashboard',
-        'icon' => 'heroicon-o-home',
-        'url' => 'home',
-        'permission' => $prefix.'.view-dashboard',
+        'label' => 'Overview',
+        'icon' => 'heroicon-o-users',
+        'url' => $prefix.'/users',
+        'permission' => $prefix.'.view-users',
+        'submenu' => [
+            [
+                'label' => 'Dashboard',
+                'icon' => 'heroicon-o-home',
+                'url' => 'home',
+                'permission' => $prefix.'.view-dashboard',
+            ]
+        ],
     ],
     [
         'label' => 'User Management',
