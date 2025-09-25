@@ -41,7 +41,7 @@
                 <ul class="space-y-3">
                     <li>
                         <a class="group flex items-center gap-x-2 text-sm font-semibold text-gray-700 hover:text-blue-600 focus:outline-hidden focus:text-blue-600 dark:text-neutral-400 dark:hover:text-neutral-300 dark:focus:text-neutral-300 font-semibold text-blue-600! dark:text-blue-500!"
-                            href="../docs/index.html">
+                            href="#">
                             <div
                                 class="p-1.5 border border-gray-200 rounded-lg shadow-2xs group-hover:shadow-xs dark:border-neutral-800 dark:group-hover:border-neutral-700">
                                 <svg class="shrink-0 size-4 text-blue-600" xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +57,7 @@
                     </li>
                     <li>
                         <a class="group flex items-center gap-x-2 text-sm font-semibold text-gray-700 hover:text-blue-600 focus:outline-hidden focus:text-blue-600 dark:text-neutral-400 dark:hover:text-neutral-300 dark:focus:text-neutral-300 "
-                            href="../examples.html">
+                            href="#">
                             <div
                                 class="p-1.5 border border-gray-200 rounded-lg shadow-2xs group-hover:shadow-xs dark:border-neutral-800 dark:group-hover:border-neutral-700">
                                 <svg class="shrink-0 size-4 text-cyan-600" xmlns="http://www.w3.org/2000/svg"
