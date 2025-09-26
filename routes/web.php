@@ -50,10 +50,10 @@ Route::middleware(['web'])->group(function () {
 
     });
 
-    if (config('nawasara-core.auth_provider') === 'jetstream') {
-        // Gunakan login Jetstream bawaan
-        Auth::routes(); // atau biarkan Jetstream handle
-    }
+    // if (config('nawasara-core.auth_provider') === 'jetstream') {
+    //     // Gunakan login Jetstream bawaan
+    //     Auth::routes(); // atau biarkan Jetstream handle
+    // }
 
     if (config('nawasara-core.auth_provider') === 'keycloak') {
         Route::get('/login', [\Nawasara\Core\Http\Controllers\KeycloakLoginController::class, 'redirect'])->name('login');

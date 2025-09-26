@@ -44,13 +44,7 @@
                             href="#">
                             <div
                                 class="p-1.5 border border-gray-200 rounded-lg shadow-2xs group-hover:shadow-xs dark:border-neutral-800 dark:group-hover:border-neutral-700">
-                                <svg class="shrink-0 size-4 text-blue-600" xmlns="http://www.w3.org/2000/svg"
-                                    width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
-                                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                                </svg>
+                                <x-lucide-book-open class="shrink-0 size-4 text-blue-600" />
                             </div>
                             Documentation
                         </a>

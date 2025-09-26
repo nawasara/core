@@ -23,16 +23,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Toaster --}}
-    @if (session('toast'))
-        <script>
-            window.Laravel = window.Laravel || {};
-            window.Laravel.toast = @json(session('toast'));
-        </script>
-    @endif
-    <script src="{{ asset('vendor/nawasara-toaster/js/toaster.js') }}"></script>
-    {{-- End Toaster --}}
-
+    <x-nawasara-toaster::script />
     @livewireStyles
 </head>
 
@@ -43,7 +34,7 @@
     </div>
 
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-    <livewire:nawasara-core.components.universal-modal />
+    <livewire:nawasara-core.shared-components.universal-modal />
     @livewireScripts
 </body>
 
