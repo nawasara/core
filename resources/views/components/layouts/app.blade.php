@@ -18,9 +18,10 @@
 
 <body x-data class="dark:bg-neutral-900">
     <livewire:nawasara-core.shared-components.topbar />
-    <livewire:nawasara-core.shared-components.breadcrumb />
-    <livewire:nawasara-core.shared-components.sidebar />
+    {{-- <livewire:nawasara-core.shared-components.breadcrumb /> --}}
+    {{ $breadcrumb ?? '' }}
 
+    <livewire:nawasara-core.shared-components.sidebar />
 
     <!-- Content -->
     <div class="w-full lg:ps-64">

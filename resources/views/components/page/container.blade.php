@@ -1,11 +1,11 @@
 <div class="container mx-auto px-4 py-6">
     <div class="flex flex-col gap-4">
         {{-- Breadcrumb --}}
-        @isset($breadcrumb)
+        {{-- @isset($breadcrumb)
             <div>
                 {{ $breadcrumb }}
             </div>
-        @endisset
+        @endisset --}}
 
         {{-- Header Section (Title + Actions) --}}
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

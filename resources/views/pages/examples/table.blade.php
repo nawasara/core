@@ -3,15 +3,15 @@
         Table Component - Nawasara Core
     </x-slot:title>
 
-    <x-nawasara-core::page.container>
-        <x-slot name="breadcrumb">
-            <x-nawasara-core::page.breadcrumb :items="[
-                ['label' => 'Dashboard', 'url' => '/'],
-                ['label' => 'Users', 'url' => '/'],
-                ['label' => 'Create'],
-            ]" />
-        </x-slot>
+    <x-slot name="breadcrumb">
+        <livewire:nawasara-core.shared-components.breadcrumb :items="[
+            ['label' => 'Dashboard', 'url' => '/'],
+            ['label' => 'Component', 'url' => '/'],
+            ['label' => 'Table'],
+        ]" />
+    </x-slot>
 
+    <x-nawasara-core::page.container>
         <x-slot name="title">
             <x-nawasara-core::page.title>Tambah User</x-nawasara-core::page.title>
         </x-slot>

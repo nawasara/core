@@ -3,6 +3,9 @@
         Form Component - Nawasara Core
     </x-slot:title>
 
+    <x-slot name="breadcrumb">
+        <livewire:nawasara-core.shared-components.breadcrumb :items="[['label' => 'Dashboard', 'url' => '/'], ['label' => 'Users', 'url' => '/'], ['label' => 'Create']]" />
+    </x-slot>
     <x-nawasara-core::page.container>
 
         <x-slot name="title">
