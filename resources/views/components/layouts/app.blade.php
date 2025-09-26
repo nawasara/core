@@ -32,7 +32,7 @@
 
     <livewire:nawasara-developer-tools.components.developer-tools />
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-    <livewire:nawasara-core.components.universal-modal />
+    <livewire:nawasara-core.shared-components.universal-modal />
 
     @livewireScripts
 </body>

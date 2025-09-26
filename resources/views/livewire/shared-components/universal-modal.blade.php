@@ -29,9 +29,7 @@
         <div class="relative">
             @if ($component)
                 <div wire:loading.flex wire:target="load" class="justify-center py-10">
-                    <div
-                        class="animate-spin rounded-full h-10 w-10 border-4 border-gray-300 dark:border-gray-600 border-t-transparent">
-                    </div>
+                    <x-nawasara-core::loading />
                 </div>
                 <div wire:loading.remove wire:target="load">
                     <livewire:dynamic-component :is="$component" :params="$params" :key="$component" />

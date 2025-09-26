@@ -1,6 +1,6 @@
 <?php
 
-namespace Nawasara\Core\Livewire\Components;
+namespace Nawasara\Core\Livewire\SharedComponents;
 
 use Livewire\Component;
 
@@ -23,6 +23,6 @@ class UniversalModal extends Component
 
     public function render()
     {
-        return view('nawasara-core::livewire.components.universal-modal');
+        return view('nawasara-core::livewire.shared-components.universal-modal');
     }
 }

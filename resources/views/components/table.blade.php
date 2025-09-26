@@ -27,7 +27,7 @@
                             <x-nawasara-core::form.input id="search-table" x-model="searchValue" name="name"
                                 label="" placeholder="Search..." required autofocus />
                             <div wire:loading class="flex items-center justify-center">
-                                @livewire('nawasara-core.utils.loading', key(\Illuminate\Support\Str::random(10)))
+                                <x-nawasara-core::loading />
                             </div>
                         </div>
                     @endif

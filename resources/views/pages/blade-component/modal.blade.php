@@ -35,14 +35,14 @@
         Modal Livewire
     </button>
     <x-nawasara-core::modal id="modal-livewire" title="Detail User">
-        @livewire('nawasara-core.examples.demo-modal')
+        @livewire('nawasara-core.pages.examples.demo-modal')
     </x-nawasara-core::modal>
 
     <button class="px-4 py-2 bg-blue-600 text-white rounded"
         @click="$dispatch('open-modal-livewire', {
                     id: 'modal-livewire-contoh1',
                     title: 'Form Input Data',
-                    component: 'nawasara-core.examples.demo-modal',
+                    component: 'nawasara-core.pages.examples.demo-modal',
                     params: { userId: 5 }
                 })">
         Modal Livewire Loading
