@@ -14,11 +14,11 @@
 
     <x-nawasara-toaster::script />
     @livewireStyles
+    @stack('nawasaraCoreScript')
 </head>
 
 <body x-data class="dark:bg-neutral-900">
     <livewire:nawasara-core.shared-components.topbar />
-    {{-- <livewire:nawasara-core.shared-components.breadcrumb /> --}}
     {{ $breadcrumb ?? '' }}
 
     <livewire:nawasara-core.shared-components.sidebar />
@@ -33,8 +33,7 @@
 
     <livewire:nawasara-developer-tools.components.developer-tools />
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-    <livewire:nawasara-core.shared-components.universal-modal />
-
+    <x-nawasara-modal-script />
     @livewireScripts
 </body>
 
