@@ -1,6 +1,6 @@
 <div x-data="{ open: false }" x-on:open-modal.window="if($event.detail.id === '{{ $id }}') open = true"
     x-on:close-modal.window="if($event.detail.id === '{{ $id }}') open = false" x-show="open" x-cloak
-    class="fixed inset-0 z-50 flex items-center justify-center">
+    class="fixed inset-0 z-65 flex items-center justify-center">
 
     <!-- Overlay -->
     <div class="fixed inset-0 bg-gray-900/60 dark:bg-black/70 transition-opacity" @click="open = false" x-show="open"

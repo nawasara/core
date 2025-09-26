@@ -12,10 +12,10 @@
             <x-nawasara-core::page.title>Blade Component - Nawasara Core</x-nawasara-core::page.title>
         </x-slot>
         <x-nawasara-core::page.card>
-            @include('nawasara-core::pages.blade-component.button')
-            @include('nawasara-core::pages.blade-component.button-group')
-            @include('nawasara-core::pages.blade-component.toaster')
-            @include('nawasara-core::pages.blade-component.modal')
+            @include('nawasara-core::pages.sections.button')
+            @include('nawasara-core::pages.sections.button-group')
+            @include('nawasara-core::pages.sections.toaster')
+            @include('nawasara-core::pages.sections.modal')
         </x-nawasara-core::page.card>
     </x-nawasara-core::page.container>
 
