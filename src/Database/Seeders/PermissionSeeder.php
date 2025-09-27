@@ -4,6 +4,7 @@ namespace Nawasara\Core\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
+use Nawasara\Core\Constants\Constants;
 use Spatie\Permission\Models\Permission;
 use Nawasara\Core\Services\PermissionService;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -15,15 +16,19 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
+        self::role();
         self::permission();
         self::roleGivePermission();
+    }
+
+    public function role()
+    {
+        Role::create(['name' => Constants::DEFAULT_ROLE]);
     }
 
     public function permission()
     {
         $prefix = 'nawasara-core.';
-        $group = $prefix.'menu';
-        $permissions = PermissionService::create($group, ['user', 'component']);
         $group = $prefix.'user';
         $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete']);
         $group = $prefix.'role';
@@ -37,14 +42,9 @@ class PermissionSeeder extends Seeder
     public function roleGivePermission()
     {
         $role = Role::first();
-        $keywords = ['kegiatan.penanaman', 'laporan'];
-        
-
-        foreach ($keywords as $key => $value) {
-            $permissions = Permission::whereLike('name', '%'.$value.'%')->get();
-            foreach ($permissions as $item) {
-                $role->givePermissionTo($item->name);
-            }
+        $permissions = Permission::all();
+        foreach ($permissions as $item) {
+            $role->givePermissionTo($item->name);
         }
     }
 }
