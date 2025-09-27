@@ -17,8 +17,7 @@
     <div class="border border-gray-100 rounded-lg shadow-sm p-6 bg-white dark:bg-neutral-800 dark:border-neutral-700">
         <div class="flex flex-col">
             <div class="grid grid-cols-3 gap-4 items-center">
-                <div
-                    class="col-span-2 p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800">
+                <div class="col-span-2 p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 dark:text-white">
                     {{ $title }}
                 </div>
                 <div class="flex flex-col items-end justify-center">

@@ -32,7 +32,7 @@
 @endif
 
 @if ($useGenPassword)
-    <div class="mt-3 hs-accordion-group" wire:ignore>
+    <div class="mt-3 hs-accordion-group">
         <div class="space-y-3 hs-accordion" id="nawasara-generate-password-form">
 
             <div class="flex justify-end">
@@ -199,6 +199,8 @@
         </div>
     </div>
 
+    {{-- @once --}}
+    {{-- @push('scripts') --}}
     <script>
         function app() {
             return {
@@ -226,7 +228,8 @@
                         ((document.getElementById('charsLower').checked ? this.chars.lower : '') + (document
                             .getElementById('charsUpper').checked ? this.chars.upper : '') + (document
                             .getElementById('charsNumeric').checked ? this.chars.numeric : '') + (document
-                            .getElementById('charsSymbols').checked ? this.chars.symbols : '')).split('')
+                            .getElementById('charsSymbols').checked ? this.chars.symbols : ''))
+                        .split('')
                     ).join('').substring(0, this.charsLength);
                     this.checkStrength();
                 },
@@ -241,4 +244,6 @@
             }
         }
     </script>
+    {{-- @endpush --}}
+    {{-- @endonce --}}
 @endif
