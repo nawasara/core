@@ -2,8 +2,8 @@
 
 namespace Nawasara\Core\Database\Seeders;
 
+use Nawasara\Core\Models\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Nawasara\Core\Constants\Constants;
 use Spatie\Permission\Models\Permission;
 use Nawasara\Core\Services\PermissionService;

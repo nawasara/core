@@ -1,5 +1,5 @@
 <div>
-    <x-nawasara-core::table :headers="['#', 'Name', 'Email', 'Username', 'Role', 'Created At']" title="Data User">
+    <x-nawasara-core::table :headers="['#', 'Name', 'Total Permission', 'Total Role User', 'Created At']" title="Role Data">
         <!-- Table Content -->
         <x-slot:table>
             @foreach ($this->items as $index => $item)
@@ -39,15 +39,11 @@
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                        {{ $item->email }}
+                        {{ $item->permissions->count() ?? 0 }}
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                        {{ $item->username }}
-                    </td>
-
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                        {!! $item->renderRoles() !!}
+                        {{ $item->users->count() ?? 0 }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
                         {{ date_format_human($item->created_at) }}
@@ -61,8 +57,4 @@
             {{ $this->items->links() }}
         </x-slot:footer>
     </x-nawasara-core::table>
-
-    {{-- modal confirm --}}
-    {{-- <x-utils.modal-delete desc="Anda yakin ingin menghapus data ini ? data yang sudah dihapus tidak dapat dikembalikan!"
-        id="modalConfirmDelete" wire:ignore /> --}}
 </div>

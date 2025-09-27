@@ -2,36 +2,36 @@
 
 $prefix = 'nawasara-core';
 return [
-    [
-        'label' => 'Overview',
-        'icon' => 'heroicon-o-users',
-        'url' => $prefix.'/users',
-        'permission' => $prefix.'.view-users',
-        'submenu' => [
-            [
-                'label' => 'Dashboard',
-                'icon' => 'heroicon-o-home',
-                'url' => 'home',
-                'permission' => $prefix.'.view-dashboard',
-            ]
-        ],
-    ],
+    // [
+    //     'label' => 'Overview',
+    //     'icon' => 'heroicon-o-users',
+    //     'url' => $prefix.'/users',
+    //     'permission' => $prefix.'.view-users',
+    //     'submenu' => [
+    //         [
+    //             'label' => 'Dashboard',
+    //             'icon' => 'heroicon-o-home',
+    //             'url' => 'home',
+    //             'permission' => $prefix.'.view-dashboard',
+    //         ]
+    //     ],
+    // ],
     [
         'label' => 'User Management',
         'icon' => 'heroicon-o-users',
-        'url' => $prefix.'/users',
+        'url' => '',
         'permission' => $prefix.'.view-users',
         'submenu' => [
             [
-                'label' => 'List User',
+                'label' => 'Users',
                 'icon' => 'heroicon-o-list-bullet',
-                'url' => $prefix.'/users',
+                'url' => url($prefix.'/users'),
                 'permission' => $prefix.'.view-users',
             ],
             [
-                'label' => 'Role & Permission',
+                'label' => 'Role',
                 'icon' => 'heroicon-o-key',
-                'url' => $prefix.'/roles',
+                'url' => url($prefix.'/roles'),
                 'permission' => $prefix.'.view-roles',
             ],
         ],
