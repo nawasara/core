@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Volt;
 use Illuminate\Support\Facades\Route;
+use Nawasara\Core\Livewire\Pages\Auth\Login;
 use Nawasara\Core\Livewire\Pages\User\Index;
 use Nawasara\Core\Http\Controllers\RoleController;
 use Nawasara\Core\Http\Controllers\UserController;
@@ -16,7 +17,15 @@ use Nawasara\Core\Livewire\Pages\Role\Index as RoleIndex;
 // ]);
 
 Route::middleware(['web'])->group(function () {
+    Route::get('/login', Login::class)
+        ->middleware(['guest'])
+        ->name('login');
 
+    // Route::get('/login', Login::class)->name('nawasara-core.auth.login');
+
+    // Route::get('/login', function () {
+    //     echo csrf_token();
+    // });
     Route::prefix('nawasara-core')->group(function () {
         Route::get('/test-csrf', function () {
             echo csrf_token();

@@ -28,13 +28,11 @@
 </head>
 
 <body>
-
     <div class="min-h-screen bg-gray-100 dark:bg-neutral-700">
         {{ $slot }}
     </div>
 
     <x-nawasara-toaster::toaster position="top-right" :duration="5000" />
-    <livewire:nawasara-core.shared-components.universal-modal />
     @livewireScripts
 </body>
 
