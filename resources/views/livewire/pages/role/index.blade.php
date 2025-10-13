@@ -1,11 +1,7 @@
 <div>
 
     <x-slot name="breadcrumb">
-        <livewire:nawasara-core.shared-components.breadcrumb :items="[
-            ['label' => 'User Management', 'url' => '/'],
-            ['label' => 'Role', 'url' => '/'],
-            ['label' => 'Create New'],
-        ]" />
+        <livewire:nawasara-core.shared-components.breadcrumb :items="[['label' => 'User Management', 'url' => '/'], ['label' => 'Role', 'url' => '/']]" />
     </x-slot>
     <x-nawasara-core::page.container>
 
