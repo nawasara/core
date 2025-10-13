@@ -9,6 +9,7 @@
     'full' => false, // true -> w-full
     'disabled' => false, // disabled state
     'rounded' => 'xl', // sm | md | lg | xl | 2xl | full
+    'permission' => null,
 ])
 
 @php
@@ -112,22 +113,46 @@
     $classes = trim($base . ' ' . $variantClasses . ' ' . $sizing);
 @endphp
 
-<{{ $tag }} @if ($href) href="{{ $href }}" @endif
-    @if ($tag === 'button') type="{{ $type }}" @endif
-    @if ($disabled) disabled @endif {{ $attributes->merge(['class' => $classes]) }}>
-    @isset($icon)
-        <span class="{{ $iconSize }} shrink-0">
-            {{ $icon }}
-        </span>
-    @endisset
+@if (is_null($permission))
+    <{{ $tag }} @if ($href) href="{{ $href }}" @endif
+        @if ($tag === 'button') type="{{ $type }}" @endif
+        @if ($disabled) disabled @endif {{ $attributes->merge(['class' => $classes]) }}>
+        @isset($icon)
+            <span class="{{ $iconSize }} shrink-0">
+                {{ $icon }}
+            </span>
+        @endisset
 
-    @if ($hasText)
-        <span>{{ $slot }}</span>
-    @endif
+        @if ($hasText)
+            <span>{{ $slot }}</span>
+        @endif
 
-    @isset($trailing)
-        <span class="{{ $iconSize }} shrink-0">
-            {{ $trailing }}
-        </span>
-    @endisset
-    </{{ $tag }}>
+        @isset($trailing)
+            <span class="{{ $iconSize }} shrink-0">
+                {{ $trailing }}
+            </span>
+        @endisset
+        </{{ $tag }}>
+    @else
+        @can($permission)
+            <{{ $tag }} @if ($href) href="{{ $href }}" @endif
+                @if ($tag === 'button') type="{{ $type }}" @endif
+                @if ($disabled) disabled @endif {{ $attributes->merge(['class' => $classes]) }}>
+                @isset($icon)
+                    <span class="{{ $iconSize }} shrink-0">
+                        {{ $icon }}
+                    </span>
+                @endisset
+
+                @if ($hasText)
+                    <span>{{ $slot }}</span>
+                @endif
+
+                @isset($trailing)
+                    <span class="{{ $iconSize }} shrink-0">
+                        {{ $trailing }}
+                    </span>
+                @endisset
+                </{{ $tag }}>
+            @endcan
+@endif

@@ -1,6 +1,6 @@
 <?php
 
-namespace Nawasara\Core\Livewire\Pages\Role;
+namespace Nawasara\Core\Livewire\Pages\Role\Section;
 
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -23,7 +23,7 @@ class Table extends Component
 
     public function render()
     {
-        return view('nawasara-core::livewire.pages.role.table')
+        return view('nawasara-core::livewire.pages.role.section.table')
             ->layout('nawasara-core::components.layouts.app');
     }
 

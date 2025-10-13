@@ -40,7 +40,7 @@
                 <div>
                     <x-nawasara-core::form.label for="password" value="Password" />
                     <x-nawasara-core::form.input id="password" name="password" type="password" value="password"
-                        required autocomplete="current-password" />
+                        required autocomplete="current-password" usePasswordField />
                 </div>
 
                 <div class="flex items-center justify-between">
