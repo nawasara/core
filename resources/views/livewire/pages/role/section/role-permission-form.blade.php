@@ -28,11 +28,10 @@
                             }
                         }">
                             {{-- Checkbox utama (Check All) --}}
-                            <label class="flex items-center gap-2 mb-2 font-bold cursor-pointer">
-                                <input type="checkbox" @change="toggleAll" :checked="isAllChecked()"
-                                    class="text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500">
-                                <span>{{ label($group) }}</span>
-                            </label>
+                            <x-nawasara-core::form.checkbox name="check_all_{{ Str::slug($group) }}"
+                                class="mb-2 font-bold cursor-pointer"
+                                input-class="text-blue-600 border-gray-300 rounded-sm focus:ring-blue-500"
+                                label="{{ label($group) }}" @change="toggleAll" x-bind:checked="isAllChecked()" />
 
                             {{-- Daftar permission --}}
                             <ul class="flex flex-wrap gap-2">
@@ -41,12 +40,11 @@
                                         class="flex items-center gap-x-2 py-2 px-4 border border-gray-200 rounded-lg bg-white 
                                             text-sm font-medium text-gray-800 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white
                                             hover:bg-gray-50 dark:hover:bg-neutral-700 transition">
-                                        <input type="checkbox" value="{{ $permission['id'] }}" x-model="selected"
-                                            name="permissions[]"
-                                            class="border-gray-300 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500">
-                                        <label class="cursor-pointer select-none">
-                                            {{ label($permission['name']) }}
-                                        </label>
+                                        <x-nawasara-core::form.checkbox name="permissions[]"
+                                            value="{{ $permission['id'] }}"
+                                            input-class="border-gray-300 rounded-sm text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500"
+                                            class="cursor-pointer select-none" label="{{ label($permission['name']) }}"
+                                            x-model="selected" />
                                     </li>
                                 @endforeach
                             </ul>
