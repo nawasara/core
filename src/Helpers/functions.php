@@ -16,6 +16,11 @@ function initials($name)
 }
 
 
+function label($string)
+{
+    return ucwords(str_replace(['-', '_'], ' ', $string));
+}
+
 /* date formating */
 function date_format_human($value)
 {

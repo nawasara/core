@@ -12,12 +12,35 @@ class RolePermissionForm extends Component
 {
     public $role_name;
     public $selectedPermissions = [];
+    public $permissions = [];
 
+    public function mount()
+    {
+        $this->permissions = Permission::select('id', 'name', 'group')->get();
+    }
     
     #[Computed]
     public function permissionGroups()
     {
-        return Permission::all()->groupBy('group');
+        return $this->permissions
+        ->groupBy(function ($item) {
+            // Ambil prefix utama "nawasara-core"
+            return explode('.', $item->group)[0] ?? null;
+        })
+        ->map(function ($items) {
+            return $items->groupBy(function ($item) {
+                // Ambil sub-group misalnya "user", "role", "permission"
+                return explode('.', $item->group)[1] ?? null;
+            })->map(function ($subItems) {
+                // Ambil nama permission terakhir misalnya "view", "create"
+                return $subItems->map(function ($item) {
+                    return [
+                        'id'   => $item->id,
+                        'name' => str_replace($item->group . '.', '', $item->name),
+                    ];
+                })->values();
+            });
+        });
     }
 
     public function saveRole()
