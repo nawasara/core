@@ -20,6 +20,7 @@ class RoleForm extends Form
             'name' => [
                 'required',
                 'max:250',
+                'regex:/^[a-zA-Z\s]+$/',
                 new UniqueRole($this->name, $this->role),
             ],
             'permissions' => 'required|array|min:1',
@@ -31,6 +32,7 @@ class RoleForm extends Form
         return [
             'name.required' => 'Role is required.',
             'name.max' => 'Role name max 250 character.',
+            'name.regex' => 'Format invalid.',
             'permissions.required' => 'Please select at least one permission.',
             'permissions.array' => 'Invalid permissions format.',
         ];
