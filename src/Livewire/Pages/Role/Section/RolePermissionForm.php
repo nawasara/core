@@ -17,13 +17,16 @@ class RolePermissionForm extends Component
 {
     use HasToaster;
     public RoleForm $form;
+
     public $id;
     public $selectedPermissions = [];
     public $permissions = [];
 
-    public function mount()
+    public function mount($id = null)
     {
+        $this->id = $id;
         $this->permissions = Permission::select('id', 'name', 'group')->get();
+        self::initDataEdit();
     }
     
     #[Computed]
@@ -62,6 +65,16 @@ class RolePermissionForm extends Component
 
         $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
         $this->redirect(route('nawasara-core.role.index'), navigate: true);
+    }
+
+    public function initDataEdit()
+    {
+        if (!$this->id) return;
+
+        $role = Role::with('permissions')->find($this->id);
+        $permissions = $role->permissions->pluck('id')->toArray();
+
+        $this->form->setModel($role, $permissions);
     }
 
     public function flattenPermissions(array $data): array

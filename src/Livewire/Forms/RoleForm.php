@@ -63,11 +63,12 @@ class RoleForm extends Form
         $this->permissions = $permissions;
     }
 
-    public function setModel(Role $role)
+    public function setModel(Role $role, $permissions = [])
     {
         $this->role = $role; // untuk validasi email unique
 
         $this->id = $role->id;
         $this->name = $role->name;
+        $this->permissions = $permissions;
     }
 }

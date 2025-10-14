@@ -57,7 +57,7 @@ Route::middleware(['web'])->group(function () {
         
         // Volt::route('/users', 'user.index')->name('nawasara-core.users.index');
         Route::get('users', Index::class)->name('nawasara-core.user.index');
-        Route::get('role/form', Form::class)->name('nawasara-core.role.form');
+        Route::get('role/form/{id?}', Form::class)->name('nawasara-core.role.form');
         Route::get('roles', RoleIndex::class)->name('nawasara-core.role.index');
 
     });

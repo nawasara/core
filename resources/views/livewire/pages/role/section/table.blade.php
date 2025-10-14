@@ -13,18 +13,18 @@
                             @php
                                 $menuItems = [
                                     [
-                                        'type' => 'link',
+                                        'type' => 'href-navigate',
                                         'label' => 'Edit',
-                                        'url' => '',
+                                        'url' => route('nawasara-core.role.form', ['id' => $item->id]),
                                         'color' => 'text-gray-800',
-                                        'navigate' => false,
-                                        'permission' => 'user.update',
+                                        'navigate' => true,
+                                        'permission' => 'nawasara-core.role.edit',
                                     ],
                                     [
                                         'type' => 'delete',
                                         'label' => 'Delete',
                                         'color' => 'text-red-600',
-                                        'permission' => 'user.delete',
+                                        'permission' => 'nawasara-core.role.delete',
                                     ],
                                 ];
                             @endphp

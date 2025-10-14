@@ -20,7 +20,7 @@
             </x-nawasara-core::page.actions>
         </x-slot> --}}
 
-        @livewire('nawasara-core.pages.role.section.role-permission-form')
+        @livewire('nawasara-core.pages.role.section.role-permission-form', ['id' => $id])
 
     </x-nawasara-core::page.container>
 </div>

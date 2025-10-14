@@ -26,68 +26,71 @@
 
         <!-- Items -->
         @foreach ($items as $item)
-            {{-- @can($item['permission']) --}}
-            @php
-                $baseClass =
-                    'block w-full text-left px-3 py-2 text-sm rounded-md transition-colors ' .
-                    'hover:bg-gray-100 focus:outline-none focus:bg-gray-100 ' .
-                    'dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-300';
+            @if (empty($item['permission']) || optional(auth()->user())->can($item['permission']))
+                @php
+                    $baseClass =
+                        'block w-full text-left px-3 py-2 text-sm rounded-md transition-colors ' .
+                        'hover:bg-gray-100 focus:outline-none focus:bg-gray-100 ' .
+                        'dark:hover:bg-neutral-700 dark:focus:bg-neutral-700 dark:text-neutral-300';
 
-                $attrs = ['class' => $baseClass];
+                    $attrs = ['class' => $baseClass];
 
-                switch ($item['type']) {
-                    case 'click':
-                        $attrs['wire:click'] = "{$item['action']}('{$item['param']}')";
-                        break;
+                    switch ($item['type']) {
+                        case 'click':
+                            $attrs['wire:click'] = "{$item['action']}('{$item['param']}')";
+                            break;
 
-                    case 'href':
-                        $attrs['href'] = $item['url'];
-                        break;
+                        case 'href':
+                            $attrs['href'] = $item['url'];
+                            break;
 
-                    case 'href-navigate':
-                        $attrs['href'] = $item['url'];
-                        $attrs['wire:navigate'] = true;
-                        break;
+                        case 'href-navigate':
+                            $attrs['href'] = $item['url'];
+                            $attrs['wire:navigate'] = true;
+                            break;
 
-                    case 'wireModal':
-                        $attrs['onclick'] =
-                            "Livewire.dispatch('openModal', { component: '{$item['component']}', arguments: " .
-                            json_encode($item['argument']) .
-                            ' })';
-                        break;
+                        case 'wireModal':
+                            $attrs['onclick'] =
+                                "Livewire.dispatch('openModal', { component: '{$item['component']}', arguments: " .
+                                json_encode($item['argument']) .
+                                ' })';
+                            break;
 
-                    case 'modal':
-                        $attrs[
-                            'onclick'
-                        ] = "document.getElementById('{$item['modalName']}')._x_dataStack[0].show = true;
+                        case 'modal':
+                            $attrs[
+                                'onclick'
+                            ] = "document.getElementById('{$item['modalName']}')._x_dataStack[0].show = true;
                                  document.getElementById('{$item['modalName']}')._x_dataStack[0].id = '{$id}';";
-                        break;
+                            break;
 
-                    case 'delete':
-                        $attrs['class'] .= ' text-red-600 hover:bg-red-50 dark:hover:bg-red-600/20 dark:text-red-400';
-                        $attrs['onclick'] = "document.getElementById('modalConfirmDelete')._x_dataStack[0].show = true;
+                        case 'delete':
+                            $attrs['class'] .=
+                                ' text-red-600 hover:bg-red-50 dark:hover:bg-red-600/20 dark:text-red-400';
+                            $attrs[
+                                'onclick'
+                            ] = "document.getElementById('modalConfirmDelete')._x_dataStack[0].show = true;
                                  document.getElementById('{$modalName}')._x_dataStack[0].id = '{$id}';";
-                        break;
+                            break;
 
-                    case 'disabled':
-                        $attrs['class'] .= ' text-gray-400 cursor-not-allowed bg-transparent hover:bg-transparent';
-                        $attrs['disabled'] = true;
-                        break;
+                        case 'disabled':
+                            $attrs['class'] .= ' text-gray-400 cursor-not-allowed bg-transparent hover:bg-transparent';
+                            $attrs['disabled'] = true;
+                            break;
 
-                    default:
-                        $attrs['class'] .= ' text-gray-700 dark:text-neutral-300';
-                        break;
-                }
-            @endphp
+                        default:
+                            $attrs['class'] .= ' text-gray-700 dark:text-neutral-300';
+                            break;
+                    }
+                @endphp
 
-            <a {{ $attributes->merge($attrs) }}>
-                @if (!empty($item['bold']) && $item['bold'])
-                    <span class="font-semibold">{{ $item['label'] }}</span>
-                @else
-                    {{ $item['label'] }}
-                @endif
-            </a>
-            {{-- @endcan --}}
+                <a {{ $attributes->merge($attrs) }}>
+                    @if (!empty($item['bold']) && $item['bold'])
+                        <span class="font-semibold">{{ $item['label'] }}</span>
+                    @else
+                        {{ $item['label'] }}
+                    @endif
+                </a>
+            @endif
         @endforeach
     </div>
 </div>
