@@ -1,19 +1,17 @@
 <?php
 
-namespace Nawasara\Core\Livewire\Forms;
+namespace Naasara\Core\Livewire\Forms;
 
-use App\Rules\UniqueRole;
-use Livewire\Attributes\Validate;
 use Livewire\Form;
+use Livewire\Attributes\Validate;
 use Spatie\Permission\Models\Role;
+use Nawasara\Core\Rules\UniqueRole;
 
 class RoleForm extends Form
 {
     public $id = ''; // digunakan untuk edit
-
-    // #[Validate('required|max:250')]
-    public $name = '';
-
+    public $name;
+    public $permissions = [];
     public $role;
 
     public function rules()
@@ -24,14 +22,17 @@ class RoleForm extends Form
                 'max:250',
                 new UniqueRole($this->name, $this->role),
             ],
+            'permissions' => 'required|array|min:1',
         ];
     }
 
     public function messages()
     {
         return [
-            'name.required' => 'Nama wajib diisi.',
-            'name.max' => 'Nama role maksimal 250 karakter.',
+            'name.required' => 'Role is required.',
+            'name.max' => 'Role name max 250 character.',
+            'permissions.required' => 'Please select at least one permission.',
+            'permissions.array' => 'Invalid permissions format.',
         ];
     }
 
@@ -44,12 +45,22 @@ class RoleForm extends Form
             'guard_name' => 'web',
         ];
 
-        /* proses simpan */
+        /* role */
         $model = Role::updateOrCreate([
             'id' => $this->id,
         ], $payload);
 
+        /* set permission */
+        if (!empty($this->permissions)) {
+            $model->syncPermissions($this->permissions);
+        }
+
         return $model;
+    }
+
+    public function setPermissions($permissions = [])
+    {
+        $this->permissions = $permissions;
     }
 
     public function setModel(Role $role)

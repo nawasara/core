@@ -1,9 +1,9 @@
 <div>
     <x-nawasara-core::page.card class="mb-5">
         <x-nawasara-core::form.input id="role_name" name="role_name" label="Role Name" placeholder="Enter role name"
-            required autofocus wire:model.defer="role_name" />
-        @error('role_name')
-            <span class="text-red-500">{{ $message }}</span>
+            required autofocus wire:model.defer="form.name" />
+        @error('form.name')
+            <span class="text-red-500 mt-5">{{ $message }}</span>
         @enderror
     </x-nawasara-core::page.card>
 
@@ -61,6 +61,9 @@
                 </div>
             </x-nawasara-core::page.card>
         @endforeach
+        @error('form.permissions')
+            <span class="text-red-500">{{ $message }}</span>
+        @enderror
     </div>
 
     <div class="flex justify-end mt-5">

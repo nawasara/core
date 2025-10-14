@@ -9,11 +9,15 @@ use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
 use Nawasara\Core\Constants\Constants;
 use Spatie\Permission\Models\Permission;
+use Naasara\Core\Livewire\Forms\RoleForm;
+use Nawasara\Toaster\Concerns\HasToaster;
 use Illuminate\Routing\Controllers\Middleware;
 
 class RolePermissionForm extends Component
 {
-    public $role_name;
+    use HasToaster;
+    public RoleForm $form;
+    public $id;
     public $selectedPermissions = [];
     public $permissions = [];
 
@@ -52,31 +56,18 @@ class RolePermissionForm extends Component
     public function saveRole($permission = [])
     {
         $permissions = self::flattenPermissions($permission);
-
-        $this->validate([
-            'role_name' => 'required|string|max:255',
-        ]);
-
-        if (!$permissions) {
-            toaster_error('Please select at least one permission.');
-            return;
-        }
         
-        DB::beginTransaction();
-            // Buat Role baru
-            $role = Role::create(['name' => $this->role_name]);
-            if (!empty($permissions)) {
-                $role->syncPermissions($permissions);
-            }
-        DB::commit();
+        $this->form->setPermissions($permissions);
+        $this->form->store();
 
-        toaster_success(Constants::NOTIFICATION_SUCCESS_CREATE);
+        $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
         $this->redirect(route('nawasara-core.role.index'), navigate: true);
     }
 
     public function flattenPermissions(array $data): array
     {
         $merged = [];
+
         foreach ($data as $group) {
             if (is_array($group) && !empty($group)) {
                 // gabungkan secara bertahap
@@ -84,6 +75,7 @@ class RolePermissionForm extends Component
             }
         }
 
+        if (count($merged) == 0) return [];
         // unique & reindex
         return array_values(array_unique($merged));
     }
