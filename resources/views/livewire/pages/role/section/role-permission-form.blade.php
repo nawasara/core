@@ -83,8 +83,11 @@
         <div wire:loading>
             <x-nawasara-core::loading />
         </div>
-        <x-nawasara-core::button color="success"
-            @click="(typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('form') ? Alpine.store('form').save() : null)"
+        <x-nawasara-core::button color="success" x-data="{ disabled: false }" x-bind:disabled="disabled"
+            @click="if (disabled) return;
+        disabled = true;if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('form')) {
+            Alpine.store('form').save();
+        }; setTimeout(() => disabled = false, 2000); "
             rounded="md">
             Save Role
         </x-nawasara-core::button>
