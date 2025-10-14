@@ -9,9 +9,8 @@
     <x-nawasara-core::page.container>
 
         <x-slot name="title">
-            <x-nawasara-core::page.title>Form - Nawasara Core</x-nawasara-core::page.title>
+            <x-nawasara-core::page.title>Role - Nawasara Core</x-nawasara-core::page.title>
         </x-slot>
-
 
         <x-slot name="actions">
             <x-nawasara-core::page.actions>

@@ -80,6 +80,9 @@
     </div>
 
     <div class="flex justify-end mt-5">
+        <div wire:loading>
+            <x-nawasara-core::loading />
+        </div>
         <x-nawasara-core::button color="success"
             @click="(typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('form') ? Alpine.store('form').save() : null)"
             rounded="md">
