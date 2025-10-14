@@ -11,4 +11,9 @@ class Form extends Component
     {
         return view('nawasara-core::livewire.pages.role.form')->layout('nawasara-core::components.layouts.app');
     }
+
+    public function store()
+    {
+        $this->dispatch('save-role');
+    }
 }

@@ -1,5 +1,4 @@
 <div>
-
     <x-slot name="breadcrumb">
         <livewire:nawasara-core.shared-components.breadcrumb :items="[
             ['label' => 'User Management', 'url' => '/'],
@@ -13,12 +12,13 @@
             <x-nawasara-core::page.title>Form - Nawasara Core</x-nawasara-core::page.title>
         </x-slot>
 
-        <x-slot name="actions">
+        {{-- <x-slot name="actions">
             <x-nawasara-core::page.actions>
-                <x-nawasara-core::button color="primary" href="{{ route('nawasara-core.role.form') }}" wire:navigate
-                    permission="nawasara-core.role.create">Save</x-nawasara-core::button>
+                <x-nawasara-core::button size="sm" color="primary" permission="nawasara-core.role.create"
+                    @click="$dispatch('save-role')">Save Role
+                    Permission</x-nawasara-core::button>
             </x-nawasara-core::page.actions>
-        </x-slot>
+        </x-slot> --}}
 
         @livewire('nawasara-core.pages.role.section.role-permission-form')
 

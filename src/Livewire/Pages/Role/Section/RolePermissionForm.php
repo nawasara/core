@@ -3,8 +3,11 @@
 namespace Nawasara\Core\Livewire\Pages\Role\Section;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Nawasara\Core\Models\Role;
 use Livewire\Attributes\Computed;
+use Illuminate\Support\Facades\DB;
+use Nawasara\Core\Constants\Constants;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Routing\Controllers\Middleware;
 
@@ -43,17 +46,41 @@ class RolePermissionForm extends Component
         });
     }
 
-    public function saveRole()
+    #[On('save-role')] 
+    public function saveRole($permission = [])
     {
+        $permissions = self::flattenPermissions($permission);
+
         $this->validate([
             'role_name' => 'required|string|max:255',
         ]);
 
-        $role = Role::create(['name' => $this->role_name]);
-        $role->syncPermissions($this->selectedPermissions);
+        DB::transaction(function () {
+            // Buat Role baru
+            $role = Role::create(['name' => $this->role_name]);
 
-        session()->flash('success', 'Role berhasil dibuat.');
-        $this->reset(['role_name', 'selectedPermissions']);
+            // Assign permission
+            if (!empty($permissions)) {
+                $role->syncPermissions($this->permissions);
+            }
+        });
+
+        toaster_success(Constants::NOTIFICATION_SUCCESS_CREATE);
+        $this->reset();
+    }
+
+    public function flattenPermissions(array $data): array
+    {
+        $merged = [];
+        foreach ($data as $group) {
+            if (is_array($group) && !empty($group)) {
+                // gabungkan secara bertahap
+                $merged = array_merge($merged, $group);
+            }
+        }
+
+        // unique & reindex
+        return array_values(array_unique($merged));
     }
     
     public function render()

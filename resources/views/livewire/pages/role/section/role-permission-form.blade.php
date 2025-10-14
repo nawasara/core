@@ -2,9 +2,13 @@
     <x-nawasara-core::page.card class="mb-5">
         <x-nawasara-core::form.input id="role_name" name="role_name" label="Role Name" placeholder="Enter role name"
             required autofocus wire:model.defer="role_name" />
+        @error('role_name')
+            <span class="text-red-500">{{ $message }}</span>
+        @enderror
     </x-nawasara-core::page.card>
 
     <div class="grid grid-cols-1 gap-4 mt-2">
+        {{-- Loop through permission groups --}}
         @foreach ($this->permissionGroups as $prefix => $groups)
             <x-nawasara-core::page.card class="border-l-4 border-l-green-600">
                 <h3 class="text-lg font-semibold text-green-800 dark:text-white">
@@ -14,6 +18,7 @@
                 <div class="grid grid-cols-2 gap-4 mt-2">
                     @foreach ($groups as $group => $permissions)
                         <x-nawasara-core::page.card x-data="{
+                            prefix: '{{ $prefix }}_{{ $group }}',
                             selected: [],
                             allIds: {{ json_encode(collect($permissions)->pluck('id')) }},
                             toggleAll() {
@@ -25,8 +30,11 @@
                             },
                             isAllChecked() {
                                 return this.selected.length === this.allIds.length;
+                            },
+                            updateStore() {
+                                Alpine.store('form').selectedAll[this.prefix] = this.selected
                             }
-                        }">
+                        }" x-effect="updateStore()">
                             {{-- Checkbox utama (Check All) --}}
                             <x-nawasara-core::form.checkbox name="check_all_{{ Str::slug($group) }}"
                                 class="mb-2 font-bold cursor-pointer"
@@ -54,4 +62,26 @@
             </x-nawasara-core::page.card>
         @endforeach
     </div>
+
+    <div class="flex justify-end mt-5">
+        <x-nawasara-core::button color="success" @click="Alpine.store('form').save()" rounded="md">
+            Save Role
+        </x-nawasara-core::button>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.store('form', {
+            selectedAll: {},
+            save() {
+                console.log(this.selectedAll);
+                let permission = JSON.parse(JSON.stringify(this.selectedAll));
+                console.log(permission);
+                Livewire.dispatch('save-role', {
+                    permission: permission
+                });
+            }
+        })
+    });
+</script>
