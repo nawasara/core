@@ -92,8 +92,8 @@ class RolePermissionForm extends Component
         }
 
         if (count($merged) == 0) return [];
-        // unique & reindex
-        return array_values(array_unique($merged));
+        // Hapus duplikat, reindex, dan ubah semua ke integer
+        return array_map('intval', array_values(array_unique($merged)));
     }
     
     public function render()

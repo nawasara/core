@@ -80,7 +80,9 @@
     </div>
 
     <div class="flex justify-end mt-5">
-        <x-nawasara-core::button color="success" @click="Alpine.store('form').save()" rounded="md">
+        <x-nawasara-core::button color="success"
+            @click="(typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('form') ? Alpine.store('form').save() : null)"
+            rounded="md">
             Save Role
         </x-nawasara-core::button>
     </div>
