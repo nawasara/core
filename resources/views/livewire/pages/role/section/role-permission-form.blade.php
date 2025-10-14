@@ -32,7 +32,19 @@
                                 return this.selected.length === this.allIds.length;
                             },
                             updateStore() {
-                                Alpine.store('form').selectedAll[this.prefix] = this.selected
+                                try {
+                                    // Ensure Alpine and the store are available (Livewire navigation may initialize components in different order)
+                                    if (typeof Alpine === 'undefined' || typeof Alpine.store !== 'function') return;
+                                    const store = Alpine.store('form');
+                                    if (!store) return;
+                                    if (!store.selectedAll || typeof store.selectedAll !== 'object') {
+                                        store.selectedAll = {};
+                                    }
+                                    // Ensure we store an array
+                                    store.selectedAll[this.prefix] = Array.isArray(this.selected) ? this.selected : [];
+                                } catch (e) {
+                                    // swallow any unexpected errors during initialization
+                                }
                             }
                         }" x-effect="updateStore()">
                             {{-- Checkbox utama (Check All) --}}
