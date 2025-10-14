@@ -2,7 +2,7 @@
     <x-slot name="breadcrumb">
         <livewire:nawasara-core.shared-components.breadcrumb :items="[
             ['label' => 'User Management', 'url' => '/'],
-            ['label' => 'Role', 'url' => '/'],
+            ['label' => 'Role', 'url' => route('nawasara-core.role.index'), 'navigate' => true],
             ['label' => 'Create New'],
         ]" />
     </x-slot>

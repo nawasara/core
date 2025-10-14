@@ -25,6 +25,8 @@ class RolePermissionForm extends Component
     #[Computed]
     public function permissionGroups()
     {
+
+        // dd($this->permissions);
         return $this->permissions
         ->groupBy(function ($item) {
             // Ambil prefix utama "nawasara-core"
@@ -55,18 +57,21 @@ class RolePermissionForm extends Component
             'role_name' => 'required|string|max:255',
         ]);
 
-        DB::transaction(function () {
+        if (!$permissions) {
+            toaster_error('Please select at least one permission.');
+            return;
+        }
+        
+        DB::beginTransaction();
             // Buat Role baru
             $role = Role::create(['name' => $this->role_name]);
-
-            // Assign permission
             if (!empty($permissions)) {
-                $role->syncPermissions($this->permissions);
+                $role->syncPermissions($permissions);
             }
-        });
+        DB::commit();
 
         toaster_success(Constants::NOTIFICATION_SUCCESS_CREATE);
-        $this->reset();
+        $this->redirect(route('nawasara-core.role.index'), navigate: true);
     }
 
     public function flattenPermissions(array $data): array

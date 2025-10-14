@@ -24,7 +24,8 @@
                 <li class="flex items-center text-sm {{ !$loop->last ? 'text-gray-800 dark:text-neutral-400' : 'font-semibold text-gray-800 truncate dark:text-neutral-400' }}"
                     {{ $loop->last ? 'aria-current=page' : '' }}>
                     @if (!$loop->last)
-                        <a href="{{ $breadcrumb['link'] ?? '#' }}" class="hover:underline">
+                        <a href="{{ $breadcrumb['url'] ?? '#' }}"
+                            @isset($breadcrumb['navigate']) wire:navigate @endif class="hover:underline">
                             {{ $breadcrumb['label'] }}
                         </a>
                         <svg class="shrink-0 mx-3 overflow-visible size-2.5 text-gray-400 dark:text-eutral-500"
@@ -36,8 +37,8 @@
                     @else
                         {{ $breadcrumb['label'] }}
                     @endif
-                </li>
-            @endforeach
+                            </li>
+                    @endforeach
         </ol>
         <!-- End Breadcrumb -->
     </div>

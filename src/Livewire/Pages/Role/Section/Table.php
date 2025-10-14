@@ -17,7 +17,7 @@ class Table extends Component
     #[Computed]
     public function items()
     {
-        return Role::search($this->search)->orderByDefault()->paginate();
+        return Role::search($this->search)->orderByDefault()->paginate(100);
 
     }
 
