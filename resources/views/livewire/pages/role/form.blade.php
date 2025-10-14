@@ -3,7 +3,7 @@
         <livewire:nawasara-core.shared-components.breadcrumb :items="[
             ['label' => 'User Management', 'url' => '/'],
             ['label' => 'Role', 'url' => route('nawasara-core.role.index'), 'navigate' => true],
-            ['label' => 'Create New'],
+            ['label' => $id ? 'Edit' : 'Create New'],
         ]" />
     </x-slot>
     <x-nawasara-core::page.container>

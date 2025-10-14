@@ -19,7 +19,8 @@
                     @foreach ($groups as $group => $permissions)
                         <x-nawasara-core::page.card x-data="{
                             prefix: '{{ $prefix }}_{{ $group }}',
-                            selected: [],
+                            // Initialize selected with server-side selectedPermissions filtered by this group's ids
+                            selected: {{ json_encode(array_values(array_intersect(collect($permissions)->pluck('id')->toArray(), $selectedPermissions ?? []))) }},
                             allIds: {{ json_encode(collect($permissions)->pluck('id')) }},
                             toggleAll() {
                                 if (this.isAllChecked()) {

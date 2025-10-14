@@ -74,6 +74,9 @@ class RolePermissionForm extends Component
         $role = Role::with('permissions')->find($this->id);
         $permissions = $role->permissions->pluck('id')->toArray();
 
+        // store selected permissions so the Blade view can pre-check boxes
+        $this->selectedPermissions = $permissions;
+
         $this->form->setModel($role, $permissions);
     }
 
