@@ -7,10 +7,7 @@
         ]" />
     </x-slot>
     <x-nawasara-core::page.container>
-
-        <x-slot name="title">
-            <x-nawasara-core::page.title>Role - Nawasara Core</x-nawasara-core::page.title>
-        </x-slot>
+        <x-nawasara-core::page.title>Role - Nawasara Core</x-nawasara-core::page.title>
 
         <x-slot name="actions">
             <x-nawasara-core::page.actions>
@@ -21,6 +18,8 @@
         </x-slot>
 
         @livewire('nawasara-core.pages.role.section.table')
+        <x-nawasara-core::modal-confirm-delete />
+
 
     </x-nawasara-core::page.container>
 </div>

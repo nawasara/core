@@ -87,7 +87,7 @@
             @click="if (disabled) return;
         disabled = true;if (typeof Alpine !== 'undefined' && Alpine.store && Alpine.store('form')) {
             Alpine.store('form').save();
-        }; setTimeout(() => disabled = false, 2000); "
+        }; setTimeout(() => disabled = false, 2000);"
             rounded="md">
             Save Role
         </x-nawasara-core::button>

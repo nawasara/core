@@ -1,4 +1,3 @@
-<!-- resources/views/components/dropdown-menu-action.blade.php -->
 @props(['id', 'items' => [], 'modalName' => null])
 
 <div class="hs-dropdown relative inline-flex">
@@ -68,8 +67,7 @@
                                 ' text-red-600 hover:bg-red-50 dark:hover:bg-red-600/20 dark:text-red-400';
                             $attrs[
                                 'onclick'
-                            ] = "document.getElementById('modalConfirmDelete')._x_dataStack[0].show = true;
-                                 document.getElementById('{$modalName}')._x_dataStack[0].id = '{$id}';";
+                            ] = "Livewire.dispatch('modal-delete', { id: '{$id}', name: '{$item['name']}' })";
                             break;
 
                         case 'disabled':

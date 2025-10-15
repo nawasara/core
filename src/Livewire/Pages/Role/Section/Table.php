@@ -7,9 +7,11 @@ use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use Nawasara\Core\Models\Role;
 use Livewire\Attributes\Computed;
+use Nawasara\Toaster\Concerns\HasToaster;
 
 class Table extends Component
 {
+    use HasToaster;
     use WithPagination;
 
     public $search = '';
@@ -18,7 +20,6 @@ class Table extends Component
     public function items()
     {
         return Role::search($this->search)->orderByDefault()->paginate(100);
-
     }
 
     public function render()
@@ -32,7 +33,7 @@ class Table extends Component
         $model = Role::findOrFail($id);
         $model->delete();
 
-        toaster_success(Constants::NOTIFICATION_SUCCESS_CREATE);
+        $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
         $this->redirectRoute('nawasara-core.roles.index', navigate: true);
     }
 

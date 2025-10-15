@@ -25,6 +25,7 @@
                                         'label' => 'Delete',
                                         'color' => 'text-red-600',
                                         'permission' => 'nawasara-core.role.delete',
+                                        'name' => $item->name,
                                     ],
                                 ];
                             @endphp
