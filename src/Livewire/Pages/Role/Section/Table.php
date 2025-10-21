@@ -7,6 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use Nawasara\Core\Models\Role;
 use Livewire\Attributes\Computed;
+use Nawasara\Core\Constants\Constants;
 use Nawasara\Toaster\Concerns\HasToaster;
 
 class Table extends Component
@@ -28,13 +29,20 @@ class Table extends Component
             ->layout('nawasara-core::components.layouts.app');
     }
 
+    #[On('delete-role')]
     public function delete($id)
     {
         $model = Role::findOrFail($id);
         $model->delete();
 
+        /* close modal */
+        $this->dispatch('close-modal', id: 'modalConfirmDelete');
+
+        /* show alert */
         $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
-        $this->redirectRoute('nawasara-core.roles.index', navigate: true);
+        
+        /* refresh component */
+        $this->dispatch('$refresh');
     }
 
     public function updatingSearch()
