@@ -1,6 +1,6 @@
 <?php
 
-namespace Nawasara\Core\Livewire\Pages\User;
+namespace Nawasara\Core\Livewire\Pages\User\Section;
 
 use App\Models\User;
 use Livewire\Component;
@@ -20,12 +20,6 @@ class Table extends Component
     {
         return User::filter($this->params)->with(['roles'])->paginate();
 
-    }
-
-    public function render()
-    {
-        return view('nawasara-core::livewire.pages.user.table')
-            ->layout('nawasara-core::components.layouts.app');
     }
 
     // #[On('export')]
@@ -66,5 +60,11 @@ class Table extends Component
 
         info($params);
 
+    }
+
+    public function render()
+    {
+        return view('nawasara-core::livewire.pages.user.section.table')
+            ->layout('nawasara-core::components.layouts.app');
     }
 }

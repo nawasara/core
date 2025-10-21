@@ -8,7 +8,7 @@
     'type' => 'button', // button | submit | reset
     'full' => false, // true -> w-full
     'disabled' => false, // disabled state
-    'rounded' => 'xl', // sm | md | lg | xl | 2xl | full
+    'rounded' => 'md', // sm | md | lg | xl | 2xl | full
     'permission' => null,
 ])
 

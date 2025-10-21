@@ -19,14 +19,14 @@
                     @click="openLivewireModal({
                     id: 'modal-user-form',
                     title: 'Form User',
-                    component: 'nawasara-core.modals.form-user',
+                    component: 'nawasara-core.pages.user.modal.form-user',
                     params: {  }
                 })">Create
                     New</x-nawasara-core::button>
             </x-nawasara-core::page.actions>
         </x-slot>
 
-        @livewire('nawasara-core.pages.user.table')
+        @livewire('nawasara-core.pages.user.section.table')
 
     </x-nawasara-core::page.container>
 </div>
