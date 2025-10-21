@@ -58,8 +58,10 @@ class RolePermissionForm extends Component
     #[On('save-role')] 
     public function saveRole($permission = [])
     {
+
         $permissions = self::flattenPermissions($permission);
         
+        info('role');
         $this->form->setPermissions($permissions);
         $this->form->store();
 

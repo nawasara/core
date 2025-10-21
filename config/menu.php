@@ -27,12 +27,14 @@ return [
                 'icon' => 'heroicon-o-list-bullet',
                 'url' => url($prefix.'/users'),
                 'permission' => $prefix.'.view-users',
+                'navigate' => true,
             ],
             [
                 'label' => 'Role',
                 'icon' => 'heroicon-o-key',
                 'url' => url($prefix.'/roles'),
                 'permission' => $prefix.'.view-roles',
+                'navigate' => true,
             ],
         ],
     ],
@@ -47,12 +49,14 @@ return [
                 'icon' => 'heroicon-o-puzzle-piece',
                 'url' => $prefix.'/components/table',
                 'permission' => $prefix.'.view-components',
+                'navigate' => true,
             ],
             [
                 'label' => 'Base Komponen',
                 'icon' => 'heroicon-o-puzzle-piece',
                 'url' => $prefix.'/components/base',
                 'permission' => $prefix.'.view-components',
+                'navigate' => true,
             ],
             
             [
@@ -60,6 +64,7 @@ return [
                 'icon' => 'heroicon-o-puzzle-piece',
                 'url' => $prefix.'/components/form',
                 'permission' => $prefix.'.view-components',
+                'navigate' => true,
             ],
             
         ],

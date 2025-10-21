@@ -82,11 +82,13 @@
                                     @foreach ($menu['submenu'] as $submenu)
                                         @php $isActive = $currentUrl === url($submenu['url']); @endphp
                                         <li>
-                                            <a href="{{ url($submenu['url']) }}" @class([
-                                                'flex items-center gap-2 px-4 py-1.5 text-sm rounded-none border-l-3 transition',
-                                                'border-transparent text-gray-700 dark:text-gray-300 hover:border-blue-600 hover:text-blue-700 dark:hover:text-gray-100' => !$isActive,
-                                                'border-blue-600 text-blue-700 dark:text-blue-400 font-semibold' => $isActive,
-                                            ])>
+                                            <a href="{{ url($submenu['url']) }}"
+                                                @isset($submenu['navigate']) @if ($submenu['navigate']) wire:navigate.hover @endif  @endisset)
+                                                @class([
+                                                    'flex items-center gap-2 px-4 py-1.5 text-sm rounded-none border-l-3 transition',
+                                                    'border-transparent text-gray-700 dark:text-gray-300 hover:border-blue-600 hover:text-blue-700 dark:hover:text-gray-100' => !$isActive,
+                                                    'border-blue-600 text-blue-700 dark:text-blue-400 font-semibold' => $isActive,
+                                                ])>
                                                 @if (!empty($submenu['icon']))
                                                     <i class="{{ $submenu['icon'] }} text-base"></i>
                                                 @endif
