@@ -8,12 +8,20 @@ use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
 use Maatwebsite\Excel\Facades\Excel;
+use Nawasara\Core\Constants\Constants;
+use Nawasara\Toaster\Concerns\HasToaster;
 
 class Table extends Component
 {
+    use HasToaster;
+
     use WithPagination;
 
     public $params = [];
+
+    protected $listeners = [
+        'refreshComponent' => '$refresh'
+    ];
 
     #[Computed]
     public function items()
@@ -21,26 +29,21 @@ class Table extends Component
         return User::filter($this->params)->with(['roles'])->paginate();
 
     }
-
-    // #[On('export')]
-    // public function export()
-    // {
-    //     return Excel::download(new PlantingActivityExport($this->params), 'data-kegiatan-tanam-pohon-'.date('Ymd').'.xlsx');
-    // }
-
-    // public function exportDetailPdf($id)
-    // {
-    //     return PlantingActivityDetailExport::download($id);
-    // }
-
+    
+    #[On('delete-role')]
     public function delete($id)
     {
-        // $this->authorize('kegiatan.penanaman.pohon.delete');
         $model = User::findOrFail($id);
         $model->delete();
 
-        // $this->alert('success', 'Success!');
-        $this->redirectRoute('nawasara-core.users.index', navigate: true);
+        /* close modal */
+        $this->dispatch('close-modal', id: 'modalConfirmDelete');
+
+        /* show alert */
+        $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
+        
+        /* refresh component */
+        $this->dispatch('$refresh');
     }
 
     public function updatingfilter()

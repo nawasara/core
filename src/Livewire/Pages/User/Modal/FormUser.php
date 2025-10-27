@@ -12,6 +12,7 @@ use Nawasara\Core\Constants\Constants;
 use Nawasara\Toaster\Concerns\HasToaster;
 use Nawasara\Core\Livewire\Forms\UserForm;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Nawasara\Core\Livewire\Pages\User\Section\Table;
 
 class FormUser extends Component
 {
@@ -55,10 +56,13 @@ class FormUser extends Component
 
         $this->form->reset();
         
+        /* close modal */
         $this->dispatch('close-livewire-modal', id: 'modal-user-form');
         
+        /* show toaster */
         $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
-        
-        $this->dispatch('$refresh');
+
+        /* refresh component */
+        $this->dispatch('refreshComponent');
     }
 }

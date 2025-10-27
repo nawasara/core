@@ -13,22 +13,22 @@
                             @php
                                 $menuItems = [
                                     [
-                                        'type' => 'link',
+                                        'type' => 'href-navigate',
                                         'label' => 'Edit',
-                                        'url' => '',
+                                        'url' => '#',
                                         'color' => 'text-gray-800',
-                                        'navigate' => false,
-                                        'permission' => 'user.update',
+                                        'navigate' => true,
+                                        'permission' => 'nawasara-core.user.edit',
                                     ],
                                     [
                                         'type' => 'delete',
                                         'label' => 'Delete',
                                         'color' => 'text-red-600',
-                                        'permission' => 'user.delete',
+                                        'permission' => 'nawasara-core.user.delete',
+                                        'name' => $item->name,
                                     ],
                                 ];
                             @endphp
-                            {{-- @endif --}}
 
                             <x-nawasara-core::dropdown-menu-action :id="$item->id" :items="$menuItems" />
                         </div>

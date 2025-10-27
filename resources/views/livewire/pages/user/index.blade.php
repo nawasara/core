@@ -26,5 +26,8 @@
 
         @livewire('nawasara-core.pages.user.section.table')
 
+        {{-- delete confirmation --}}
+        <x-nawasara-core::modal-confirm-delete />
+
     </x-nawasara-core::page.container>
 </div>

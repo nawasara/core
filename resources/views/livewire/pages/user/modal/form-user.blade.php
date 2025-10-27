@@ -13,7 +13,7 @@
     }">
         <x-nawasara-core::form.input id="name" name="name" label="Name" placeholder="Your name" useError="true"
             errorVariable="form.name" autofocus wire:model.defer="form.name" />
-        <x-nawasara-core::form.input id="name" name="name" label="Username" placeholder="Username"
+        <x-nawasara-core::form.input id="username" name="username" label="Username" placeholder="Username"
             useError="true" errorVariable="form.username" autofocus wire:model.defer="form.username" />
         <x-nawasara-core::form.input id="email" name="email" type="email" label="Email"
             placeholder="Your email" wire:model.defer="form.email" useError="true" errorVariable="form.email" />
