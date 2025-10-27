@@ -4,6 +4,8 @@
 
 @section('nawasaraTitle', $titleText)
 
-<h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-    {{ $slot }}
-</h1>
+@push('title')
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+        {{ $slot }}
+    </h1>
+@endpush

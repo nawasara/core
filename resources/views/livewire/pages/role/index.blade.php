@@ -18,7 +18,7 @@
         {{-- button action --}}
         <x-slot name="actions">
             <x-nawasara-core::page.actions>
-                <x-nawasara-core::button color="primary" href="{{ route('nawasara-core.role.form') }}" wire:navigate
+                <x-nawasara-core::button color="success" href="{{ route('nawasara-core.role.form') }}" wire:navigate
                     permission="nawasara-core.role.create">Create
                     New</x-nawasara-core::button>
             </x-nawasara-core::page.actions>

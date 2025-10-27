@@ -4,28 +4,37 @@ namespace Nawasara\Core\Livewire\Pages\User\Modal;
 
 use App\Models\User;
 use Livewire\Component;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Nawasara\Core\Constants\Constants;
+use Nawasara\Toaster\Concerns\HasToaster;
 use Nawasara\Core\Livewire\Forms\UserForm;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class FormUser extends Component
 {
+    use HasToaster;
+
     public UserForm $form;
 
     public $roles;
 
-    public $user_id;
+    public $id;
 
     public function mount()
     {
         $this->roles = Role::all();
-        if ($this->user_id) {
-            $user = User::find($this->user_id);
-            $this->form->setModel($user);
-        }
+        self::initDataEdit();
+    }
+    
+    public function initDataEdit()
+    {
+        if (!$this->id) return;
+
+        $user = User::find($this->id);
+        $this->form->setModel($user);
     }
 
     public function render()
@@ -33,31 +42,23 @@ class FormUser extends Component
         return view('nawasara-core::livewire.pages.user.modal.form-user');
     }
 
-    public function store()
+    #[On('store')]
+    public function store($roles = [])
     {
         DB::beginTransaction();
 
-        $user = $this->form->store();
-
+        $this->form->setRoles($roles);
+        
+        $this->form->store();
+        
         DB::commit();
 
         $this->form->reset();
-
-        toaster_success(Constants::NOTIFICATION_SUCCESS_CREATE);
-
-        $this->dispatch('refreshComponent'); // semua yg punya refresh component akan ke trigger
-
-        $this->closeModal();
-    }
-
-    /* Modal */
-    public function closeModal()
-    {
-        return true;
-    }
-
-    public function closeModalOnClickAway()
-    {
-        return false;
+        
+        $this->dispatch('close-livewire-modal', id: 'modal-user-form');
+        
+        $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
+        
+        $this->dispatch('$refresh');
     }
 }

@@ -10,28 +10,17 @@ use Spatie\Permission\Models\Role;
 
 class UserForm extends Form
 {
-    public $id = ''; // digunakan untuk edit
+    public $id; // digunakan untuk edit
 
-    // #[Validate('required|max:250')]
-    public $name = '';
+    public $name;
 
-    // #[Validate('required|max:250')]
-    public $username = '';
+    public $username;
 
-    // #[Validate('required|max:250')]
-    public $domain = '';
+    public $roles = [];
 
-    // #[Validate('required|string|email')]
-    public $email = '';
+    public $email;
 
-    // #[Validate('required|string|min:6')]
-    public $password = '';
-
-    // #[Validate('required_with:password|same:password|min:6')]
-    // public $repassword = '';
-
-    // #[Validate('required')]
-    public $role;
+    public $password;
 
     public $user;
 
@@ -40,7 +29,7 @@ class UserForm extends Form
         return [
             'name' => 'required|max:250',
             'username' => 'required|max:16',
-            'role' => 'required',
+            'roles' => 'required',
             'password' => $this->user ? 'nullable' : 'required|string|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$/',
             // 'repassword' => !$this->password ? 'nullable' : 'required_with:password|same:password|min:6',
             'email' => [
@@ -59,12 +48,17 @@ class UserForm extends Form
 
         return [
             'password.regex' => 'The :attribute '.$password_message,
-            'database_password.regex' => 'The :attribute '.$password_message,
         ];
+    }
+
+    public function setRoles(array|int $roles = null)
+    {
+        $this->roles = is_int($roles) ? [$roles] : $roles ?? [];
     }
 
     public function store()
     {
+        info($this);
         $this->validate();
 
         $payload = [
@@ -83,8 +77,7 @@ class UserForm extends Form
             'id' => $this->id,
         ], $payload);
 
-        $role = Role::find($this->role);
-        $user->syncRoles($role);
+        $user->syncRoles($this->roles);
 
         return $user;
     }

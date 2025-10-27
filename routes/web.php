@@ -11,6 +11,7 @@ use Nawasara\Core\Http\Controllers\Auth\SsoController;
 use Nawasara\Core\Http\Controllers\Auth\LoginController;
 use Nawasara\Core\Http\Controllers\Auth\LogoutController;
 use Nawasara\Core\Livewire\Pages\Role\Index as RoleIndex;
+use Nawasara\Core\Livewire\Pages\UserSso\Index as UserSso;
 
 // Tambahkan setelah create()
 // Volt::mount([
@@ -56,6 +57,7 @@ Route::middleware(['web'])->group(function () {
         // Kalau masih error, pake route biasa
         
         // Volt::route('/users', 'user.index')->name('nawasara-core.users.index');
+        Route::get('user-sso', UserSso::class)->name('nawasara-core.user-sso.index');
         Route::get('users', Index::class)->name('nawasara-core.user.index');
         Route::get('role/form/{id?}', Form::class)->name('nawasara-core.role.form');
         Route::get('roles', RoleIndex::class)->name('nawasara-core.role.index');

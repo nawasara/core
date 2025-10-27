@@ -10,7 +10,7 @@
     <div class="grid grid-cols-1 gap-4 mt-2">
         {{-- Loop through permission groups --}}
         @foreach ($this->permissionGroups as $prefix => $groups)
-            <x-nawasara-core::page.card class="border-l-4 border-l-green-600">
+            <x-nawasara-core::page.card>
                 <h3 class="text-lg font-semibold text-green-800 dark:text-white">
                     {{ label($prefix) }}'s Permissions
                 </h3>
@@ -101,7 +101,7 @@
             save() {
                 console.log(this.selectedAll);
                 let permission = JSON.parse(JSON.stringify(this.selectedAll));
-                console.log(permission);
+                console.log('permission', permission);
                 Livewire.dispatch('save-role', {
                     permission: permission
                 });

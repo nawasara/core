@@ -17,23 +17,26 @@ class FormUser extends Component
 
     public $roles;
 
-    public $user_id;
+    public $id;
 
     public function mount()
     {
         $this->roles = Role::all();
-        if ($this->user_id) {
-            $user = User::find($this->user_id);
+        if ($this->id) {
+            $user = User::find($this->id);
             $this->form->setModel($user);
         }
     }
 
-    public function render()
+    public function initDataEdit()
     {
-        return view('nawasara-core::livewire.modals.form-user');
+        if (!$this->id) return;
+
+        $user = User::find($this->id);
+        $this->form->setModel($user);
     }
 
-    public function store()
+    public function store($roles = [])
     {
         DB::beginTransaction();
 
@@ -45,19 +48,13 @@ class FormUser extends Component
 
         toaster_success(Constants::NOTIFICATION_SUCCESS_CREATE);
 
-        $this->dispatch('refreshComponent'); // semua yg punya refresh component akan ke trigger
+        $this->dispatch('$refresh'); // semua yg punya refresh component akan ke trigger
 
         $this->closeModal();
     }
 
-    /* Modal */
-    public function closeModal()
+    public function render()
     {
-        return true;
-    }
-
-    public function closeModalOnClickAway()
-    {
-        return false;
+        return view('nawasara-core::livewire.modals.form-user');
     }
 }

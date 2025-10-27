@@ -4,16 +4,14 @@
     </x-slot>
     <x-nawasara-core::page.container>
 
-        <x-nawasara-core::page.title>User - Nawasara Core</x-nawasara-core::page.title>
-
-        {{-- <x-slot name="title">
-            <x-nawasara-core::page.title>User - Nawasara Core</x-nawasara-core::page.title>
-        </x-slot> --}}
+        <x-slot name="title">
+            <x-nawasara-core::page.title>User</x-nawasara-core::page.title>
+        </x-slot>
 
 
         <x-slot name="actions">
             <x-nawasara-core::page.actions>
-                <x-nawasara-core::button color="success"
+                <x-nawasara-core::button color="primary"
                     @click="openLivewireModal({
                     id: 'modal-user-form',
                     title: 'Form User',
@@ -24,7 +22,7 @@
             </x-nawasara-core::page.actions>
         </x-slot>
 
-        @livewire('nawasara-core.pages.user.section.table')
+        @livewire('nawasara-core.pages.user-sso.section.form')
 
     </x-nawasara-core::page.container>
 </div>
