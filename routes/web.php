@@ -2,6 +2,7 @@
 
 use Livewire\Volt\Volt;
 use Illuminate\Support\Facades\Route;
+use Nawasara\Core\Livewire\Pages\Auth\SwitchRole;
 use Nawasara\Core\Livewire\Pages\Role\Form;
 use Nawasara\Core\Livewire\Pages\Auth\Login;
 use Nawasara\Core\Livewire\Pages\User\Index;
@@ -83,7 +84,8 @@ Route::middleware(['web'])->group(function () {
     // SSO
     Route::get('/sso/redirect', [SsoController::class, 'redirect'])->name('sso.redirect');
     Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
-
+    
+    Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
 
     Route::get('/home', function () {
         return view('nawasara-core::dashboard');

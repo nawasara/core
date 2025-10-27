@@ -46,7 +46,8 @@
 
 
         <div class="flex justify-end gap-2">
-            <button type="button" wire:click="closeModal" class="px-4 py-2 bg-gray-200 rounded-md">Batal</button>
+            <button type="button" @click="$dispatch('close-livewire-modal', { id: 'modal-user-form' })"
+                class="px-4 py-2 bg-gray-200 rounded-md">Batal</button>
             <button type="button" x-data="{ disabledSubmit: false }" x-init="disabledSubmit = false"
                 x-on:click="if (disabledSubmit) return; disabledSubmit = true; setTimeout(() => disabledSubmit = false, 2500); store();"
                 x-bind:disabled="disabledSubmit" wire:loading.attr="disabled"
