@@ -11,14 +11,22 @@
                                 $menuItems = [];
                             @endphp
                             @php
+                                $editPayloads = [
+                                    'id' => 'modal-user-form',
+                                    'title' => 'Edit User',
+                                    'component' => 'nawasara-core.pages.user.modal.form-user',
+                                    'params' => ['id' => $item->id],
+                                ];
+
                                 $menuItems = [
                                     [
-                                        'type' => 'href-navigate',
+                                        'type' => 'wireModal',
                                         'label' => 'Edit',
                                         'url' => '#',
                                         'color' => 'text-gray-800',
                                         'navigate' => true,
                                         'permission' => 'nawasara-core.user.edit',
+                                        'payload' => $editPayloads,
                                     ],
                                     [
                                         'type' => 'delete',

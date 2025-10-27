@@ -90,5 +90,8 @@ class UserForm extends Form
         $this->name = $user->name;
         $this->username = $user->username;
         $this->email = $user->email;
+
+        $this->roles = $user->roles->pluck('id')->toArray();
+        // dd($this->roles);
     }
 }

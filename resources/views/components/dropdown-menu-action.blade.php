@@ -49,17 +49,14 @@
                             break;
 
                         case 'wireModal':
-                            $attrs['onclick'] =
-                                "Livewire.dispatch('openModal', { component: '{$item['component']}', arguments: " .
-                                json_encode($item['argument']) .
-                                ' })';
+                            $jsonPayload = json_encode(
+                                $item['payload'],
+                                JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+                            );
+                            $attrs['onclick'] = "openLivewireModal({$jsonPayload})";
                             break;
 
                         case 'modal':
-                            $attrs[
-                                'onclick'
-                            ] = "document.getElementById('{$item['modalName']}')._x_dataStack[0].show = true;
-                                 document.getElementById('{$item['modalName']}')._x_dataStack[0].id = '{$id}';";
                             break;
 
                         case 'delete':

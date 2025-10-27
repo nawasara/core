@@ -1,6 +1,6 @@
 <div>
     <form wire:submit.prevent="store" class="space-y-2" x-data="{
-        selectedRoles: [],
+        selectedRoles: @entangle('form.roles') ?? [],
         toggleRole(roleId) {
             console.log('Toggling role: ' + roleId);
             const index = this.selectedRoles.indexOf(roleId);

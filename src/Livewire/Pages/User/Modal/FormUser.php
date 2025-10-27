@@ -20,21 +20,27 @@ class FormUser extends Component
 
     public UserForm $form;
 
+    protected $listeners = [
+        'refreshComponent' => '$refresh'
+    ];
+
     public $roles;
 
-    public $id;
+    public $params = [];
 
-    public function mount()
+    public function mount($params = [])
     {
         $this->roles = Role::all();
+
+        $this->params = $params;
         self::initDataEdit();
     }
     
     public function initDataEdit()
     {
-        if (!$this->id) return;
+        if (!isset($this->params['id'])) return;
 
-        $user = User::find($this->id);
+        $user = User::find($this->params['id']);
         $this->form->setModel($user);
     }
 
@@ -54,15 +60,13 @@ class FormUser extends Component
         
         DB::commit();
 
-        $this->form->reset();
-        
         /* close modal */
         $this->dispatch('close-livewire-modal', id: 'modal-user-form');
         
         /* show toaster */
         $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
 
-        /* refresh component */
-        $this->dispatch('refreshComponent');
+        $this->redirect(route('nawasara-core.user.index'), navigate: true);
+
     }
 }
