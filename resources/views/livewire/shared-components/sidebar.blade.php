@@ -81,20 +81,22 @@
                                 <ul class="space-y-1 border-l border-gray-200 dark:border-gray-700">
                                     @foreach ($menu['submenu'] as $submenu)
                                         @php $isActive = $currentUrl === url($submenu['url']); @endphp
-                                        <li>
-                                            <a href="{{ url($submenu['url']) }}"
-                                                @isset($submenu['navigate']) @if ($submenu['navigate']) wire:navigate.hover @endif  @endisset)
-                                                @class([
-                                                    'flex items-center gap-2 px-4 py-1.5 text-sm rounded-none border-l-3 transition',
-                                                    'border-transparent text-gray-700 dark:text-gray-300 hover:border-green-600 hover:text-green-700 dark:hover:text-gray-100' => !$isActive,
-                                                    'border-green-600 text-green-700 dark:text-green-400 font-semibold' => $isActive,
-                                                ])>
-                                                @if (!empty($submenu['icon']))
-                                                    <i class="{{ $submenu['icon'] }} text-base"></i>
-                                                @endif
-                                                <span>{{ $submenu['label'] }}</span>
-                                            </a>
-                                        </li>
+                                        @if (empty($submenu['permission']) || optional(auth()->user())->can($submenu['permission']))
+                                            <li>
+                                                <a href="{{ url($submenu['url']) }}"
+                                                    @isset($submenu['navigate']) @if ($submenu['navigate']) wire:navigate.hover @endif  @endisset)
+                                                    @class([
+                                                        'flex items-center gap-2 px-4 py-1.5 text-sm rounded-none border-l-3 transition',
+                                                        'border-transparent text-gray-700 dark:text-gray-300 hover:border-green-600 hover:text-green-700 dark:hover:text-gray-100' => !$isActive,
+                                                        'border-green-600 text-green-700 dark:text-green-400 font-semibold' => $isActive,
+                                                    ])>
+                                                    @if (!empty($submenu['icon']))
+                                                        <i class="{{ $submenu['icon'] }} text-base"></i>
+                                                    @endif
+                                                    <span>{{ $submenu['label'] }}</span>
+                                                </a>
+                                            </li>
+                                        @endif
                                     @endforeach
                                 </ul>
                             </li>

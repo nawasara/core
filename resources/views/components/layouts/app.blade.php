@@ -17,7 +17,7 @@
     @stack('nawasaraCoreScript')
 </head>
 
-<body x-data class="dark:bg-neutral-900">
+<body x-data class="bg-gray-50 dark:bg-neutral-900">
     <livewire:nawasara-core.shared-components.topbar />
     {{ $breadcrumb ?? '' }}
 

@@ -4,6 +4,8 @@ namespace Nawasara\Core;
 
 use Livewire\Livewire;
 use Livewire\Volt\Volt;
+use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Role as SpatieRole;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Symfony\Component\Finder\Finder;
@@ -31,6 +33,8 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerVolt();
 
         $this->menuLoader();
+
+        $this->switchRoleGate();
 
     }
 
@@ -139,6 +143,27 @@ class CoreServiceProvider extends ServiceProvider
     private function registerBlade(): void
     {
         Blade::componentNamespace('Nawasara\\Core\\View\\Components', 'nawasara-core');
+    }
+
+    private function switchRoleGate(): void
+    {
+        // Respect "active_role" session: when an active role is set we scope permission checks
+        // to that role only. This allows users with multiple roles to switch context.
+        Gate::before(function ($user, $ability) {
+            $active = session('active_role');
+            if (! $active) {
+                return null; // fallback to default checks
+            }
+
+            // try to find the role and check permission via role
+            $role = SpatieRole::where('name', $active)->first();
+
+            if (! $role) {
+                return false;
+            }
+
+            return $role->hasPermissionTo($ability) ? true : false;
+        });
     }
 
     /**
