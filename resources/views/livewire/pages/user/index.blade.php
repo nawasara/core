@@ -1,33 +1,33 @@
 <div>
     <x-slot name="breadcrumb">
-        <livewire:nawasara-core.shared-components.breadcrumb :items="[['label' => 'User Management', 'url' => '/'], ['label' => 'User', 'url' => '/']]" />
+        <livewire:nawasara-ui.shared-components.breadcrumb :items="[['label' => 'User Management', 'url' => '/'], ['label' => 'User', 'url' => '/']]" />
     </x-slot>
-    <x-nawasara-core::page.container>
+    <x-nawasara-ui::page.container>
 
-        <x-nawasara-core::page.title>User - Nawasara Core</x-nawasara-core::page.title>
+        <x-nawasara-ui::page.title>User - Nawasara Core</x-nawasara-ui::page.title>
 
         {{-- <x-slot name="title">
-            <x-nawasara-core::page.title>User - Nawasara Core</x-nawasara-core::page.title>
+            <x-nawasara-ui::page.title>User - Nawasara Core</x-nawasara-ui::page.title>
         </x-slot> --}}
 
 
         <x-slot name="actions">
-            <x-nawasara-core::page.actions>
-                <x-nawasara-core::button color="success"
+            <x-nawasara-ui::page.actions>
+                <x-nawasara-ui::button color="success"
                     @click="openLivewireModal({
                     id: 'modal-user-form',
                     title: 'Form User',
-                    component: 'nawasara-core.pages.user.modal.form-user',
+                    component: 'nawasara-core.user.modal.form-user',
                     params: {  }
                 })">Create
-                    New</x-nawasara-core::button>
-            </x-nawasara-core::page.actions>
+                    New</x-nawasara-ui::button>
+            </x-nawasara-ui::page.actions>
         </x-slot>
 
-        @livewire('nawasara-core.pages.user.section.table')
+        @livewire('nawasara-core.user.section.table')
 
         {{-- delete confirmation --}}
-        <x-nawasara-core::modal-confirm-delete />
+        <x-nawasara-ui::modal-confirm-delete />
 
-    </x-nawasara-core::page.container>
+    </x-nawasara-ui::page.container>
 </div>

@@ -32,20 +32,20 @@
                 <div class="text-red-600 text-xs hidden"></div>
 
                 <div>
-                    <x-nawasara-core::form.label for="email" value="Email / Username" />
-                    <x-nawasara-core::form.input id="email" name="email" type="text" required autofocus
+                    <x-nawasara-ui::form.label for="email" value="Email / Username" />
+                    <x-nawasara-ui::form.input id="email" name="email" type="text" required autofocus
                         autocomplete="username" :value="old('email') ?? 'root'" />
                 </div>
 
                 <div>
-                    <x-nawasara-core::form.label for="password" value="Password" />
-                    <x-nawasara-core::form.input id="password" name="password" type="password" value="password"
+                    <x-nawasara-ui::form.label for="password" value="Password" />
+                    <x-nawasara-ui::form.input id="password" name="password" type="password" value="password"
                         required autocomplete="current-password" usePasswordField />
                 </div>
 
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <x-nawasara-core::form.checkbox id="remember_me" name="remember" label="Remember me" />
+                        <x-nawasara-ui::form.checkbox id="remember_me" name="remember" label="Remember me" />
                     </div>
                     {{-- <a class="text-sm text-green-700 dark:text-green-300 hover:underline" href="">
                         Forget password?
@@ -53,10 +53,10 @@
                 </div>
 
                 <div>
-                    <x-nawasara-core::button type="submit" rounded="md"
+                    <x-nawasara-ui::button type="submit" rounded="md"
                         class="w-full py-2.5 px-4 bg-green-600 dark:bg-green-700 text-white font-medium hover:bg-green-700 dark:hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition">
                         Log In
-                    </x-nawasara-core::button>
+                    </x-nawasara-ui::button>
                 </div>
 
                 <div class="flex items-center justify-center my-4">
@@ -66,7 +66,7 @@
                 </div>
 
                 <div>
-                    <x-nawasara-core::button aria-label="Tambah" color="neutral" full rounded="md">
+                    <x-nawasara-ui::button aria-label="Tambah" color="neutral" full rounded="md">
                         {{-- contoh pakai Heroicons Solid "Plus" --}}
                         <x-slot:icon>
                             <svg class="w-5 h-5" viewBox="0 0 488 512" fill="currentColor">
@@ -85,7 +85,7 @@
                             </svg>
                         </x-slot:icon>
                         Login with SSO
-                    </x-nawasara-core::button>
+                    </x-nawasara-ui::button>
                 </div>
             </form>
         </div>

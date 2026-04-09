@@ -1,5 +1,5 @@
 <div>
-    <x-nawasara-core::table :headers="['#', 'Name', 'Total Permission', 'Total Role User', 'Created At']" title="Role Data">
+    <x-nawasara-ui::table :headers="['#', 'Name', 'Total Permission', 'Total Role User', 'Created At']" title="Role Data">
         <!-- Table Content -->
         <x-slot:table>
             @foreach ($this->items as $index => $item)
@@ -31,7 +31,7 @@
                             @endphp
                             {{-- @endif --}}
 
-                            <x-nawasara-core::dropdown-menu-action :id="$item->id" :items="$menuItems" />
+                            <x-nawasara-ui::dropdown-menu-action :id="$item->id" :items="$menuItems" />
                         </div>
                     </td>
 
@@ -57,5 +57,5 @@
         <x-slot:footer>
             {{ $this->items->links() }}
         </x-slot:footer>
-    </x-nawasara-core::table>
+    </x-nawasara-ui::table>
 </div>
