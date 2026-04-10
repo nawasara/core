@@ -14,17 +14,29 @@ class KeycloakLoginController
     }
 
     public function callback(Request $request)
-    {   
-        $user = Socialite::driver('keycloak')->user();
+    {
+        $keycloakUser = Socialite::driver('keycloak')->user();
 
-        // cari user di DB atau buat baru
-        $authUser = \App\Models\User::updateOrCreate(
-            ['email' => $user->getEmail()],
-            ['name' => $user->getName()]
-        );
+        $username = $keycloakUser->getNickname()
+            ?? $keycloakUser->user['preferred_username']
+            ?? null;
 
-        Auth::login($authUser, true);
+        $user = \App\Models\User::where('username', $username)
+            ->where('auth_type', 'sso')
+            ->first();
 
-        return redirect()->route(config('nawasara-core.home_route'));
+        if (! $user) {
+            return redirect()->route('login')
+                ->withErrors(['sso' => 'Akun belum terdaftar. Hubungi administrator.']);
+        }
+
+        $user->update([
+            'name' => $keycloakUser->getName(),
+            'email' => $keycloakUser->getEmail(),
+        ]);
+
+        Auth::login($user, true);
+
+        return redirect()->intended('/home');
     }
 }

@@ -1,5 +1,5 @@
 <div>
-    <x-nawasara-ui::table :headers="['#', 'Name', 'Email', 'Username', 'Role', 'Created At']" title="Data User">
+    <x-nawasara-ui::table :headers="['#', 'Name', 'Email', 'Username', 'Tipe', 'Role', 'Created At']" title="Data User">
         <!-- Table Content -->
         <x-slot:table>
             @foreach ($this->items as $index => $item)
@@ -52,6 +52,14 @@
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
                         {{ $item->username }}
+                    </td>
+
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        @if ($item->auth_type === 'sso')
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">SSO</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-neutral-700 dark:text-neutral-300">Local</span>
+                        @endif
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">

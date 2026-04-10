@@ -19,6 +19,7 @@ class SsoService
             'email' => $user->getEmail(),
             'name'  => $user->getName(),
             'id'    => $user->getId(),
+            'username' => $user->getNickname() ?? $user->user['preferred_username'] ?? null,
         ];
     }
 }
