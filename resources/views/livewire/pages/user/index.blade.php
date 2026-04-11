@@ -19,8 +19,10 @@
                     title: 'Form User',
                     component: 'nawasara-core.user.modal.form-user',
                     params: {  }
-                })">Create
-                    New</x-nawasara-ui::button>
+                })">
+                    <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
+                    Tambah User
+                </x-nawasara-ui::button>
             </x-nawasara-ui::page.actions>
         </x-slot>
 

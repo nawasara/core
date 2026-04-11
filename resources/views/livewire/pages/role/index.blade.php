@@ -19,8 +19,10 @@
         <x-slot name="actions">
             <x-nawasara-ui::page.actions>
                 <x-nawasara-ui::button color="success" href="{{ route('nawasara-core.role.form') }}" wire:navigate
-                    permission="nawasara-core.role.create">Create
-                    New</x-nawasara-ui::button>
+                    permission="nawasara-core.role.create">
+                    <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
+                    Tambah Role
+                </x-nawasara-ui::button>
             </x-nawasara-ui::page.actions>
         </x-slot>
 
