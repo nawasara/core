@@ -2,6 +2,7 @@
 
 namespace Nawasara\Core\Livewire\Auth;
 
+use Illuminate\Support\Facades\Route;
 use Livewire\Component;
 use Spatie\Permission\Models\Role;
 
@@ -43,7 +44,16 @@ class SwitchRole extends Component
             'message' => "Active role switched to {$roleName}.",
         ]);
 
-        return redirect()->route('nawasara-core.dashboard', ['role' => $roleName]);
+        // Redirect to the app's home/dashboard. The package can't assume
+        // a specific route name, so check common candidates and fall back
+        // to '/' if none are defined.
+        $target = match (true) {
+            Route::has('dashboard') => route('dashboard'),
+            Route::has('home') => route('home'),
+            default => url('/'),
+        };
+
+        return redirect()->intended($target);
     }
 
     public function render()
