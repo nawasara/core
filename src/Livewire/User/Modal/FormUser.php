@@ -3,16 +3,16 @@
 namespace Nawasara\Core\Livewire\User\Modal;
 
 use App\Models\User;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Computed;
 use Illuminate\Support\Facades\DB;
-use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Livewire\Component;
 use Nawasara\Core\Constants\Constants;
-use Nawasara\Toaster\Concerns\HasToaster;
 use Nawasara\Core\Livewire\Forms\UserForm;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Nawasara\Core\Livewire\User\Section\Table;
+use Nawasara\Toaster\Concerns\HasToaster;
+use Spatie\Permission\Models\Role;
 
 class FormUser extends Component
 {
@@ -30,10 +30,12 @@ class FormUser extends Component
 
     public function mount($params = [])
     {
+        Gate::authorize(isset($params['id']) ? 'nawasara-core.user.edit' : 'nawasara-core.user.create');
+
         $this->roles = Role::all();
 
         $this->params = $params;
-        self::initDataEdit();
+        $this->initDataEdit();
     }
     
     public function initDataEdit()
@@ -52,12 +54,14 @@ class FormUser extends Component
     #[On('store')]
     public function store($roles = [])
     {
+        Gate::authorize(isset($this->params['id']) ? 'nawasara-core.user.edit' : 'nawasara-core.user.create');
+
         DB::beginTransaction();
 
         $this->form->setRoles($roles);
-        
+
         $this->form->store();
-        
+
         DB::commit();
 
         /* close modal */

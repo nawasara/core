@@ -3,10 +3,11 @@
 namespace Nawasara\Core\Livewire\User\Section;
 
 use App\Models\User;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\WithPagination;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 use Nawasara\Core\Constants\Constants;
 use Nawasara\Toaster\Concerns\HasToaster;
@@ -30,9 +31,11 @@ class Table extends Component
 
     }
     
-    #[On('delete-role')]
+    #[On('confirm-delete')]
     public function delete($id)
     {
+        Gate::authorize('nawasara-core.user.delete');
+
         $model = User::findOrFail($id);
         $model->delete();
 
@@ -54,15 +57,10 @@ class Table extends Component
     #[On('filter')]
     public function filter($search = null, $selectedRole = null)
     {
-        $params = [
+        $this->params = [
             'search' => $search,
-            'selectedRole' => $selectedRole
+            'selectedRole' => $selectedRole,
         ];
-
-        $this->params = $params;
-
-        info($params);
-
     }
 
     public function render()

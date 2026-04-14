@@ -2,12 +2,13 @@
 
 namespace Nawasara\Core\Livewire\Role\Section;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\WithPagination;
-use Nawasara\Core\Models\Role;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use Livewire\WithPagination;
 use Nawasara\Core\Constants\Constants;
+use Nawasara\Core\Models\Role;
 use Nawasara\Toaster\Concerns\HasToaster;
 
 class Table extends Component
@@ -29,9 +30,11 @@ class Table extends Component
             ->layout('nawasara-ui::components.layouts.app');
     }
 
-    #[On('delete-role')]
+    #[On('confirm-delete')]
     public function delete($id)
     {
+        Gate::authorize('nawasara-core.role.delete');
+
         $model = Role::findOrFail($id);
         $model->delete();
 

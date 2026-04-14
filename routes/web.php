@@ -1,22 +1,31 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Nawasara\Core\Http\Controllers\Auth\SsoController;
 use Nawasara\Core\Livewire\Auth\Login;
 use Nawasara\Core\Livewire\Auth\SwitchRole;
 use Nawasara\Core\Livewire\Role\Form;
-use Nawasara\Core\Livewire\User\Index;
 use Nawasara\Core\Livewire\Role\Index as RoleIndex;
-use Nawasara\Core\Http\Controllers\Auth\SsoController;
+use Nawasara\Core\Livewire\User\Index;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
 Route::middleware(['web'])->group(function () {
     Route::get('/login', Login::class)
         ->middleware(['guest'])
         ->name('login');
 
-    Route::prefix('nawasara-core')->group(function () {
-        Route::get('users', Index::class)->name('nawasara-core.user.index');
-        Route::get('role/form/{id?}', Form::class)->name('nawasara-core.role.form');
-        Route::get('roles', RoleIndex::class)->name('nawasara-core.role.index');
+    Route::middleware(['auth'])->prefix('nawasara-core')->group(function () {
+        Route::get('users', Index::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.user.view'))
+            ->name('nawasara-core.user.index');
+
+        Route::get('roles', RoleIndex::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.role.view'))
+            ->name('nawasara-core.role.index');
+
+        Route::get('role/form/{id?}', Form::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.role.create|nawasara-core.role.edit'))
+            ->name('nawasara-core.role.form');
     });
 
     if (config('nawasara.auth_provider') === 'keycloak') {

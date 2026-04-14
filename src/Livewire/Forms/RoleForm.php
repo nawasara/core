@@ -1,9 +1,8 @@
 <?php
 
-namespace Naasara\Core\Livewire\Forms;
+namespace Nawasara\Core\Livewire\Forms;
 
 use Livewire\Form;
-use Livewire\Attributes\Validate;
 use Spatie\Permission\Models\Role;
 use Nawasara\Core\Rules\UniqueRole;
 
@@ -67,7 +66,7 @@ class RoleForm extends Form
 
     public function setModel(Role $role, $permissions = [])
     {
-        $this->role = $role; // untuk validasi email unique
+        $this->role = $role; // untuk validasi nama unique (UniqueRole rule)
 
         $this->id = $role->id;
         $this->name = $role->name;

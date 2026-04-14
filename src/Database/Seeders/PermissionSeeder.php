@@ -28,15 +28,16 @@ class PermissionSeeder extends Seeder
 
     public function permission()
     {
-        $prefix = 'nawasara-core.';
-        $group = $prefix.'user';
-        $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete']);
-        $group = $prefix.'role';
-        $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete', 'permission']);
-        $group = $prefix.'permission';
-        $permissions = PermissionService::create($group, ['view', 'create', 'edit', 'delete']);
-        $group = $prefix.'component';
-        $permissions = PermissionService::create($group, ['view']);
+        $modules = [
+            'user'       => ['view', 'create', 'edit', 'delete'],
+            'role'       => ['view', 'create', 'edit', 'delete', 'permission'],
+            'permission' => ['view', 'create', 'edit', 'delete'],
+            'component'  => ['view'],
+        ];
+
+        foreach ($modules as $module => $actions) {
+            PermissionService::create('nawasara-core.'.$module, $actions);
+        }
     }
 
     public function roleGivePermission()

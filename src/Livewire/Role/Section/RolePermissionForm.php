@@ -2,16 +2,15 @@
 
 namespace Nawasara\Core\Livewire\Role\Section;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Nawasara\Core\Models\Role;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
-use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\On;
+use Livewire\Component;
 use Nawasara\Core\Constants\Constants;
-use Spatie\Permission\Models\Permission;
-use Naasara\Core\Livewire\Forms\RoleForm;
+use Nawasara\Core\Livewire\Forms\RoleForm;
+use Nawasara\Core\Models\Role;
 use Nawasara\Toaster\Concerns\HasToaster;
-use Illuminate\Routing\Controllers\Middleware;
+use Spatie\Permission\Models\Permission;
 
 class RolePermissionForm extends Component
 {
@@ -24,44 +23,53 @@ class RolePermissionForm extends Component
 
     public function mount($id = null)
     {
+        Gate::authorize($id ? 'nawasara-core.role.edit' : 'nawasara-core.role.create');
+
         $this->id = $id;
-        $this->permissions = Permission::select('id', 'name', 'group')->get();
-        self::initDataEdit();
+        $this->permissions = Permission::select('id', 'name')->orderBy('name')->get();
+        $this->initDataEdit();
     }
-    
+
+    /**
+     * Group permissions by name structure: package.module.action
+     *
+     * Grouping is derived from the permission name itself (split by dots)
+     * rather than the legacy `group` column, since other packages register
+     * permissions without populating that column. This keeps the role form
+     * working for ALL package permissions consistently.
+     */
     #[Computed]
     public function permissionGroups()
     {
-
-        // dd($this->permissions);
         return $this->permissions
-        ->groupBy(function ($item) {
-            // Ambil prefix utama "nawasara-core"
-            return explode('.', $item->group)[0] ?? null;
-        })
-        ->map(function ($items) {
-            return $items->groupBy(function ($item) {
-                // Ambil sub-group misalnya "user", "role", "permission"
-                return explode('.', $item->group)[1] ?? null;
-            })->map(function ($subItems) {
-                // Ambil nama permission terakhir misalnya "view", "create"
-                return $subItems->map(function ($item) {
-                    return [
-                        'id'   => $item->id,
-                        'name' => str_replace($item->group . '.', '', $item->name),
-                    ];
-                })->values();
+            ->groupBy(fn ($item) => explode('.', $item->name)[0] ?? 'lainnya')
+            ->map(function ($items) {
+                return $items
+                    ->groupBy(fn ($item) => explode('.', $item->name)[1] ?? 'umum')
+                    ->map(function ($subItems) {
+                        return $subItems->map(function ($item) {
+                            $parts = explode('.', $item->name);
+                            $action = count($parts) >= 3
+                                ? implode('.', array_slice($parts, 2))
+                                : end($parts);
+
+                            return [
+                                'id'   => $item->id,
+                                'name' => $action,
+                            ];
+                        })->values();
+                    });
             });
-        });
     }
 
-    #[On('save-role')] 
-    public function saveRole($permission = [])
+    #[On('save-role')]
+    public function saveRole(array $permission = [])
     {
+        Gate::authorize($this->id ? 'nawasara-core.role.edit' : 'nawasara-core.role.create');
 
-        $permissions = self::flattenPermissions($permission);
-        
-        info('role');
+        // Normalize: cast to int, dedupe, reindex.
+        $permissions = array_values(array_unique(array_map('intval', $permission)));
+
         $this->form->setPermissions($permissions);
         $this->form->store();
 
@@ -71,33 +79,17 @@ class RolePermissionForm extends Component
 
     public function initDataEdit()
     {
-        if (!$this->id) return;
+        if (! $this->id) {
+            return;
+        }
 
         $role = Role::with('permissions')->find($this->id);
         $permissions = $role->permissions->pluck('id')->toArray();
 
-        // store selected permissions so the Blade view can pre-check boxes
         $this->selectedPermissions = $permissions;
-
         $this->form->setModel($role, $permissions);
     }
 
-    public function flattenPermissions(array $data): array
-    {
-        $merged = [];
-
-        foreach ($data as $group) {
-            if (is_array($group) && !empty($group)) {
-                // gabungkan secara bertahap
-                $merged = array_merge($merged, $group);
-            }
-        }
-
-        if (count($merged) == 0) return [];
-        // Hapus duplikat, reindex, dan ubah semua ke integer
-        return array_map('intval', array_values(array_unique($merged)));
-    }
-    
     public function render()
     {
         return view('nawasara-core::livewire.pages.role.section.role-permission-form')->layout('nawasara-ui::components.layouts.app');
