@@ -1,4 +1,4 @@
-<x-nawasara-ui::layouts.guest>
+<div>
     <div class="min-h-dvh flex items-center justify-center py-12 px-4 sm:px-6 lgap:px-8">
         <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-900 p-8 rounded-xl shadow-lg">
             <div class="text-center mb-6">
@@ -40,7 +40,7 @@
                 <div>
                     <x-nawasara-ui::form.label for="password" value="Password" />
                     <x-nawasara-ui::form.input id="password" name="password" type="password" value="password"
-                        required autocomplete="current-password" />
+                        required autocomplete="current-password" usePasswordField />
                 </div>
 
                 <div class="flex items-center justify-between">
@@ -90,25 +90,4 @@
             </form>
         </div>
     </div>
-
-    <script>
-        // Simulasi error dan status messages untuk demo
-        document.addEventListener('DOMContentLoaded', function() {
-            // Simulasi error message
-            // const hasError = Math.random() > 0.5;
-            // if (hasError) {
-            //     const errorDiv = document.querySelector('.bg-red-50');
-            //     errorDiv.classList.remove('hidden');
-            //     errorDiv.querySelector('ul').innerHTML = '<li>Email atau password salah</li>';
-            // }
-
-            // Simulasi status message
-            // const hasStatus = Math.random() > 0.7;
-            // if (hasStatus) {
-            //     const statusDiv = document.querySelector('.bg-green-100');
-            //     statusDiv.classList.remove('hidden');
-            //     statusDiv.textContent = 'Login berhasil! Mengalihkan...';
-            // }
-        });
-    </script>
-</x-nawasara-ui::layouts.guest>
+</div>

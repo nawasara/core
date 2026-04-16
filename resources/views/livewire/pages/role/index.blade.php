@@ -1,30 +1,37 @@
 <div>
 
-    <x-slot:title>
-        Role - Nawasara Core
-    </x-slot:title>
-
+    {{-- breadcrumb: show on mobile only --}}
     <x-slot name="breadcrumb">
-        <livewire:nawasara-core.shared-components.breadcrumb :items="[
+        <livewire:nawasara-ui.shared-components.breadcrumb :items="[
             ['label' => 'User Management', 'url' => '/'],
-            ['label' => 'Role', 'url' => '/'],
-            ['label' => 'Create New'],
+            ['label' => 'Role', 'url' => route('nawasara-core.role.index'), 'navigate' => true],
         ]" />
     </x-slot>
-    <x-nawasara-core::page.container>
+    {{-- end breadcrumb --}}
 
-        <x-slot name="title">
-            <x-nawasara-core::page.title>Form - Nawasara Core</x-nawasara-core::page.title>
-        </x-slot>
+    {{-- container --}}
+    <x-nawasara-ui::page.container>
 
+        {{-- title --}}
+        <x-nawasara-ui::page.title>Role - Nawasara Core</x-nawasara-ui::page.title>
 
+        {{-- button action --}}
         <x-slot name="actions">
-            <x-nawasara-core::page.actions>
-                <nawasara-core::button>Create New</nawasara-core::button>
-            </x-nawasara-core::page.actions>
+            <x-nawasara-ui::page.actions>
+                <x-nawasara-ui::button color="success" href="{{ route('nawasara-core.role.form') }}" wire:navigate
+                    permission="nawasara-core.role.create">
+                    <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
+                    Tambah Role
+                </x-nawasara-ui::button>
+            </x-nawasara-ui::page.actions>
         </x-slot>
 
-        @livewire('nawasara-core.pages.role.table')
+        {{-- table / content --}}
+        @livewire('nawasara-core.role.section.table')
 
-    </x-nawasara-core::page.container>
+        {{-- delete confirmation --}}
+        <x-nawasara-ui::modal-confirm-delete />
+
+    </x-nawasara-ui::page.container>
+    {{-- end container --}}
 </div>

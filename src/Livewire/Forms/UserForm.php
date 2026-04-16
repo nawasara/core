@@ -4,34 +4,46 @@ namespace Nawasara\Core\Livewire\Forms;
 
 use App\Models\User;
 use Illuminate\Validation\Rule;
-use Livewire\Attributes\Validate;
 use Livewire\Form;
-use Spatie\Permission\Models\Role;
 
 class UserForm extends Form
 {
-    public $id = '';
+    public $id;
 
-    public $name = '';
+    public $name;
 
-    public $username = '';
+    public $username;
 
-    public $email = '';
+    public $roles = [];
 
-    public $password = '';
+    public $email;
 
-    public $role;
+    public $password;
+
+    public $auth_type = 'local';
 
     public $user;
 
     public function rules()
     {
+        $passwordRules = 'nullable';
+
+        if ($this->auth_type === 'local' && ! $this->user) {
+            $passwordRules = 'required|string|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$/';
+        } elseif ($this->auth_type === 'local' && $this->user) {
+            $passwordRules = 'nullable|string|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$/';
+        }
+
         return [
             'name' => 'required|max:250',
-            'username' => 'required|max:16',
-            'role' => 'required',
-            'password' => $this->user ? 'nullable' : 'required|string|regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$/',
-            // 'repassword' => !$this->password ? 'nullable' : 'required_with:password|same:password|min:6',
+            'username' => [
+                'required',
+                'max:'.($this->auth_type === 'sso' ? '50' : '16'),
+                Rule::unique('users', 'username')->ignore($this->user),
+            ],
+            'auth_type' => 'required|in:local,sso',
+            'roles' => 'required',
+            'password' => $passwordRules,
             'email' => [
                 'required',
                 'string',
@@ -39,7 +51,6 @@ class UserForm extends Form
                 Rule::unique('users')->ignore($this->user),
             ],
         ];
-
     }
 
     public function messages()
@@ -48,8 +59,12 @@ class UserForm extends Form
 
         return [
             'password.regex' => 'The :attribute '.$password_message,
-            'database_password.regex' => 'The :attribute '.$password_message,
         ];
+    }
+
+    public function setRoles(array|int $roles = null)
+    {
+        $this->roles = is_int($roles) ? [$roles] : $roles ?? [];
     }
 
     public function store()
@@ -60,32 +75,34 @@ class UserForm extends Form
             'name' => $this->name,
             'username' => $this->username,
             'email' => $this->email,
+            'auth_type' => $this->auth_type,
         ];
 
-        /* jika password terisi, maka masukkan ke proses simpan */
-        if ($this->password) {
+        if ($this->auth_type === 'sso') {
+            $payload['password'] = null;
+        } elseif ($this->password) {
             $payload['password'] = bcrypt($this->password);
         }
 
-        /* proses simpan */
         $user = User::updateOrCreate([
             'id' => $this->id,
         ], $payload);
 
-        $role = Role::find($this->role);
-        $user->syncRoles($role);
+        $user->syncRoles($this->roles);
 
         return $user;
     }
 
     public function setModel(User $user)
     {
-        $this->user = $user; // untuk validasi email unique
+        $this->user = $user;
 
         $this->id = $user->id;
         $this->name = $user->name;
         $this->username = $user->username;
         $this->email = $user->email;
-        $this->role = $user->roles->first()->id;
+        $this->auth_type = $user->auth_type ?? 'local';
+
+        $this->roles = $user->roles->pluck('id')->toArray();
     }
 }

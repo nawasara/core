@@ -4,7 +4,7 @@ namespace Nawasara\Core\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Nawasara\Core\Auth\Services\SsoService;
+use Nawasara\Core\Services\SsoService;
 
 class SsoController extends Controller
 {
@@ -24,19 +24,22 @@ class SsoController extends Controller
     {
         $userData = $this->sso->callback();
 
-        // cari user atau buat baru
-        $user = \App\Models\User::firstOrCreate(
-            ['email' => $userData['email']],
-            ['name' => $userData['name']]
-        );
+        $user = \App\Models\User::where('username', $userData['username'])
+            ->where('auth_type', 'sso')
+            ->first();
 
-        // assign role
-        if (method_exists($user, 'assignRole')) {
-            $user->assignRole(config('nawasara.auth.default_role', 'user'));
+        if (! $user) {
+            return redirect()->route('login')
+                ->withErrors(['sso' => 'Akun belum terdaftar. Hubungi administrator.']);
         }
-        
+
+        $user->update([
+            'name' => $userData['name'],
+            'email' => $userData['email'],
+        ]);
+
         Auth::login($user, true);
 
-        return redirect()->intended('/');
+        return redirect()->intended('/home');
     }
 }

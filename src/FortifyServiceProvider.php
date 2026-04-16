@@ -3,6 +3,7 @@
 namespace Nawasara\Core;
 
 use App\Models\User;
+use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Hash;
@@ -18,8 +19,7 @@ class FortifyServiceProvider extends ServiceProvider
         self::loginByUsernameOrEmail();
 
         // Tampilan form login
-        Fortify::loginView(fn () => view($config['views']['login']));
-
+        // Fortify::loginView(fn () => view($config['views']['login']));
         // Tampilan form register
         Fortify::registerView(fn () => view($config['views']['register']));
 

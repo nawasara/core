@@ -1,78 +1,41 @@
 <?php
 
-use Livewire\Volt\Volt;
 use Illuminate\Support\Facades\Route;
-use Nawasara\Core\Livewire\Pages\User\Index;
-use Nawasara\Core\Http\Controllers\RoleController;
-use Nawasara\Core\Http\Controllers\UserController;
 use Nawasara\Core\Http\Controllers\Auth\SsoController;
-use Nawasara\Core\Http\Controllers\Auth\LoginController;
-use Nawasara\Core\Http\Controllers\Auth\LogoutController;
-use Nawasara\Core\Livewire\Pages\Role\Index as RoleIndex;
-
-// Tambahkan setelah create()
-// Volt::mount([
-//     __DIR__.'/../resources/views/livewire/volt'
-// ]);
+use Nawasara\Core\Livewire\Auth\Login;
+use Nawasara\Core\Livewire\Auth\SwitchRole;
+use Nawasara\Core\Livewire\Role\Form;
+use Nawasara\Core\Livewire\Role\Index as RoleIndex;
+use Nawasara\Core\Livewire\User\Index;
+use Spatie\Permission\Middleware\PermissionMiddleware;
 
 Route::middleware(['web'])->group(function () {
+    Route::get('/login', Login::class)
+        ->middleware(['guest'])
+        ->name('login');
 
-    Route::prefix('nawasara-core')->group(function () {
-        Route::get('/test-csrf', function () {
-            echo csrf_token();
-        });
+    Route::middleware(['auth'])->prefix('nawasara-core')->group(function () {
+        Route::get('users', Index::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.user.view'))
+            ->name('nawasara-core.user.index');
 
-        Route::get('/components/table', function () {
-            return view('nawasara-core::pages.examples.table', [
-                'title' => 'Table Component Example'
-            ]);
-        });
+        Route::get('roles', RoleIndex::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.role.view'))
+            ->name('nawasara-core.role.index');
 
-        Route::get('/components/base', function () {
-            return view('nawasara-core::pages.examples.base', [
-                'title' => 'base Component Example'
-            ]);
-        });
-
-        Route::get('/components/form', function () {
-            return view('nawasara-core::pages.examples.form', [
-                'title' => 'Form Component Example'
-            ]);
-        });
-
-        
-        // Volt::route('/users', 'nawasara-core::user.index')->name('nawasara-core.users.index');
-        // Volt::route('/users', 'user-index')->name('nawasara-core.users.index');
-        // Kalau masih error, pake route biasa
-        
-        // Volt::route('/users', 'user.index')->name('nawasara-core.users.index');
-        Route::get('users', Index::class)->name('nawasara-core.user.index');
-        Route::get('roles', RoleIndex::class)->name('nawasara-core.role.index');
-
+        Route::get('role/form/{id?}', Form::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.role.create|nawasara-core.role.edit'))
+            ->name('nawasara-core.role.form');
     });
 
-    // if (config('nawasara-core.auth_provider') === 'jetstream') {
-    //     // Gunakan login Jetstream bawaan
-    //     Auth::routes(); // atau biarkan Jetstream handle
-    // }
-
-    if (config('nawasara-core.auth_provider') === 'keycloak') {
+    if (config('nawasara.auth_provider') === 'keycloak') {
         Route::get('/login', [\Nawasara\Core\Http\Controllers\KeycloakLoginController::class, 'redirect'])->name('login');
         Route::get('/callback', [\Nawasara\Core\Http\Controllers\KeycloakLoginController::class, 'callback']);
     }
-    
-    if (config('nawasara-core.use_default_home')) {
-        Route::get('/', function () {
-            return redirect()->route(config('nawasara-core.home_route'));
-        });
-    }
-    
+
     // SSO
     Route::get('/sso/redirect', [SsoController::class, 'redirect'])->name('sso.redirect');
     Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
 
-
-    Route::get('/home', function () {
-        return view('nawasara-core::dashboard');
-    })->name('nawasara-core.dashboard')->middleware('auth');
+    Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
 });

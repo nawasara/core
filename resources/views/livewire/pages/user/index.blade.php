@@ -1,36 +1,35 @@
 <div>
-    <x-slot:title>
-        User - Nawasara Core
-    </x-slot:title>
-
     <x-slot name="breadcrumb">
-        <livewire:nawasara-core.shared-components.breadcrumb :items="[
-            ['label' => 'User Management', 'url' => '/'],
-            ['label' => 'User', 'url' => '/'],
-            ['label' => 'Create New'],
-        ]" />
+        <livewire:nawasara-ui.shared-components.breadcrumb :items="[['label' => 'User Management', 'url' => '/'], ['label' => 'User', 'url' => '/']]" />
     </x-slot>
-    <x-nawasara-core::page.container>
+    <x-nawasara-ui::page.container>
 
-        <x-slot name="title">
-            <x-nawasara-core::page.title>User</x-nawasara-core::page.title>
-        </x-slot>
+        <x-nawasara-ui::page.title>User - Nawasara Core</x-nawasara-ui::page.title>
+
+        {{-- <x-slot name="title">
+            <x-nawasara-ui::page.title>User - Nawasara Core</x-nawasara-ui::page.title>
+        </x-slot> --}}
 
 
         <x-slot name="actions">
-            <x-nawasara-core::page.actions>
-                <x-nawasara-core::button color="primary"
+            <x-nawasara-ui::page.actions>
+                <x-nawasara-ui::button color="success"
                     @click="openLivewireModal({
                     id: 'modal-user-form',
                     title: 'Form User',
-                    component: 'nawasara-core.modals.form-user',
+                    component: 'nawasara-core.user.modal.form-user',
                     params: {  }
-                })">Create
-                    New</x-nawasara-core::button>
-            </x-nawasara-core::page.actions>
+                })">
+                    <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
+                    Tambah User
+                </x-nawasara-ui::button>
+            </x-nawasara-ui::page.actions>
         </x-slot>
 
-        @livewire('nawasara-core.pages.user.table')
+        @livewire('nawasara-core.user.section.table')
 
-    </x-nawasara-core::page.container>
+        {{-- delete confirmation --}}
+        <x-nawasara-ui::modal-confirm-delete />
+
+    </x-nawasara-ui::page.container>
 </div>
