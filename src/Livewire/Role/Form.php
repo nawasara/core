@@ -8,7 +8,7 @@ use Illuminate\Routing\Controllers\Middleware;
 class Form extends Component
 {
     public $id;
-    public function mount($id)
+    public function mount($id = null)
     {
         $this->id = $id;
     }
