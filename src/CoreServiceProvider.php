@@ -17,6 +17,7 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'nawasara-core');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         $this->publishSpatiePermission();
 

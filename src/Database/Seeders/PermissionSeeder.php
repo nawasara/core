@@ -23,7 +23,7 @@ class PermissionSeeder extends Seeder
 
     public function role()
     {
-        Role::create(['name' => Constants::DEFAULT_ROLE]);
+        Role::firstOrCreate(['name' => Constants::DEFAULT_ROLE]);
     }
 
     public function permission()
@@ -33,6 +33,7 @@ class PermissionSeeder extends Seeder
             'role'       => ['view', 'create', 'edit', 'delete', 'permission'],
             'permission' => ['view', 'create', 'edit', 'delete'],
             'component'  => ['view'],
+            'branding'   => ['view', 'manage'],
         ];
 
         foreach ($modules as $module => $actions) {

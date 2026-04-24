@@ -6,7 +6,10 @@
     "autoload": {
         "psr-4": {
             "Nawasara\\Core\\": "src/"
-        }
+        },
+        "files": [
+            "src/Helpers/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

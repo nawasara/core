@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Nawasara\Core\Http\Controllers\Auth\SsoController;
 use Nawasara\Core\Livewire\Auth\Login;
 use Nawasara\Core\Livewire\Auth\SwitchRole;
+use Nawasara\Core\Livewire\Branding\Index as BrandingIndex;
 use Nawasara\Core\Livewire\Role\Form;
 use Nawasara\Core\Livewire\Role\Index as RoleIndex;
 use Nawasara\Core\Livewire\User\Index;
@@ -26,6 +27,10 @@ Route::middleware(['web'])->group(function () {
         Route::get('role/form/{id?}', Form::class)
             ->middleware(PermissionMiddleware::using('nawasara-core.role.create|nawasara-core.role.edit'))
             ->name('nawasara-core.role.form');
+
+        Route::get('branding', BrandingIndex::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.branding.manage'))
+            ->name('nawasara-core.branding.index');
     });
 
     if (config('nawasara.auth_provider') === 'keycloak') {

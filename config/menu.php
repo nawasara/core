@@ -4,6 +4,7 @@ $prefix = 'nawasara-core';
 
 return [
     [
+        'workspace' => 'user-management',
         'label' => 'User Management',
         'icon' => 'lucide-users',
         'url' => '',
@@ -21,6 +22,23 @@ return [
                 'icon' => 'lucide-shield-check',
                 'url' => url($prefix.'/roles'),
                 'permission' => $prefix.'.role.view',
+                'navigate' => true,
+            ],
+        ],
+    ],
+
+    [
+        'workspace' => 'settings',
+        'label' => 'Pengaturan',
+        'icon' => 'lucide-settings',
+        'url' => '',
+        'permission' => $prefix.'.branding.manage',
+        'submenu' => [
+            [
+                'label' => 'Branding',
+                'icon' => 'lucide-palette',
+                'url' => url($prefix.'/branding'),
+                'permission' => $prefix.'.branding.manage',
                 'navigate' => true,
             ],
         ],
