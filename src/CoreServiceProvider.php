@@ -7,9 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Spatie\Permission\Models\Role as SpatieRole;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -24,8 +22,6 @@ class CoreServiceProvider extends ServiceProvider
         $this->offerPublishing();
 
         $this->registerLivewire();
-
-        $this->switchRoleGate();
     }
 
     public function register(): void
@@ -103,24 +99,6 @@ class CoreServiceProvider extends ServiceProvider
                 Livewire::component($alias, $class);
             }
         }
-    }
-
-    private function switchRoleGate(): void
-    {
-        Gate::before(function ($user, $ability) {
-            $active = session('active_role');
-            if (! $active) {
-                return null;
-            }
-
-            $role = SpatieRole::where('name', $active)->first();
-
-            if (! $role) {
-                return false;
-            }
-
-            return $role->hasPermissionTo($ability) ? true : false;
-        });
     }
 
     protected function getMigrationFileName(string $migrationFileName): string
