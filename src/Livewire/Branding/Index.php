@@ -6,9 +6,11 @@ use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Nawasara\Core\Models\Setting;
+use Nawasara\Ui\Livewire\Concerns\HasBrowserToast;
 
 class Index extends Component
 {
+    use HasBrowserToast;
     use WithFileUploads;
 
     public string $appName = '';
@@ -62,7 +64,7 @@ class Index extends Component
             $this->favicon = null;
         }
 
-        toaster_success('Branding berhasil disimpan. Refresh halaman untuk melihat perubahan.');
+        $this->toastSuccess('Branding berhasil disimpan. Refresh halaman untuk melihat perubahan.');
     }
 
     public function removeLogo(string $variant): void
@@ -86,7 +88,7 @@ class Index extends Component
             'favicon' => $this->currentFavicon = null,
         };
 
-        toaster_success('Logo dihapus');
+        $this->toastSuccess('Logo dihapus');
     }
 
     public function render()
