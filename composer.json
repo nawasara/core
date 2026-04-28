@@ -1,8 +1,28 @@
 {
     "name": "nawasara/core",
-    "description": "Auth, user management, and role/permission for Nawasara superapp",
+    "description": "Core package for Nawasara: authentication via Laravel Fortify, role/permission via Spatie, branding settings, and shared helpers.",
     "type": "library",
     "license": "MIT",
+    "keywords": [
+        "nawasara",
+        "laravel",
+        "fortify",
+        "authentication",
+        "rbac",
+        "spatie-permission",
+        "branding"
+    ],
+    "authors": [
+        {
+            "name": "Pringgo J. Saputro",
+            "email": "odyinggo@gmail.com",
+            "role": "Lead Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/nawasara/core/issues",
+        "source": "https://github.com/nawasara/core"
+    },
     "autoload": {
         "psr-4": {
             "Nawasara\\Core\\": "src/"
@@ -33,5 +53,7 @@
                 "Nawasara\\Core\\CoreServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
