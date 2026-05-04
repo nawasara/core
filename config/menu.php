@@ -41,6 +41,13 @@ return [
                 'permission' => $prefix.'.branding.manage',
                 'navigate' => true,
             ],
+            [
+                'label' => 'Authentication',
+                'icon' => 'lucide-key-round',
+                'url' => url($prefix.'/settings/auth'),
+                'permission' => $prefix.'.auth.manage',
+                'navigate' => true,
+            ],
         ],
     ],
 ];

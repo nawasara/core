@@ -1,36 +1,71 @@
 <?php
+
 namespace Nawasara\Core\Livewire\Auth;
 
-use Livewire\Component;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+use Livewire\Component;
+use Nawasara\Core\Auth\AuthMode;
 
+/**
+ * Login form. Conditional render berdasarkan AuthMode (lihat blade):
+ *   - local : form username/email + password tampil, button SSO sembunyi
+ *   - sso   : button SSO tampil, form sembunyi
+ *   - both  : keduanya tampil
+ *
+ * Backend safety: kalau user `auth_type='sso'` coba lewat form, di-reject
+ * dengan pesan "akun ini login pakai SSO" — sehingga config mode tidak
+ * jadi satu-satunya garis pertahanan.
+ */
 class Login extends Component
 {
-    public $email = '';
-    public $password = '';
+    public string $identifier = '';
+    public string $password = '';
+    public bool $remember = false;
 
-    public function login()
+    public function login(): void
     {
-        $credentials = Validator::make([
-            'email' => $this->email,
-            'password' => $this->password,
-        ], [
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ])->validate();
-
-        if (Auth::attempt($credentials)) {
-            session()->regenerate();
-            return redirect()->intended('/home');
+        // Mode `sso` exclusive — form login lokal di-block
+        if (! AuthMode::isLocalEnabled()) {
+            $this->addError('identifier', 'Login lokal sedang dinonaktifkan. Gunakan tombol SSO.');
+            return;
         }
 
-        $this->addError('email', 'Email atau password salah.');
+        $this->validate([
+            'identifier' => ['required', 'string', 'max:255'],
+            'password' => ['required', 'string'],
+        ], attributes: [
+            'identifier' => 'username/email',
+        ]);
+
+        $field = filter_var($this->identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $user = User::where($field, $this->identifier)->first();
+
+        if (! $user || ! Hash::check($this->password, $user->password ?? '')) {
+            $this->addError('identifier', 'Username/email atau password salah.');
+            return;
+        }
+
+        // Auth type guard — user SSO tidak boleh login lewat password
+        if (method_exists($user, 'isSso') && $user->isSso()) {
+            $this->addError('identifier', 'Akun ini login lewat SSO — gunakan tombol Login with SSO.');
+            return;
+        }
+
+        Auth::login($user, $this->remember);
+        session()->regenerate();
+
+        $this->redirectIntended('/home', navigate: false);
     }
 
     public function render()
     {
-        return view('nawasara-core::livewire.pages.auth.login')
-            ->layout('nawasara-ui::components.layouts.guest');
+        return view('nawasara-core::livewire.pages.auth.login', [
+            'authMode' => AuthMode::current(),
+            'rawAuthMode' => AuthMode::raw(),
+            'localEnabled' => AuthMode::isLocalEnabled(),
+            'ssoEnabled' => AuthMode::isSsoEnabled(),
+        ])->layout('nawasara-ui::components.layouts.guest');
     }
 }

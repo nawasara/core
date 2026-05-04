@@ -5,6 +5,7 @@ namespace Nawasara\Core;
 use Livewire\Livewire;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +23,27 @@ class CoreServiceProvider extends ServiceProvider
         $this->offerPublishing();
 
         $this->registerLivewire();
+
+        $this->registerSocialiteProviders();
+    }
+
+    /**
+     * Hook Socialite custom providers (Keycloak) lewat event listener pattern
+     * yang di-pakai socialiteproviders/manager.
+     *
+     * Listener cuma extend Socialite — credential di-hydrate runtime oleh
+     * Nawasara\Core\Services\SsoService dari Vault sebelum panggil driver.
+     */
+    protected function registerSocialiteProviders(): void
+    {
+        if (! class_exists(\SocialiteProviders\Manager\SocialiteWasCalled::class)) {
+            return;
+        }
+
+        Event::listen(\SocialiteProviders\Manager\SocialiteWasCalled::class, [
+            \SocialiteProviders\Keycloak\KeycloakExtendSocialite::class,
+            'handle',
+        ]);
     }
 
     public function register(): void

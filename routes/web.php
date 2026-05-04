@@ -11,9 +11,19 @@ use Nawasara\Core\Livewire\User\Index;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
 Route::middleware(['web'])->group(function () {
+    // Auth — single login route, mode (local/sso/both) di-handle oleh
+    // Nawasara\Core\Livewire\Auth\Login berdasarkan AuthMode setting.
     Route::get('/login', Login::class)
         ->middleware(['guest'])
         ->name('login');
+
+    // SSO — disable middleware 'guest' supaya callback bisa terima redirect
+    // dari IdP saat user belum login. SsoController handle session attach.
+    Route::get('/sso/redirect', [SsoController::class, 'redirect'])
+        ->middleware(['guest'])
+        ->name('sso.redirect');
+    Route::get('/sso/callback', [SsoController::class, 'callback'])
+        ->name('sso.callback');
 
     Route::middleware(['auth'])->prefix('nawasara-core')->group(function () {
         Route::get('users', Index::class)
@@ -31,16 +41,13 @@ Route::middleware(['web'])->group(function () {
         Route::get('branding', BrandingIndex::class)
             ->middleware(PermissionMiddleware::using('nawasara-core.branding.manage'))
             ->name('nawasara-core.branding.index');
+
+        Route::get('settings/auth', \Nawasara\Core\Livewire\Setting\Auth::class)
+            ->middleware(PermissionMiddleware::using('nawasara-core.auth.manage'))
+            ->name('nawasara-core.settings.auth');
     });
 
-    if (config('nawasara.auth_provider') === 'keycloak') {
-        Route::get('/login', [\Nawasara\Core\Http\Controllers\KeycloakLoginController::class, 'redirect'])->name('login');
-        Route::get('/callback', [\Nawasara\Core\Http\Controllers\KeycloakLoginController::class, 'callback']);
-    }
-
-    // SSO
-    Route::get('/sso/redirect', [SsoController::class, 'redirect'])->name('sso.redirect');
-    Route::get('/sso/callback', [SsoController::class, 'callback'])->name('sso.callback');
-
-    Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
+    Route::middleware(['auth'])->group(function () {
+        Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
+    });
 });

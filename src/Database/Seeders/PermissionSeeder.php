@@ -24,6 +24,9 @@ class PermissionSeeder extends Seeder
     public function role()
     {
         Role::firstOrCreate(['name' => Constants::DEFAULT_ROLE]);
+        // Default role untuk auto-provision SSO user. Sengaja tanpa permission
+        // — admin promote ke role lain setelah verifikasi.
+        Role::firstOrCreate(['name' => 'guest']);
     }
 
     public function permission()
@@ -34,6 +37,7 @@ class PermissionSeeder extends Seeder
             'permission' => ['view', 'create', 'edit', 'delete'],
             'component'  => ['view'],
             'branding'   => ['view', 'manage'],
+            'auth'       => ['manage'],
         ];
 
         foreach ($modules as $module => $actions) {
