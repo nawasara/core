@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Nawasara\Core\Auth\AuthMode;
+use Nawasara\Core\Models\UserEmailLink;
 use Nawasara\Core\Services\SsoService;
 use Spatie\Permission\Models\Role;
 
@@ -87,6 +88,8 @@ class SsoController extends Controller
                 'email' => $email,
             ]));
 
+            $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
+
             Auth::login($user, true);
             return redirect()->intended('/home');
         }
@@ -124,7 +127,49 @@ class SsoController extends Controller
                 ->withErrors(['sso' => 'Gagal membuat akun otomatis: '.$e->getMessage()]);
         }
 
+        $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
+
         Auth::login($user, true);
         return redirect()->intended('/home');
+    }
+
+    /**
+     * Upsert UserEmailLink rows untuk user dari claim Keycloak `kominfo_email`.
+     *
+     * Manual link (admin override) tidak ke-touch — claim hanya update/create
+     * row dengan source=`sso_attribute`. Kalau attribute Keycloak diubah dari
+     * 2 mailbox jadi 1, row sso_attribute lama yang tidak lagi di-claim akan
+     * di-prune (manual override tetap aman).
+     */
+    protected function syncEmailLinks(User $user, array $kominfoEmails): void
+    {
+        try {
+            DB::transaction(function () use ($user, $kominfoEmails) {
+                // Upsert claim emails
+                foreach ($kominfoEmails as $mailbox) {
+                    UserEmailLink::updateOrCreate(
+                        ['user_id' => $user->id, 'email_account' => $mailbox],
+                        ['source' => UserEmailLink::SOURCE_SSO_ATTRIBUTE, 'linked_at' => now()],
+                    );
+                }
+
+                // Prune sso_attribute rows yang tidak lagi ada di claim
+                if (! empty($kominfoEmails)) {
+                    UserEmailLink::query()
+                        ->where('user_id', $user->id)
+                        ->where('source', UserEmailLink::SOURCE_SSO_ATTRIBUTE)
+                        ->whereNotIn('email_account', $kominfoEmails)
+                        ->delete();
+                }
+            });
+        } catch (\Throwable $e) {
+            // Jangan fail login kalau mapping sync gagal — log saja, admin bisa
+            // troubleshoot kemudian. Webmail launch akan tampil "belum terhubung"
+            // sampai mapping berhasil.
+            Log::warning('[sso] sync email links failed: '.$e->getMessage(), [
+                'user_id' => $user->id,
+                'kominfo_emails' => $kominfoEmails,
+            ]);
+        }
     }
 }

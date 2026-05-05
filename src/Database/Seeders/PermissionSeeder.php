@@ -43,6 +43,28 @@ class PermissionSeeder extends Seeder
         foreach ($modules as $module => $actions) {
             PermissionService::create('nawasara-core.'.$module, $actions);
         }
+
+        // Webmail SSO bridge — sengaja tanpa prefix `nawasara-core.` karena
+        // permission ini dipakai cross-package (controller di core, service
+        // di whm). Naming pattern: webmail.{resource}.{action}.
+        $webmailPerms = [
+            'webmail.session.launch',     // user-facing — dapat default-nya guest+
+            'webmail.link.manage',        // admin-only — Setting UI manual override
+            'webmail.session.audit.view', // admin-only — audit log viewer
+        ];
+        foreach ($webmailPerms as $name) {
+            Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
+        }
+
+        // Attach launch ke role guest + developer supaya semua user ASN
+        // (auto-provision = guest by default) bisa pakai langsung.
+        $launchPerm = 'webmail.session.launch';
+        foreach (['guest', Constants::DEFAULT_ROLE] as $roleName) {
+            $role = Role::where('name', $roleName)->first();
+            if ($role) {
+                $role->givePermissionTo($launchPerm);
+            }
+        }
     }
 
     public function roleGivePermission()

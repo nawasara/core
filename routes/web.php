@@ -49,5 +49,11 @@ Route::middleware(['web'])->group(function () {
 
     Route::middleware(['auth'])->group(function () {
         Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
+
+        // Webmail SSO bridge — sengaja di top-level path supaya gampang
+        // dipasang link "Buka Email" dari portal ASN tanpa nested URL.
+        Route::get('webmail/launch', [\Nawasara\Core\Http\Controllers\WebmailLaunchController::class, 'launch'])
+            ->middleware(PermissionMiddleware::using('webmail.session.launch'))
+            ->name('webmail.launch');
     });
 });

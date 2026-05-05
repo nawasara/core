@@ -59,7 +59,11 @@ class SsoService
      * Resolve user dari provider callback. Return normalised array
      * supaya controller tidak bergantung ke shape spesifik provider.
      *
-     * @return array{email:?string, name:?string, id:?string, username:?string}
+     * `kominfo_emails` adalah list mailbox @ponorogo.go.id dari custom
+     * Keycloak claim (defaults `kominfo_email`). Multi-value diserialize
+     * sebagai delimited string oleh Keycloak — kita split di sini.
+     *
+     * @return array{email:?string, name:?string, id:?string, username:?string, kominfo_emails:array<int,string>}
      */
     public function callback(): array
     {
@@ -79,7 +83,39 @@ class SsoService
             'name' => $user->getName() ?? $username,
             'id' => (string) $user->getId(),
             'username' => $username,
+            'kominfo_emails' => $this->extractKominfoEmails($user->user ?? []),
         ];
+    }
+
+    /**
+     * Extract list mailbox @ponorogo.go.id dari custom Keycloak claim.
+     *
+     * Keycloak attribute biasanya single-value, tapi kalau admin set
+     * sebagai multi-value, mapper akan serialize jadi string dengan
+     * delimiter (default koma). Defensive split — kalau tidak ada delimiter,
+     * tetap return 1-element array.
+     *
+     * @return array<int, string>  list email lowercased + trimmed, deduped
+     */
+    protected function extractKominfoEmails(array $userPayload): array
+    {
+        $claim = (string) config('nawasara.webmail.sso_claim', 'kominfo_email');
+        $delimiter = (string) config('nawasara.webmail.claim_delimiter', ',');
+
+        $raw = $userPayload[$claim] ?? null;
+        if ($raw === null || $raw === '') {
+            return [];
+        }
+
+        // Keycloak bisa kasih array (multi-value attribute) atau string
+        $values = is_array($raw) ? $raw : explode($delimiter, (string) $raw);
+
+        return collect($values)
+            ->map(fn ($v) => strtolower(trim((string) $v)))
+            ->filter(fn ($v) => $v !== '' && filter_var($v, FILTER_VALIDATE_EMAIL))
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**

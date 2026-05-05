@@ -38,4 +38,31 @@ return [
             'verify-email' => 'nawasara-core::auth.verify-email',
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webmail SSO Bridge
+    |--------------------------------------------------------------------------
+    | Auto-login user ke webmail (cPanel/Roundcube) lewat WHM
+    | create_user_session API. Mapping user → mailbox via Keycloak claim.
+    |
+    | sso_claim:
+    |   Nama claim di Keycloak ID token yang berisi email mailbox
+    |   @ponorogo.go.id user. Contoh value: "bambang@ponorogo.go.id"
+    |   atau (kalau multi-mailbox) "bambang@ponorogo.go.id,bambang2@..."
+    |
+    | claim_delimiter:
+    |   Karakter pemisah kalau attribute multi-value diserialize jadi
+    |   string tunggal. Defensive — kalau BKD set strict single-value,
+    |   tetap aman (string tanpa delimiter di-treat as 1 element array).
+    |
+    | redirect_after_launch:
+    |   URL fallback kalau session URL tidak bisa di-issue (debug only,
+    |   normal operation selalu redirect ke session URL WHM).
+    */
+    'webmail' => [
+        'sso_claim' => env('NAWASARA_WEBMAIL_SSO_CLAIM', 'kominfo_email'),
+        'claim_delimiter' => env('NAWASARA_WEBMAIL_CLAIM_DELIMITER', ','),
+        'service' => env('NAWASARA_WEBMAIL_SERVICE', 'webmaild'),
+    ],
 ];
