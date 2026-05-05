@@ -37,8 +37,10 @@
                                 <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700 flex items-center justify-center h-24">
                                     <img src="{{ $currentLogo }}" class="max-h-16 max-w-full object-contain" alt="Logo" />
                                 </div>
-                                <button type="button" wire:click="removeLogo('logo')"
-                                    class="text-xs text-red-600 hover:underline">Hapus logo</button>
+                                <x-nawasara-ui::button variant="link" color="danger" size="sm"
+                                    wire:click="removeLogo('logo')" class="text-xs">
+                                    Hapus logo
+                                </x-nawasara-ui::button>
                             @else
                                 <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-dashed border-gray-300 dark:border-neutral-600 flex items-center justify-center h-24 text-xs text-gray-400">
                                     Belum ada logo
@@ -68,8 +70,10 @@
                                 <div class="p-4 bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700 flex items-center justify-center h-24">
                                     <img src="{{ $currentLogoDark }}" class="max-h-16 max-w-full object-contain" alt="Logo Dark" />
                                 </div>
-                                <button type="button" wire:click="removeLogo('logo_dark')"
-                                    class="text-xs text-red-600 hover:underline">Hapus logo</button>
+                                <x-nawasara-ui::button variant="link" color="danger" size="sm"
+                                    wire:click="removeLogo('logo_dark')" class="text-xs">
+                                    Hapus logo
+                                </x-nawasara-ui::button>
                             @else
                                 <div class="p-4 bg-neutral-900 rounded-lg border border-dashed border-gray-300 dark:border-neutral-600 flex items-center justify-center h-24 text-xs text-gray-500">
                                     Belum ada logo dark
@@ -93,8 +97,10 @@
                                 <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-gray-200 dark:border-neutral-700 flex items-center justify-center h-24">
                                     <img src="{{ $currentFavicon }}" class="size-16 object-contain" alt="Favicon" />
                                 </div>
-                                <button type="button" wire:click="removeLogo('favicon')"
-                                    class="text-xs text-red-600 hover:underline">Hapus favicon</button>
+                                <x-nawasara-ui::button variant="link" color="danger" size="sm"
+                                    wire:click="removeLogo('favicon')" class="text-xs">
+                                    Hapus favicon
+                                </x-nawasara-ui::button>
                             @else
                                 <div class="p-4 bg-gray-50 dark:bg-neutral-900 rounded-lg border border-dashed border-gray-300 dark:border-neutral-600 flex items-center justify-center h-24 text-xs text-gray-400">
                                     Belum ada favicon

@@ -10,6 +10,9 @@
         }
     }">
         {{-- Auth Type Toggle --}}
+        {{-- TODO: migrate to <x-nawasara-ui::segmented-control> after adding
+             setAuthType($value) method to FormUser livewire component (current
+             $set magic syntax doesn't fit segmented-control API). --}}
         <div>
             <x-nawasara-ui::form.label value="Tipe User" required />
             <div class="flex rounded-lg overflow-hidden border border-gray-200 dark:border-neutral-700">
@@ -67,12 +70,16 @@
         @endif
 
         <div class="flex justify-end gap-2">
-            <button type="button" @click="$dispatch('close-livewire-modal', { id: 'modal-user-form' })"
-                class="px-4 py-2 bg-gray-200 rounded-md dark:bg-neutral-700 dark:text-neutral-300">Batal</button>
-            <button type="button" x-data="{ disabledSubmit: false }" x-init="disabledSubmit = false"
+            <x-nawasara-ui::button color="neutral" variant="outline"
+                @click="$dispatch('close-livewire-modal', { id: 'modal-user-form' })">
+                Batal
+            </x-nawasara-ui::button>
+            <x-nawasara-ui::button color="success"
+                x-data="{ disabledSubmit: false }" x-init="disabledSubmit = false"
                 x-on:click="if (disabledSubmit) return; disabledSubmit = true; setTimeout(() => disabledSubmit = false, 2500); store();"
-                x-bind:disabled="disabledSubmit" wire:loading.attr="disabled"
-                class="px-4 py-2 bg-emerald-600 text-white rounded-md disabled:opacity-50">Simpan</button>
+                x-bind:disabled="disabledSubmit" wire:loading.attr="disabled">
+                Simpan
+            </x-nawasara-ui::button>
         </div>
     </form>
 </div>
