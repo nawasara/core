@@ -56,6 +56,8 @@ Route::middleware(['web'])->group(function () {
 
         // Webmail SSO bridge — sengaja di top-level path supaya gampang
         // dipasang link "Buka Email" dari portal ASN tanpa nested URL.
+        // Permission webmail.session.launch di-attach ke role `guest` +
+        // `developer` di PermissionSeeder; jalankan seeder kalau user kena 403.
         Route::get('webmail/launch', [\Nawasara\Core\Http\Controllers\WebmailLaunchController::class, 'launch'])
             ->middleware(PermissionMiddleware::using('webmail.session.launch'))
             ->name('webmail.launch');

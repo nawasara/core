@@ -88,6 +88,7 @@ class SsoController extends Controller
                 'email' => $email,
             ]));
 
+
             $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
 
             Auth::login($user, true);
