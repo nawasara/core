@@ -48,6 +48,13 @@ return [
                 'permission' => $prefix.'.auth.manage',
                 'navigate' => true,
             ],
+            [
+                'label' => 'Email Link',
+                'icon' => 'lucide-mail-search',
+                'url' => url($prefix.'/settings/email-link'),
+                'permission' => 'webmail.link.manage',
+                'navigate' => true,
+            ],
         ],
     ],
 ];

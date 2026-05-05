@@ -45,6 +45,10 @@ Route::middleware(['web'])->group(function () {
         Route::get('settings/auth', \Nawasara\Core\Livewire\Setting\Auth::class)
             ->middleware(PermissionMiddleware::using('nawasara-core.auth.manage'))
             ->name('nawasara-core.settings.auth');
+
+        Route::get('settings/email-link', \Nawasara\Core\Livewire\Setting\EmailLink::class)
+            ->middleware(PermissionMiddleware::using('webmail.link.manage'))
+            ->name('nawasara-core.settings.email-link');
     });
 
     Route::middleware(['auth'])->group(function () {
