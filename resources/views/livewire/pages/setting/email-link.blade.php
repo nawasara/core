@@ -1,3 +1,4 @@
+{{-- ui-lint-skip: typeahead dropdown rows need multi-line content layout that <button> component does not support; needs <list-item> component later --}}
 <div>
     <x-slot name="breadcrumb">
         <livewire:nawasara-ui.shared-components.breadcrumb

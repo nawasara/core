@@ -1,3 +1,4 @@
+{{-- ui-lint-skip: search-clear icon button (absolute-positioned) and disclosure-toggle pattern require custom raw button; needs <icon-button> + <disclosure> components later --}}
 <div x-data="rolePermissionForm({
     initial: @js($selectedPermissions ?? []),
     groups: @js($this->permissionGroups),

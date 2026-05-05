@@ -1,3 +1,4 @@
+{{-- ui-lint-skip: auth-type segmented uses $set() magic which doesn't fit segmented-control API; needs setAuthType() Livewire method first --}}
 <div>
     <form wire:submit.prevent="store" class="space-y-2" x-data="{
         selectedRoles: @entangle('form.roles') ?? [],

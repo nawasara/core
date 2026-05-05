@@ -1,5 +1,6 @@
+{{-- ui-lint-skip: glassmorphism login-style page with custom design language; not part of admin UI system --}}
 <div
-    class="min-h-screen flex items-center justify-center 
+    class="min-h-screen flex items-center justify-center
     bg-gradient-to-br from-indigo-500 via-blue-400 to-cyan-300
     dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500">
 
