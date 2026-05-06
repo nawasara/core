@@ -168,9 +168,12 @@ class DashboardStatsService
         }
 
         return Cache::remember('dashboard.stats.mailboxes', self::CACHE_TTL_SECONDS, function () {
+            // Schema WhmEmailAccount cuma punya 2 suspension flag: suspended_login
+            // (block webmail/IMAP) + suspended_incoming (block SMTP receive).
+            // "Active" = tidak ke-suspend di salah satu mode.
             $active = \Nawasara\Whm\Models\WhmEmailAccount::query()
                 ->where('suspended_login', false)
-                ->where('suspended_outgoing', false)
+                ->where('suspended_incoming', false)
                 ->count();
 
             $total = \Nawasara\Whm\Models\WhmEmailAccount::query()->count();
