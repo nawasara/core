@@ -6,7 +6,7 @@
                 {{ now()->isoFormat('dddd, D MMMM Y') }}
             </p>
             <h1 class="mt-1 text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-                {{ $this->greeting }}, <span class="text-blue-600 dark:text-blue-400">{{ auth()->user()->name ?? 'Admin' }}</span>
+                {{ $this->greeting }}, <span class="text-emerald-700 dark:text-emerald-400">{{ auth()->user()->name ?? 'Admin' }}</span>
             </h1>
             <p class="mt-1.5 text-sm text-gray-600 dark:text-neutral-400 max-w-xl">
                 Berikut ringkasan operasional {{ brand('app_name', 'Nawasara') }} hari ini.
@@ -99,11 +99,11 @@
                 @foreach ($this->workspaces as $workspace)
                     <a href="{{ $workspace['first_url'] ?? '#' }}" wire:navigate
                         class="group relative bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl p-5
-                               hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-md hover:-translate-y-0.5
+                               hover:border-emerald-600 dark:hover:border-emerald-500 hover:shadow-md hover:-translate-y-0.5
                                transition-all duration-200">
                         <div class="flex items-start gap-3">
-                            <div class="flex items-center justify-center size-11 rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400
-                                        group-hover:bg-blue-600 group-hover:text-white dark:group-hover:bg-blue-500
+                            <div class="flex items-center justify-center size-11 rounded-xl bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400
+                                        group-hover:bg-emerald-700 group-hover:text-white dark:group-hover:bg-emerald-600
                                         transition-colors duration-200">
                                 <x-dynamic-component :component="$workspace['icon']" class="size-5" />
                             </div>
@@ -117,7 +117,7 @@
                             </div>
                             <x-lucide-arrow-up-right
                                 class="size-4 text-gray-300 dark:text-neutral-600 shrink-0
-                                       group-hover:text-blue-600 dark:group-hover:text-blue-400
+                                       group-hover:text-emerald-700 dark:group-hover:text-emerald-400
                                        group-hover:-translate-y-0.5 group-hover:translate-x-0.5
                                        transition-all duration-200" />
                         </div>
