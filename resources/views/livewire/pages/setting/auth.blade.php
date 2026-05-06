@@ -96,7 +96,7 @@
                             </span>
                         @endif
 
-                        <a href="{{ url('nawasara-vault') }}" wire:navigate class="text-xs text-blue-600 hover:underline">
+                        <a href="{{ url('nawasara-vault') }}" wire:navigate class="text-xs text-emerald-700 dark:text-emerald-400 hover:underline font-medium">
                             Edit di Vault →
                         </a>
                     </div>

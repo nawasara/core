@@ -40,7 +40,7 @@
             <x-nawasara-ui::form.input id="username" name="username" label="Username" placeholder="Username"
                 useError="true" errorVariable="form.username" wire:model.defer="form.username" />
             @if ($form->auth_type === 'sso')
-                <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">Username harus sama dengan username di Keycloak</p>
+                <p class="text-xs text-cyan-700 dark:text-cyan-400 mt-1">Username harus sama dengan username di Keycloak</p>
             @endif
         </div>
 
