@@ -1,4 +1,4 @@
-<div class="space-y-8" wire:poll.300s>
+<div class="space-y-8">
     {{-- Greeting block — context-aware (time of day + user name) --}}
     <div class="flex items-end justify-between gap-4 flex-wrap">
         <div>
@@ -15,19 +15,27 @@
 
         <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-neutral-500">
             @if ($lastUpdatedAt)
-                <span class="inline-flex items-center gap-1">
+                {{-- wire:key memaksa Livewire untuk re-render element ini ketika
+                     $lastUpdatedAt berubah, sehingga Alpine x-data + x-init
+                     fire ulang dengan timestamp baru. Tanpa key, x-init capture
+                     timestamp lama lewat closure dan tidak update saat refresh. --}}
+                <span class="inline-flex items-center gap-1" wire:key="last-updated-{{ $lastUpdatedAt }}">
                     <x-lucide-clock class="size-3.5" />
                     Diperbarui
                     <time datetime="{{ $lastUpdatedAt }}"
-                        x-data="{ rel: '' }"
-                        x-init="
-                            const update = () => {
-                                const diff = Math.floor((Date.now() - new Date('{{ $lastUpdatedAt }}').getTime()) / 1000);
-                                rel = diff < 5 ? 'baru saja' : (diff < 60 ? diff + ' detik lalu' : (diff < 3600 ? Math.floor(diff/60) + ' menit lalu' : Math.floor(diff/3600) + ' jam lalu'));
-                            };
-                            update();
-                            setInterval(update, 30000);
-                        "
+                        x-data="{
+                            rel: '',
+                            timestamp: new Date('{{ $lastUpdatedAt }}').getTime(),
+                            tick() {
+                                const diff = Math.floor((Date.now() - this.timestamp) / 1000);
+                                this.rel = diff < 5
+                                    ? 'baru saja'
+                                    : (diff < 60 ? diff + ' detik lalu'
+                                    : (diff < 3600 ? Math.floor(diff / 60) + ' menit lalu'
+                                    : Math.floor(diff / 3600) + ' jam lalu'));
+                            }
+                        }"
+                        x-init="tick(); setInterval(() => tick(), 15000);"
                         x-text="rel"></time>
                 </span>
             @endif
