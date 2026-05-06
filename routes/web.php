@@ -52,6 +52,13 @@ Route::middleware(['web'])->group(function () {
     });
 
     Route::middleware(['auth'])->group(function () {
+        // Dashboard / home — landing page dengan greeting, hero stats
+        // (permission-aware), dan workspace launcher. Sebelumnya hardcoded
+        // di root routes/web.php; di-pindah ke core supaya konsisten dengan
+        // package ownership.
+        Route::get('home', \Nawasara\Core\Livewire\Dashboard\Index::class)
+            ->name('dashboard');
+
         Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
 
         // Webmail SSO bridge — sengaja di top-level path supaya gampang
