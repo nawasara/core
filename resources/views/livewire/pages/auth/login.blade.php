@@ -25,7 +25,7 @@
             @endif
 
             @if ($rawAuthMode !== $authMode)
-                <div class="mb-4 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs">
+                <div class="mb-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs">
                     Catatan: mode auth diset ke <strong>{{ $rawAuthMode }}</strong>, tetapi credential SSO belum lengkap di Vault. Sementara fallback ke <strong>{{ $authMode }}</strong>.
                 </div>
             @endif

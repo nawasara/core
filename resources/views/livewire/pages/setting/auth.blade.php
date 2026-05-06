@@ -35,7 +35,7 @@
                 </div>
 
                 @if ($effectiveMode !== $mode)
-                    <div class="mt-3 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 text-xs text-yellow-700 dark:text-yellow-300">
+                    <div class="mt-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-300">
                         Saat ini mode efektif adalah <strong>{{ $effectiveMode }}</strong> (fallback dari <strong>{{ $mode }}</strong>) karena Vault SSO belum lengkap.
                     </div>
                 @endif
@@ -91,8 +91,8 @@
                                 <x-lucide-check-circle class="size-3" /> Configured
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
-                                <x-lucide-alert-circle class="size-3" /> Belum lengkap
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                <x-lucide-circle-alert class="size-3" /> Belum lengkap
                             </span>
                         @endif
 

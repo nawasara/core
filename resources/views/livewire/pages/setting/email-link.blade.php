@@ -132,8 +132,8 @@
         </x-nawasara-ui::table>
 
         @if (! $mailboxTableExists)
-            <div class="mt-4 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-900/30 text-xs text-yellow-700 dark:text-yellow-300">
-                <x-lucide-alert-triangle class="size-4 inline -mt-0.5" />
+            <div class="mt-4 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-xs text-amber-800 dark:text-amber-300">
+                <x-lucide-triangle-alert class="size-4 inline -mt-0.5" />
                 Tabel <code class="font-mono">nawasara_whm_email_accounts</code> belum ada. Autocomplete mailbox di form akan kosong — admin harus ketik manual.
             </div>
         @endif
