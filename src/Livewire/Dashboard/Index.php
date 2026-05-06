@@ -74,6 +74,7 @@ class Index extends Component
 
     public function render()
     {
-        return view('nawasara-core::livewire.pages.dashboard.index');
+        return view('nawasara-core::livewire.pages.dashboard.index')
+            ->layout('nawasara-ui::components.layouts.app');
     }
 }
