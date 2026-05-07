@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Nawasara\Core\Models\WebmailSession;
 use Nawasara\Core\Services\EmailLinkResolver;
+use Nawasara\Whm\Models\WebmailSession;
 
 /**
  * Entry point auto-login webmail dari portal ASN (atau menu shortcut

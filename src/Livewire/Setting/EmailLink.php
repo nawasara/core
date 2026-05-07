@@ -10,8 +10,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Nawasara\Core\Models\UserEmailLink;
-use Nawasara\Core\Models\WebmailSession;
 use Nawasara\Ui\Livewire\Concerns\HasBrowserToast;
+use Nawasara\Whm\Models\WebmailSession;
 
 /**
  * Admin UI untuk override mapping user ↔ mailbox.
