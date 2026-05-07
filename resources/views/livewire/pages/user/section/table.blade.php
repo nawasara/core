@@ -56,9 +56,9 @@
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         @if ($item->auth_type === 'sso')
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 dark:bg-cyan-900/40 dark:text-cyan-300">SSO</span>
+                            <x-nawasara-ui::badge color="info">SSO</x-nawasara-ui::badge>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-neutral-700 dark:text-neutral-300">Local</span>
+                            <x-nawasara-ui::badge color="neutral">Local</x-nawasara-ui::badge>
                         @endif
                     </td>
 

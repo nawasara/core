@@ -88,13 +88,9 @@
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap text-sm">
                             @if ($link->source === 'manual')
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                                    <x-lucide-pin class="size-3" /> Manual
-                                </span>
+                                <x-nawasara-ui::badge color="purple" icon="lucide-pin">Manual</x-nawasara-ui::badge>
                             @else
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                    <x-lucide-key class="size-3" /> Keycloak
-                                </span>
+                                <x-nawasara-ui::badge color="blue" icon="lucide-key">Keycloak</x-nawasara-ui::badge>
                             @endif
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap text-xs text-gray-500 dark:text-neutral-400">

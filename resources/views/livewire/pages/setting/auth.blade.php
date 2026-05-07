@@ -87,13 +87,9 @@
                 <div class="flex items-center justify-between gap-3">
                     <div class="flex items-center gap-2 text-sm">
                         @if ($ssoConfigured)
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                                <x-lucide-check-circle class="size-3" /> Configured
-                            </span>
+                            <x-nawasara-ui::badge color="success" icon="lucide-check-circle">Configured</x-nawasara-ui::badge>
                         @else
-                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                <x-lucide-circle-alert class="size-3" /> Belum lengkap
-                            </span>
+                            <x-nawasara-ui::badge color="warning" icon="lucide-circle-alert">Belum lengkap</x-nawasara-ui::badge>
                         @endif
 
                         <a href="{{ url('nawasara-vault') }}" wire:navigate class="text-xs text-emerald-700 dark:text-emerald-400 hover:underline font-medium">
