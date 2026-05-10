@@ -40,31 +40,17 @@ class PermissionSeeder extends Seeder
             'auth'       => ['manage'],
         ];
 
+        // Permission naming: short prefix `core.*` (consistent with whm.*,
+        // cloudflare.*, vault.*, etc — all 12 packages now use the bare
+        // package alias for permission names).
         foreach ($modules as $module => $actions) {
-            PermissionService::create('nawasara-core.'.$module, $actions);
+            PermissionService::create('core.'.$module, $actions);
         }
 
-        // Webmail SSO bridge — sengaja tanpa prefix `nawasara-core.` karena
-        // permission ini dipakai cross-package (controller di core, service
-        // di whm). Naming pattern: webmail.{resource}.{action}.
-        $webmailPerms = [
-            'webmail.session.launch',     // user-facing — dapat default-nya guest+
-            'webmail.link.manage',        // admin-only — Setting UI manual override
-            'webmail.session.audit.view', // admin-only — audit log viewer
-        ];
-        foreach ($webmailPerms as $name) {
-            Permission::firstOrCreate(['name' => $name, 'guard_name' => 'web']);
-        }
-
-        // Attach launch ke role guest + developer supaya semua user ASN
-        // (auto-provision = guest by default) bisa pakai langsung.
-        $launchPerm = 'webmail.session.launch';
-        foreach (['guest', Constants::DEFAULT_ROLE] as $roleName) {
-            $role = Role::where('name', $roleName)->first();
-            if ($role) {
-                $role->givePermissionTo($launchPerm);
-            }
-        }
+        // Email-link manager — admin UI to manually override the auto-derived
+        // OPD email mapping. Logic + UI fully owned by core (User identity
+        // mapping is core's domain), so the permission lives here too.
+        Permission::firstOrCreate(['name' => 'core.email-link.manage', 'guard_name' => 'web']);
     }
 
     public function roleGivePermission()

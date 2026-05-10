@@ -33,7 +33,7 @@ class Table extends Component
     #[On('confirm-delete')]
     public function delete($id)
     {
-        Gate::authorize('nawasara-core.role.delete');
+        Gate::authorize('core.role.delete');
 
         $model = Role::findOrFail($id);
         $model->delete();

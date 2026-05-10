@@ -42,9 +42,11 @@ After this, calling `$user->switchRole('operator')` (or setting `session('active
 
 | Route | Permission |
 |-------|-----------|
-| `/admin/users` | `nawasara-core.user.view` |
-| `/admin/roles` | `nawasara-core.role.view` |
-| `/admin/branding` | `nawasara-core.branding.manage` |
+| `/nawasara-core/users` | `core.user.view` |
+| `/nawasara-core/roles` | `core.role.view` |
+| `/nawasara-core/branding` | `core.branding.manage` |
+| `/nawasara-core/settings/auth` | `core.auth.manage` |
+| `/nawasara-core/settings/email-link` | `core.email-link.manage` |
 
 ## Author
 

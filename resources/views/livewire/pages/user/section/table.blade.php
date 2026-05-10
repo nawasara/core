@@ -25,14 +25,14 @@
                                         'url' => '#',
                                         'color' => 'text-gray-800',
                                         'navigate' => true,
-                                        'permission' => 'nawasara-core.user.edit',
+                                        'permission' => 'core.user.edit',
                                         'payload' => $editPayloads,
                                     ],
                                     [
                                         'type' => 'delete',
                                         'label' => 'Delete',
                                         'color' => 'text-red-600',
-                                        'permission' => 'nawasara-core.user.delete',
+                                        'permission' => 'core.user.delete',
                                         'name' => $item->name,
                                     ],
                                 ];

@@ -21,7 +21,7 @@
                     <x-slot:icon><x-lucide-refresh-cw class="size-4" /></x-slot:icon>
                     Re-resolve SSO
                 </x-nawasara-ui::button>
-                @can('webmail.link.manage')
+                @can('core.email-link.manage')
                     <x-nawasara-ui::button color="primary" wire:click="openCreate">
                         <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
                         Tambah Manual Link
@@ -100,7 +100,7 @@
                             {{ $link->last_used_at?->diffForHumans() ?? '—' }}
                         </td>
                         <td class="px-6 py-3 whitespace-nowrap text-sm text-right">
-                            @can('webmail.link.manage')
+                            @can('core.email-link.manage')
                                 <x-nawasara-ui::button size="xs" variant="ghost" color="neutral"
                                     wire:click="openEdit({{ $link->id }})">
                                     <x-lucide-pencil class="size-3.5" />
@@ -134,7 +134,10 @@
             </div>
         @endif
 
-        {{-- Recent audit log --}}
+        {{-- Recent audit log — gated separately from email-link.manage so a
+             compliance reviewer can read access history without inheriting
+             link-management capability, and vice versa. --}}
+        @can('webmail.session.audit.view')
         <div class="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl p-5">
             <h3 class="text-sm font-semibold text-gray-800 dark:text-neutral-200 mb-3">Audit: 10 Webmail Launch Terbaru</h3>
 
@@ -184,6 +187,7 @@
                 </div>
             @endif
         </div>
+        @endcan
 
         {{-- Form Modal --}}
         <x-nawasara-ui::modal id="email-link-form" maxWidth="lg" :title="$editingId ? 'Edit Manual Link' : 'Tambah Manual Link'">

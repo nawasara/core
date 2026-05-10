@@ -1,5 +1,10 @@
 <?php
 
+// $prefix is used for URL paths and route names ONLY (the original
+// long-form `nawasara-core` is intentionally kept across all packages
+// for namespace clarity). Permission names use the short alias `core.*`
+// to match the convention used by every other package (whm.*, vault.*,
+// cloudflare.*, etc).
 $prefix = 'nawasara-core';
 
 return [
@@ -8,20 +13,20 @@ return [
         'label' => 'User Management',
         'icon' => 'lucide-users',
         'url' => '',
-        'permission' => $prefix.'.user.view',
+        'permission' => 'core.user.view',
         'submenu' => [
             [
                 'label' => 'Users',
                 'icon' => 'lucide-user',
                 'url' => url($prefix.'/users'),
-                'permission' => $prefix.'.user.view',
+                'permission' => 'core.user.view',
                 'navigate' => true,
             ],
             [
                 'label' => 'Role',
                 'icon' => 'lucide-shield-check',
                 'url' => url($prefix.'/roles'),
-                'permission' => $prefix.'.role.view',
+                'permission' => 'core.role.view',
                 'navigate' => true,
             ],
         ],
@@ -32,27 +37,27 @@ return [
         'label' => 'Pengaturan',
         'icon' => 'lucide-settings',
         'url' => '',
-        'permission' => $prefix.'.branding.manage',
+        'permission' => 'core.branding.manage',
         'submenu' => [
             [
                 'label' => 'Branding',
                 'icon' => 'lucide-palette',
                 'url' => url($prefix.'/branding'),
-                'permission' => $prefix.'.branding.manage',
+                'permission' => 'core.branding.manage',
                 'navigate' => true,
             ],
             [
                 'label' => 'Authentication',
                 'icon' => 'lucide-key-round',
                 'url' => url($prefix.'/settings/auth'),
-                'permission' => $prefix.'.auth.manage',
+                'permission' => 'core.auth.manage',
                 'navigate' => true,
             ],
             [
                 'label' => 'Email Link',
                 'icon' => 'lucide-mail-search',
                 'url' => url($prefix.'/settings/email-link'),
-                'permission' => 'webmail.link.manage',
+                'permission' => 'core.email-link.manage',
                 'navigate' => true,
             ],
         ],

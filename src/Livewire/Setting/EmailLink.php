@@ -133,14 +133,14 @@ class EmailLink extends Component
 
     public function openCreate(): void
     {
-        Gate::authorize('webmail.link.manage');
+        Gate::authorize('core.email-link.manage');
         $this->resetForm();
         $this->dispatch('modal-open:email-link-form');
     }
 
     public function openEdit(int $id): void
     {
-        Gate::authorize('webmail.link.manage');
+        Gate::authorize('core.email-link.manage');
 
         $link = UserEmailLink::find($id);
         if (! $link) return;
@@ -170,7 +170,7 @@ class EmailLink extends Component
 
     public function save(): void
     {
-        Gate::authorize('webmail.link.manage');
+        Gate::authorize('core.email-link.manage');
 
         $this->validate([
             'formUserId' => ['required', 'integer', 'exists:users,id'],
@@ -228,7 +228,7 @@ class EmailLink extends Component
 
     public function delete(int $id): void
     {
-        Gate::authorize('webmail.link.manage');
+        Gate::authorize('core.email-link.manage');
 
         try {
             UserEmailLink::where('id', $id)->delete();
@@ -245,7 +245,7 @@ class EmailLink extends Component
      */
     public function pruneSsoLinks(): void
     {
-        Gate::authorize('webmail.link.manage');
+        Gate::authorize('core.email-link.manage');
 
         $count = UserEmailLink::query()
             ->where('source', UserEmailLink::SOURCE_SSO_ATTRIBUTE)

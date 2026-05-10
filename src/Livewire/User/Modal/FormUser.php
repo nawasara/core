@@ -30,7 +30,7 @@ class FormUser extends Component
 
     public function mount($params = [])
     {
-        Gate::authorize(isset($params['id']) ? 'nawasara-core.user.edit' : 'nawasara-core.user.create');
+        Gate::authorize(isset($params['id']) ? 'core.user.edit' : 'core.user.create');
 
         $this->roles = Role::all();
 
@@ -54,7 +54,7 @@ class FormUser extends Component
     #[On('store')]
     public function store($roles = [])
     {
-        Gate::authorize(isset($this->params['id']) ? 'nawasara-core.user.edit' : 'nawasara-core.user.create');
+        Gate::authorize(isset($this->params['id']) ? 'core.user.edit' : 'core.user.create');
 
         DB::beginTransaction();
 

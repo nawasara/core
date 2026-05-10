@@ -18,13 +18,13 @@
                                         'url' => route('nawasara-core.role.form', ['id' => $item->id]),
                                         'color' => 'text-gray-800',
                                         'navigate' => true,
-                                        'permission' => 'nawasara-core.role.edit',
+                                        'permission' => 'core.role.edit',
                                     ],
                                     [
                                         'type' => 'delete',
                                         'label' => 'Delete',
                                         'color' => 'text-red-600',
-                                        'permission' => 'nawasara-core.role.delete',
+                                        'permission' => 'core.role.delete',
                                         'name' => $item->name,
                                     ],
                                 ];

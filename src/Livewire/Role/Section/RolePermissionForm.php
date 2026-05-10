@@ -23,7 +23,7 @@ class RolePermissionForm extends Component
 
     public function mount($id = null)
     {
-        Gate::authorize($id ? 'nawasara-core.role.edit' : 'nawasara-core.role.create');
+        Gate::authorize($id ? 'core.role.edit' : 'core.role.create');
 
         $this->id = $id;
         $this->permissions = Permission::select('id', 'name')->orderBy('name')->get();
@@ -65,7 +65,7 @@ class RolePermissionForm extends Component
     #[On('save-role')]
     public function saveRole(array $permission = [])
     {
-        Gate::authorize($this->id ? 'nawasara-core.role.edit' : 'nawasara-core.role.create');
+        Gate::authorize($this->id ? 'core.role.edit' : 'core.role.create');
 
         // Normalize: cast to int, dedupe, reindex.
         $permissions = array_values(array_unique(array_map('intval', $permission)));

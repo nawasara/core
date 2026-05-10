@@ -27,27 +27,27 @@ Route::middleware(['web'])->group(function () {
 
     Route::middleware(['auth'])->prefix('nawasara-core')->group(function () {
         Route::get('users', Index::class)
-            ->middleware(PermissionMiddleware::using('nawasara-core.user.view'))
+            ->middleware(PermissionMiddleware::using('core.user.view'))
             ->name('nawasara-core.user.index');
 
         Route::get('roles', RoleIndex::class)
-            ->middleware(PermissionMiddleware::using('nawasara-core.role.view'))
+            ->middleware(PermissionMiddleware::using('core.role.view'))
             ->name('nawasara-core.role.index');
 
         Route::get('role/form/{id?}', Form::class)
-            ->middleware(PermissionMiddleware::using('nawasara-core.role.create|nawasara-core.role.edit'))
+            ->middleware(PermissionMiddleware::using('core.role.create|core.role.edit'))
             ->name('nawasara-core.role.form');
 
         Route::get('branding', BrandingIndex::class)
-            ->middleware(PermissionMiddleware::using('nawasara-core.branding.manage'))
+            ->middleware(PermissionMiddleware::using('core.branding.manage'))
             ->name('nawasara-core.branding.index');
 
         Route::get('settings/auth', \Nawasara\Core\Livewire\Setting\Auth::class)
-            ->middleware(PermissionMiddleware::using('nawasara-core.auth.manage'))
+            ->middleware(PermissionMiddleware::using('core.auth.manage'))
             ->name('nawasara-core.settings.auth');
 
         Route::get('settings/email-link', \Nawasara\Core\Livewire\Setting\EmailLink::class)
-            ->middleware(PermissionMiddleware::using('webmail.link.manage'))
+            ->middleware(PermissionMiddleware::using('core.email-link.manage'))
             ->name('nawasara-core.settings.email-link');
     });
 

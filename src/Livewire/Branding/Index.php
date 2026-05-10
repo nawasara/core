@@ -36,7 +36,7 @@ class Index extends Component
 
     public function save(): void
     {
-        Gate::authorize('nawasara-core.branding.manage');
+        Gate::authorize('core.branding.manage');
 
         $this->validate([
             'appName' => 'required|max:100',
@@ -69,7 +69,7 @@ class Index extends Component
 
     public function removeLogo(string $variant): void
     {
-        Gate::authorize('nawasara-core.branding.manage');
+        Gate::authorize('core.branding.manage');
 
         $key = match ($variant) {
             'logo' => 'branding.logo',

@@ -30,7 +30,7 @@ class Auth extends Component
 
     public function save(): void
     {
-        Gate::authorize('nawasara-core.auth.manage');
+        Gate::authorize('core.auth.manage');
 
         $this->validate([
             'mode' => ['required', 'in:'.implode(',', AuthMode::ALL_MODES)],
@@ -46,7 +46,7 @@ class Auth extends Component
 
     public function testSso(SsoService $sso): void
     {
-        Gate::authorize('nawasara-core.auth.manage');
+        Gate::authorize('core.auth.manage');
 
         $r = $sso->testConnection();
         $this->testSuccess = (bool) ($r['success'] ?? false);
