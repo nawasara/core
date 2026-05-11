@@ -31,7 +31,7 @@
             @endif
 
             @if ($localEnabled)
-                <form wire:submit.prevent="login" class="space-y-6">
+                <form wire:submit="login" class="space-y-6">
                     <div>
                         <x-nawasara-ui::form.label for="identifier" value="Email / Username" />
                         <x-nawasara-ui::form.input id="identifier" wire:model.defer="identifier" type="text" required autofocus
