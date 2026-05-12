@@ -51,6 +51,11 @@ class PermissionSeeder extends Seeder
         // OPD email mapping. Logic + UI fully owned by core (User identity
         // mapping is core's domain), so the permission lives here too.
         Permission::firstOrCreate(['name' => 'core.email-link.manage', 'guard_name' => 'web']);
+
+        // Bulk Excel import for email-link. Separate from .manage because
+        // it touches Keycloak attributes + can auto-provision Laravel users —
+        // a larger blast radius than the per-row manual UI.
+        Permission::firstOrCreate(['name' => 'core.email-link.import', 'guard_name' => 'web']);
     }
 
     public function roleGivePermission()

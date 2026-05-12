@@ -21,6 +21,12 @@
                     <x-slot:icon><x-lucide-refresh-cw class="size-4" /></x-slot:icon>
                     Re-resolve SSO
                 </x-nawasara-ui::button>
+                @can('core.email-link.import')
+                    <x-nawasara-ui::button color="neutral" variant="outline" wire:click="openImport">
+                        <x-slot:icon><x-lucide-upload class="size-4" /></x-slot:icon>
+                        Import Excel
+                    </x-nawasara-ui::button>
+                @endcan
                 @can('core.email-link.manage')
                     <x-nawasara-ui::button color="primary" wire:click="openCreate">
                         <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
@@ -252,5 +258,168 @@
                 <x-nawasara-ui::button type="submit" form="email-link-form-el" color="primary">Simpan</x-nawasara-ui::button>
             </x-slot:footer>
         </x-nawasara-ui::modal>
+
+        {{-- ──────────────────────────────────────────────────────────
+             Excel import — batch UI
+
+             Permission: core.email-link.import (separate from .manage
+             because the import path auto-creates Laravel users + writes
+             Keycloak attributes, a larger blast radius than per-row
+             manual editing).
+
+             Async dispatch: upload → queue job → worker processes.
+             Riwayat Import section below polls progress (manual refresh
+             button; we don't auto-poll to keep the page lightweight).
+             ────────────────────────────────────────────────────────── --}}
+
+        @can('core.email-link.import')
+        <div class="mt-8 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-neutral-200">Riwayat Import</h3>
+                    <p class="text-xs text-gray-500 dark:text-neutral-400">10 batch terakhir. Status berubah otomatis di server; klik <em>Refresh</em> untuk reload tabel.</p>
+                </div>
+                <x-nawasara-ui::button color="neutral" variant="outline" size="sm" wire:click="refreshImports">
+                    <x-slot:icon><x-lucide-refresh-cw class="size-4" /></x-slot:icon>
+                    Refresh
+                </x-nawasara-ui::button>
+            </div>
+
+            @if ($this->recentImports->isEmpty())
+                <p class="text-xs text-gray-500 dark:text-neutral-400 py-4">Belum ada import. Klik tombol <em>Import Excel</em> di atas.</p>
+            @else
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs">
+                        <thead class="text-gray-500 dark:text-neutral-400">
+                            <tr>
+                                <th class="text-left py-2 pr-3">Waktu</th>
+                                <th class="text-left py-2 pr-3">File</th>
+                                <th class="text-left py-2 pr-3">Oleh</th>
+                                <th class="text-left py-2 pr-3">Status</th>
+                                <th class="text-right py-2 pr-3">Total</th>
+                                <th class="text-right py-2 pr-3">Success</th>
+                                <th class="text-right py-2 pr-3">Skipped</th>
+                                <th class="text-right py-2 pr-3">Error</th>
+                                <th class="text-left py-2">Detail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($this->recentImports as $imp)
+                                <tr class="border-t border-gray-100 dark:border-neutral-700 align-top">
+                                    <td class="py-2 pr-3 font-mono text-gray-600 dark:text-neutral-400 whitespace-nowrap">
+                                        {{ $imp->created_at->format('d M H:i') }}
+                                    </td>
+                                    <td class="py-2 pr-3 text-gray-700 dark:text-neutral-300 max-w-xs truncate" title="{{ $imp->original_filename }}">
+                                        {{ $imp->original_filename }}
+                                    </td>
+                                    <td class="py-2 pr-3 text-gray-700 dark:text-neutral-300 whitespace-nowrap">
+                                        {{ $imp->user?->name ?? '#'.$imp->user_id }}
+                                    </td>
+                                    <td class="py-2 pr-3">
+                                        @php
+                                            $statusColor = match($imp->status) {
+                                                'completed' => 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+                                                'failed' => 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+                                                'processing' => 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                                                default => 'bg-gray-100 text-gray-600 dark:bg-neutral-700 dark:text-neutral-300',
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $statusColor }}">
+                                            {{ $imp->status }}
+                                        </span>
+                                    </td>
+                                    <td class="py-2 pr-3 text-right font-mono text-gray-700 dark:text-neutral-300">{{ $imp->total_rows }}</td>
+                                    <td class="py-2 pr-3 text-right font-mono text-green-700 dark:text-green-400">{{ $imp->success_count }}</td>
+                                    <td class="py-2 pr-3 text-right font-mono text-yellow-700 dark:text-yellow-400">{{ $imp->skipped_count }}</td>
+                                    <td class="py-2 pr-3 text-right font-mono text-red-700 dark:text-red-400">{{ $imp->error_count }}</td>
+                                    <td class="py-2 text-gray-600 dark:text-neutral-400">
+                                        @if ($imp->worker_error)
+                                            <span class="text-red-600 dark:text-red-400" title="{{ $imp->worker_error }}">
+                                                {{ \Illuminate\Support\Str::limit($imp->worker_error, 80) }}
+                                            </span>
+                                        @elseif (! empty($imp->errors_json))
+                                            <details class="cursor-pointer">
+                                                <summary class="text-blue-700 dark:text-blue-400 hover:underline">
+                                                    {{ count($imp->errors_json) }} baris ber-issue
+                                                </summary>
+                                                <ul class="mt-1 ml-3 list-disc text-xs space-y-0.5 text-gray-600 dark:text-neutral-400">
+                                                    @foreach (array_slice($imp->errors_json, 0, 20) as $err)
+                                                        <li>
+                                                            <span class="font-mono">row {{ $err['row'] ?? '?' }}</span>
+                                                            ({{ $err['username'] ?? '—' }}):
+                                                            <span class="text-gray-500 dark:text-neutral-500">{{ $err['reason'] ?? '' }}</span>
+                                                            — {{ $err['message'] ?? '' }}
+                                                        </li>
+                                                    @endforeach
+                                                    @if (count($imp->errors_json) > 20)
+                                                        <li class="text-gray-400 italic">...dan {{ count($imp->errors_json) - 20 }} baris lain</li>
+                                                    @endif
+                                                </ul>
+                                            </details>
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+
+        {{-- Import Modal --}}
+        <x-nawasara-ui::modal id="email-link-import" maxWidth="md" title="Import Email Link dari Excel">
+            <form wire:submit="submitImport" id="email-link-import-form" class="space-y-4">
+                <div class="text-sm text-gray-700 dark:text-neutral-300 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg space-y-1">
+                    <div class="font-semibold flex items-center gap-1">
+                        <x-lucide-info class="size-4" /> Format file yang diharapkan
+                    </div>
+                    <ul class="ml-5 list-disc text-xs space-y-0.5">
+                        <li>2 kolom: <strong>NIP/Username</strong> (kolom A) dan <strong>Email Kominfo</strong> (kolom B)</li>
+                        <li>Baris pertama header (akan di-skip otomatis)</li>
+                        <li>Format file: <code>.xlsx</code>, <code>.xls</code>, atau <code>.csv</code> — maksimum 5 MB</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <x-nawasara-ui::form.label for="importFile" value="Pilih file" />
+                    <input
+                        type="file"
+                        id="importFile"
+                        wire:model="importFile"
+                        accept=".xlsx,.xls,.csv"
+                        class="block w-full text-sm text-gray-700 dark:text-neutral-300 file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-900/30 dark:file:text-emerald-300">
+                    @error('importFile') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+
+                    <div wire:loading wire:target="importFile" class="text-xs text-gray-500 mt-2">
+                        Uploading...
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 dark:text-neutral-400 bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg space-y-1">
+                    <div class="font-semibold text-gray-700 dark:text-neutral-200">Apa yang akan terjadi:</div>
+                    <ul class="ml-5 list-disc space-y-0.5">
+                        <li>Setiap baris di-lookup di Keycloak by username. <strong>Jika tidak ada di Keycloak, baris di-skip</strong> — tidak buat user di mana pun.</li>
+                        <li>Jika user Keycloak ada tapi belum ada di Nawasara, akan otomatis dibuat dengan role <code>guest</code>.</li>
+                        <li>Email Kominfo akan di-set sebagai attribute <code>kominfo_email</code> di Keycloak.</li>
+                        <li>Email link <code>manual</code> di Nawasara akan ditimpa (overwrite).</li>
+                        <li>Proses berjalan async di background — cek tabel Riwayat Import di bawah untuk hasil.</li>
+                    </ul>
+                </div>
+            </form>
+
+            <x-slot:footer>
+                <x-nawasara-ui::button color="neutral" variant="outline" @click="$dispatch('close-modal', 'email-link-import')">
+                    Batal
+                </x-nawasara-ui::button>
+                <x-nawasara-ui::button type="submit" form="email-link-import-form" color="primary"
+                    wire:loading.attr="disabled" wire:target="submitImport,importFile">
+                    <span wire:loading.remove wire:target="submitImport">Proses</span>
+                    <span wire:loading wire:target="submitImport">Memproses...</span>
+                </x-nawasara-ui::button>
+            </x-slot:footer>
+        </x-nawasara-ui::modal>
+        @endcan
     </x-nawasara-ui::page.container>
 </div>

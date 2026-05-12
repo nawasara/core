@@ -4,11 +4,16 @@ namespace Nawasara\Core\Livewire\Setting;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Nawasara\Core\Jobs\ProcessEmailLinkImport;
+use Nawasara\Core\Models\EmailLinkImport;
 use Nawasara\Core\Models\UserEmailLink;
 use Nawasara\Ui\Livewire\Concerns\HasBrowserToast;
 use Nawasara\Whm\Models\WebmailSession;
@@ -27,6 +32,7 @@ use Nawasara\Whm\Models\WebmailSession;
 class EmailLink extends Component
 {
     use HasBrowserToast;
+    use WithFileUploads;
     use WithPagination;
 
     public string $search = '';
@@ -39,6 +45,10 @@ class EmailLink extends Component
     public string $formMailbox = '';
     public string $formUserSearch = '';
     public string $mailboxSearch = '';
+
+    // Import modal state — Livewire's WithFileUploads gives us $importFile.
+    // null until user selects a file; cleared on dispatch + modal close.
+    public $importFile = null;
 
     public function updatedSearch(): void
     {
@@ -263,6 +273,93 @@ class EmailLink extends Component
 
         unset($this->links, $this->totalsBySource);
         $this->toastSuccess("Pruned {$count} cached SSO link. Akan re-cache otomatis saat user login.");
+    }
+
+    // ─── Excel Import ───────────────────────────────────────
+
+    /**
+     * Recent imports for the "Riwayat Import" section. Returns the 10
+     * most recent batches across all users so admins can see what their
+     * colleagues did too — audit transparency.
+     */
+    #[Computed]
+    public function recentImports()
+    {
+        if (! \Illuminate\Support\Facades\Schema::hasTable('nawasara_email_link_imports')) {
+            return collect();
+        }
+
+        return EmailLinkImport::recent(10)->with('user:id,name,username')->get();
+    }
+
+    public function openImport(): void
+    {
+        Gate::authorize('core.email-link.import');
+        $this->reset('importFile');
+        $this->resetErrorBag('importFile');
+        $this->dispatch('modal-open:email-link-import');
+    }
+
+    /**
+     * Validate the upload, persist it, create the batch row, queue the
+     * worker. The worker does all the heavy lifting; this just hands off.
+     */
+    public function submitImport(): void
+    {
+        Gate::authorize('core.email-link.import');
+
+        $this->validate([
+            // 5 MB is well above the realistic ~1KB-per-row size for a
+            // 5000-row sheet but cuts off accidental huge uploads early.
+            'importFile' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+        ], [
+            'importFile.required' => 'Pilih file Excel/CSV dulu.',
+            'importFile.mimes' => 'Format harus .xlsx, .xls, atau .csv.',
+            'importFile.max' => 'Maksimum 5 MB.',
+        ]);
+
+        $original = $this->importFile->getClientOriginalName();
+        $size = $this->importFile->getSize();
+
+        // Stash the file on the default 'local' disk under a per-import
+        // folder so it doesn't collide with anything else and is easy
+        // to prune. The worker reads it back from this path.
+        $stored = $this->importFile->store('email-link-imports');
+
+        $import = EmailLinkImport::create([
+            'user_id' => Auth::id(),
+            'original_filename' => $original,
+            'file_size_bytes' => $size,
+            'storage_path' => Storage::disk('local')->path($stored),
+            'status' => EmailLinkImport::STATUS_QUEUED,
+        ]);
+
+        ProcessEmailLinkImport::dispatch($import->id);
+
+        activity('email-link-import')
+            ->performedOn($import)
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'attributes' => [
+                    'filename' => $original,
+                    'size_bytes' => $size,
+                ],
+            ])
+            ->log('Email-link import queued');
+
+        unset($this->recentImports);
+        $this->reset('importFile');
+        $this->dispatch('modal-close:email-link-import');
+        $this->toastSuccess("Import '{$original}' di-queue. Cek tabel Riwayat Import di bawah untuk progress.");
+    }
+
+    /**
+     * Manual refresh trigger for the Riwayat table — the user can click a
+     * refresh button without reloading the page. Idempotent + cheap.
+     */
+    public function refreshImports(): void
+    {
+        unset($this->recentImports);
     }
 
     protected function resetForm(): void
