@@ -3,8 +3,9 @@
 namespace Nawasara\Core\Livewire\Forms;
 
 use Livewire\Form;
-use Spatie\Permission\Models\Role;
+use Nawasara\Core\Models\Role;        // local subclass with LogsActivity
 use Nawasara\Core\Rules\UniqueRole;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class RoleForm extends Form
 {
@@ -46,14 +47,35 @@ class RoleForm extends Form
             'guard_name' => 'web',
         ];
 
-        /* role */
+        /* role: updateOrCreate triggers LogsActivity automatically for
+           the model fields (name + guard_name). */
         $model = Role::updateOrCreate([
             'id' => $this->id,
         ], $payload);
 
-        /* set permission */
-        if (!empty($this->permissions)) {
+        /* permissions: Spatie's syncPermissions() is a pivot operation
+           and is invisible to the model's LogsActivity trait, so log
+           the diff manually. We compute before/after to give the
+           audit log a useful before+after pair. */
+        if (! empty($this->permissions)) {
+            $before = $model->permissions()->pluck('id')->sort()->values()->all();
             $model->syncPermissions($this->permissions);
+            $after = $model->permissions()->pluck('id')->sort()->values()->all();
+
+            // Only log if the permission set actually changed.
+            if ($before !== $after) {
+                $beforeNames = SpatiePermission::whereIn('id', $before)->pluck('name')->sort()->values()->all();
+                $afterNames = SpatiePermission::whereIn('id', $after)->pluck('name')->sort()->values()->all();
+
+                activity('role-permissions')
+                    ->performedOn($model)
+                    ->causedBy(auth()->user())
+                    ->withProperties([
+                        'attributes' => ['permissions' => $afterNames],
+                        'old' => ['permissions' => $beforeNames],
+                    ])
+                    ->log("Role permissions updated");
+            }
         }
 
         return $model;

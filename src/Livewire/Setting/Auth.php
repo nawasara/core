@@ -37,9 +37,34 @@ class Auth extends Component
             'defaultSsoRole' => ['required', 'string', 'max:100'],
         ]);
 
+        // Capture before-values for audit. Setting::set() does NOT
+        // auto-log (the model deliberately doesn't use LogsActivity —
+        // see Setting.php; would create too much noise on cache misses).
+        $before = [
+            'mode' => AuthMode::raw(),
+            'auto_provision' => AuthMode::autoProvision(),
+            'default_role' => AuthMode::defaultSsoRole(),
+        ];
+
         Setting::set('auth.mode', $this->mode);
         Setting::set('auth.sso.auto_provision', $this->autoProvision);
         Setting::set('auth.sso.default_role', $this->defaultSsoRole);
+
+        $after = [
+            'mode' => $this->mode,
+            'auto_provision' => $this->autoProvision,
+            'default_role' => $this->defaultSsoRole,
+        ];
+
+        if ($before !== $after) {
+            activity('auth-settings')
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'attributes' => $after,
+                    'old' => $before,
+                ])
+                ->log('Auth settings updated');
+        }
 
         $this->toastSuccess('Pengaturan auth disimpan.');
     }

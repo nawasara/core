@@ -5,6 +5,8 @@ namespace Nawasara\Core\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * Mapping user app Nawasara ↔ mailbox @ponorogo.go.id.
@@ -20,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserEmailLink extends Model
 {
+    use LogsActivity;
+
     public const SOURCE_SSO_ATTRIBUTE = 'sso_attribute';
     public const SOURCE_MANUAL = 'manual';
 
@@ -37,6 +41,20 @@ class UserEmailLink extends Model
         'linked_at' => 'datetime',
         'last_used_at' => 'datetime',
     ];
+
+    /**
+     * Activity log: capture mapping changes. `last_used_at` is excluded
+     * because that gets bumped on every webmail launch — would flood
+     * the audit log with low-signal events.
+     */
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['user_id', 'email_account', 'source', 'linked_at'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn (string $event) => "EmailLink {$event}");
+    }
 
     public function user(): BelongsTo
     {

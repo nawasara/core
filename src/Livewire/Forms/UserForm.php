@@ -5,6 +5,8 @@ namespace Nawasara\Core\Livewire\Forms;
 use App\Models\User;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
+use Nawasara\Core\Models\Role as CoreRole;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class UserForm extends Form
 {
@@ -62,7 +64,9 @@ class UserForm extends Form
         ];
     }
 
-    public function setRoles(array|int $roles = null)
+    // PHP 8.4: explicit nullable instead of implicit-from-default (which is
+    // a deprecation warning in 8.4 and a hard error in 9.0).
+    public function setRoles(array|int|null $roles = null)
     {
         $this->roles = is_int($roles) ? [$roles] : $roles ?? [];
     }
@@ -84,11 +88,32 @@ class UserForm extends Form
             $payload['password'] = bcrypt($this->password);
         }
 
+        // User update: LogsActivity on User auto-captures name + email +
+        // username + auth_type changes (see app/Models/User.php).
         $user = User::updateOrCreate([
             'id' => $this->id,
         ], $payload);
 
+        // Roles: Spatie's syncRoles is a pivot op, not seen by LogsActivity.
+        // Log the diff manually with names rather than IDs so the audit log
+        // is readable without joining.
+        $beforeIds = $user->roles()->pluck('id')->sort()->values()->all();
         $user->syncRoles($this->roles);
+        $afterIds = $user->roles()->pluck('id')->sort()->values()->all();
+
+        if ($beforeIds !== $afterIds) {
+            $beforeNames = CoreRole::whereIn('id', $beforeIds)->pluck('name')->sort()->values()->all();
+            $afterNames = CoreRole::whereIn('id', $afterIds)->pluck('name')->sort()->values()->all();
+
+            activity('user-roles')
+                ->performedOn($user)
+                ->causedBy(auth()->user())
+                ->withProperties([
+                    'attributes' => ['roles' => $afterNames],
+                    'old' => ['roles' => $beforeNames],
+                ])
+                ->log("User roles updated");
+        }
 
         return $user;
     }
