@@ -158,12 +158,22 @@ class EmailLink extends Component
 
     public function pickUser(int $userId, string $label): void
     {
+        // Gate even though save() also gates — these public methods are
+        // dispatchable from the browser (Livewire wire:click), so without
+        // a re-check anyone with access to the page can poke at form
+        // state. The page itself is gated by route middleware, but a
+        // permissioned user without `email-link.manage` could still call
+        // these via the JS console.
+        Gate::authorize('core.email-link.manage');
+
         $this->formUserId = (string) $userId;
         $this->formUserSearch = $label;
     }
 
     public function pickMailbox(string $email): void
     {
+        Gate::authorize('core.email-link.manage');
+
         $this->formMailbox = $email;
         $this->mailboxSearch = $email;
     }

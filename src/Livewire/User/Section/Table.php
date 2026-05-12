@@ -57,6 +57,10 @@ class Table extends Component
     #[On('filter')]
     public function filter($search = null, $selectedRole = null)
     {
+        // Public listener — re-check the route-level gate so it can't be
+        // poked at via JS dispatch from a non-permissioned session.
+        Gate::authorize('core.user.view');
+
         $this->params = [
             'search' => $search,
             'selectedRole' => $selectedRole,

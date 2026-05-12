@@ -17,6 +17,12 @@ class SwitchRole extends Component
 
     public function switchRole($roleName)
     {
+        // Intentional: this method is NOT Gate::authorize-gated. Switching
+        // between roles is a UX operation, not a privilege escalation —
+        // the hasRole() check below is the gate. A user can only switch
+        // to a role already assigned to them; they can't grant themselves
+        // a new role. Auditing happens via session('active_role') changes
+        // logged by middleware elsewhere.
         $user = auth()->user();
         if (! $user) {
             return redirect()->route('login');
@@ -25,7 +31,7 @@ class SwitchRole extends Component
         // normalize role name
         $roleName = (string) $roleName;
 
-        // verify role exists and user has this role
+        // verify role exists and user has this role — this is the gate.
         $role = Role::where('name', $roleName)->first();
         if (! $role || ! $user->hasRole($roleName)) {
             // optional: flash error or dispatch browser event

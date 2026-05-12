@@ -66,6 +66,12 @@ class Index extends Component
 
     public function refresh(): void
     {
+        // Intentional: no Gate::authorize. The dashboard cache is per-user
+        // (see `DashboardStatsService::for($user)`), so a user can only
+        // thrash their own cache, not anyone else's. The route is already
+        // behind the `auth` middleware, so unauthenticated calls can't
+        // reach here. Adding a permission check here would block guest
+        // users from refreshing their own (empty) stats — wrong tradeoff.
         DashboardStatsService::for(auth()->user())->flushCache();
         unset($this->stats); // force re-compute
         $this->lastUpdatedAt = Carbon::now()->toIso8601String();
