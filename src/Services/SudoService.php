@@ -181,18 +181,57 @@ class SudoService
 
     /**
      * Stash the post-sudo destination so the callback can bounce the user
-     * back to where they were headed. Falls back to the dashboard.
+     * back to where they were headed.
+     *
+     * The destination originates from a query param (and ultimately, for
+     * Livewire actions, the Referer header) — both attacker-influenceable.
+     * Only same-origin URLs are stored; anything else is dropped so the
+     * callback can never be turned into an open redirect.
      */
     public function setIntended(string $url): void
     {
-        Session::put(self::REDIRECT_OVERRIDE_KEY, $url);
+        if ($this->isSafeIntended($url)) {
+            Session::put(self::REDIRECT_OVERRIDE_KEY, $url);
+        }
     }
 
     /**
-     * Pull (and clear) the stashed destination.
+     * Pull (and clear) the stashed destination. Falls back to the
+     * dashboard when nothing safe was stored.
      */
     public function pullIntended(): string
     {
-        return Session::pull(self::REDIRECT_OVERRIDE_KEY) ?: route('dashboard');
+        $url = Session::pull(self::REDIRECT_OVERRIDE_KEY);
+
+        return (is_string($url) && $this->isSafeIntended($url))
+            ? $url
+            : route('dashboard');
+    }
+
+    /**
+     * A destination is safe only when it resolves to this app's own
+     * origin (scheme + host + port). Relative paths are accepted; absolute
+     * URLs to any other host are rejected.
+     */
+    protected function isSafeIntended(string $url): bool
+    {
+        if ($url === '') {
+            return false;
+        }
+
+        // Relative path ("/sudo/demo") — same-origin by definition.
+        if (str_starts_with($url, '/') && ! str_starts_with($url, '//')) {
+            return true;
+        }
+
+        $target = parse_url($url);
+        $appHost = parse_url((string) config('app.url'));
+
+        if (! isset($target['host'], $appHost['host'])) {
+            return false;
+        }
+
+        return strcasecmp($target['host'], $appHost['host']) === 0
+            && ($target['port'] ?? null) == ($appHost['port'] ?? null);
     }
 }

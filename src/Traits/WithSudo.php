@@ -84,12 +84,38 @@ trait WithSudo
 
     /**
      * Issue the Livewire redirect to the step-up flow, returning to the
-     * current page afterwards.
+     * page the user is actually looking at.
+     *
+     * Inside a Livewire action the request URL is `/livewire/update` (the
+     * XHR endpoint) — NOT the visible page. Redirecting `intended` there
+     * would, after the step-up, bounce the browser to /livewire/update via
+     * GET → 405 Method Not Allowed. Livewire itself reads the originating
+     * page from the `Referer` header (see SupportQueryString\BaseUrl); we
+     * do the same, and fall back to url()->current() for non-Livewire HTTP.
      */
     protected function redirectToSudo(?string $reason = null): void
     {
         $this->redirectRoute('sudo.redirect', [
-            'intended' => url()->current(),
+            'intended' => $this->currentPageUrl(),
         ]);
+    }
+
+    /**
+     * The URL of the page the user is on — Referer when this is a Livewire
+     * XHR, otherwise the current request URL.
+     */
+    protected function currentPageUrl(): string
+    {
+        $request = request();
+
+        if ($request->hasHeader('X-Livewire')) {
+            $referer = $request->header('Referer');
+
+            if (is_string($referer) && $referer !== '') {
+                return $referer;
+            }
+        }
+
+        return url()->current();
     }
 }

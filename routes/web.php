@@ -61,6 +61,17 @@ Route::middleware(['web'])->group(function () {
             ->name('sudo.redirect');
         Route::get('/sudo/callback', [SudoController::class, 'callback'])
             ->name('sudo.callback');
+
+        // Sudo mode diagnostic page — exercises every gating path.
+        // Low-risk (actions do nothing destructive); kept routable as a
+        // verification tool and a wiring reference for #[RequiresSudo].
+        // /sudo/demo            → plain page (no gate)
+        // /sudo/demo/protected  → behind the `sudo` middleware
+        Route::get('/sudo/demo', \Nawasara\Core\Livewire\Sudo\Demo::class)
+            ->name('sudo.demo');
+        Route::get('/sudo/demo/protected', \Nawasara\Core\Livewire\Sudo\Demo::class)
+            ->middleware('sudo')
+            ->name('sudo.demo.protected');
     });
 
     Route::middleware(['auth'])->group(function () {
