@@ -45,7 +45,8 @@
         "livewire/livewire": "^3.0",
         "laravel/fortify": "^1.0",
         "laravel/socialite": "^5.0",
-        "socialiteproviders/keycloak": "^5.0"
+        "socialiteproviders/keycloak": "^5.0",
+        "firebase/php-jwt": "^6.0|^7.0"
     },
     "require-dev": {
         "pestphp/pest": "^2.0"

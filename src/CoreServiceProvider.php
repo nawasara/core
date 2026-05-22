@@ -6,9 +6,11 @@ use Livewire\Livewire;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Routing\Router;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+use Nawasara\Core\Http\Middleware\EnsureSudo;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,24 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerLivewire();
 
         $this->registerSocialiteProviders();
+
+        $this->registerMiddleware();
+    }
+
+    /**
+     * Register the `sudo` route-middleware alias. Apply it to any route
+     * performing a critical action:
+     *
+     *   Route::get('db/drop/{name}', ...)->middleware(['auth', 'sudo']);
+     *
+     * EnsureSudo bounces requests without an active sudo window through
+     * the Keycloak OTP step-up first.
+     */
+    protected function registerMiddleware(): void
+    {
+        $router = $this->app->make(Router::class);
+
+        $router->aliasMiddleware('sudo', EnsureSudo::class);
     }
 
     /**

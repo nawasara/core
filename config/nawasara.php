@@ -65,4 +65,29 @@ return [
         'claim_delimiter' => env('NAWASARA_WEBMAIL_CLAIM_DELIMITER', ','),
         'service' => env('NAWASARA_WEBMAIL_SERVICE', 'webmaild'),
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sudo Mode
+    |--------------------------------------------------------------------------
+    | GitHub-style step-up re-authentication for critical/destructive
+    | actions (DROP DATABASE, hapus user, rotasi kredensial, dll).
+    |
+    | Sudo mode piggybacks on the same Keycloak SSO client (Vault group
+    | `sso`), but the step-up redirect carries acr_values=sudo, which
+    | Keycloak maps to the `Sudo Step-up` flow (Cookie + OTP, no password).
+    |
+    | window_minutes:
+    |   How long a successful step-up stays valid before the user is
+    |   asked for OTP again. Mirrors GitHub's sudo mode (15 minutes).
+    |
+    | acr:
+    |   The ACR value requested from, and expected back in, the ID token.
+    |   Must match the ACR-to-LoA mapping configured on the Keycloak
+    |   client (`nawasara-sso-client` → ACR to LoA: sudo → 1).
+    */
+    'sudo' => [
+        'window_minutes' => (int) env('NAWASARA_SUDO_WINDOW_MINUTES', 15),
+        'acr' => env('NAWASARA_SUDO_ACR', 'sudo'),
+    ],
 ];

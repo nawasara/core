@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Nawasara\Core\Http\Controllers\Auth\SsoController;
+use Nawasara\Core\Http\Controllers\Auth\SudoController;
 use Nawasara\Core\Livewire\Auth\Login;
 use Nawasara\Core\Livewire\Auth\SwitchRole;
 use Nawasara\Core\Livewire\Branding\Index as BrandingIndex;
@@ -49,6 +50,17 @@ Route::middleware(['web'])->group(function () {
         Route::get('settings/email-link', \Nawasara\Core\Livewire\Setting\EmailLink::class)
             ->middleware(PermissionMiddleware::using('core.email-link.manage'))
             ->name('nawasara-core.settings.email-link');
+    });
+
+    // Sudo step-up — GitHub-style re-authentication for critical actions.
+    // Requires `auth`: sudo is a step-UP on an existing session, never a
+    // login path. The callback returns from Keycloak while the user's
+    // session is still alive, so `auth` holds for both legs.
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/sudo/redirect', [SudoController::class, 'redirect'])
+            ->name('sudo.redirect');
+        Route::get('/sudo/callback', [SudoController::class, 'callback'])
+            ->name('sudo.callback');
     });
 
     Route::middleware(['auth'])->group(function () {
