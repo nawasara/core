@@ -3,6 +3,7 @@
 namespace Nawasara\Core;
 
 use Livewire\Livewire;
+use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
@@ -10,6 +11,7 @@ use Illuminate\Routing\Router;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
+use Nawasara\Core\Auth\Sudo;
 use Nawasara\Core\Http\Middleware\EnsureSudo;
 
 class CoreServiceProvider extends ServiceProvider
@@ -29,6 +31,24 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerSocialiteProviders();
 
         $this->registerMiddleware();
+
+        $this->registerSudoLogoutHook();
+    }
+
+    /**
+     * Drop the sudo grant whenever the user logs out.
+     *
+     * Fortify's default logout already calls Session::invalidate(), which
+     * implicitly clears the sudo window — so under normal conditions this
+     * listener is redundant. It exists as a defence-in-depth for any
+     * logout path (a custom controller, an Auth::logout() in a Livewire
+     * action, a future package) that fires the Logout event without
+     * invalidating the session: without this hook, a re-login within the
+     * 15-minute window would silently inherit the prior sudo grant.
+     */
+    protected function registerSudoLogoutHook(): void
+    {
+        Event::listen(Logout::class, fn () => Sudo::forget());
     }
 
     /**
