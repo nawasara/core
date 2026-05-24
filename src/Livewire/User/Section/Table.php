@@ -9,7 +9,9 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
+use Nawasara\Core\Attributes\RequiresSudo;
 use Nawasara\Core\Constants\Constants;
+use Nawasara\Core\Traits\WithSudo;
 use Nawasara\Toaster\Concerns\HasToaster;
 
 class Table extends Component
@@ -17,6 +19,7 @@ class Table extends Component
     use HasToaster;
 
     use WithPagination;
+    use WithSudo;
 
     public $params = [];
 
@@ -32,6 +35,7 @@ class Table extends Component
     }
     
     #[On('confirm-delete')]
+    #[RequiresSudo(reason: 'menghapus user')]
     public function delete($id)
     {
         Gate::authorize('core.user.delete');

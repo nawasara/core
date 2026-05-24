@@ -7,14 +7,17 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Nawasara\Core\Attributes\RequiresSudo;
 use Nawasara\Core\Constants\Constants;
 use Nawasara\Core\Models\Role;
+use Nawasara\Core\Traits\WithSudo;
 use Nawasara\Toaster\Concerns\HasToaster;
 
 class Table extends Component
 {
     use HasToaster;
     use WithPagination;
+    use WithSudo;
 
     public $search = '';
 
@@ -31,6 +34,7 @@ class Table extends Component
     }
 
     #[On('confirm-delete')]
+    #[RequiresSudo(reason: 'menghapus role')]
     public function delete($id)
     {
         Gate::authorize('core.role.delete');
