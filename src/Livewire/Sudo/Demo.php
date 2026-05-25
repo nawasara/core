@@ -3,8 +3,8 @@
 namespace Nawasara\Core\Livewire\Sudo;
 
 use Livewire\Component;
-use Nawasara\Core\Attributes\RequiresSudo;
-use Nawasara\Core\Traits\WithSudo;
+use Nawasara\AuthPrimitives\Attributes\RequiresSudo;
+use Nawasara\AuthPrimitives\Traits\WithSudo;
 
 /**
  * Sudo mode diagnostic page.

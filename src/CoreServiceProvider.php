@@ -7,12 +7,10 @@ use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Routing\Router;
 use Symfony\Component\Finder\Finder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\ServiceProvider;
-use Nawasara\Core\Auth\Sudo;
-use Nawasara\Core\Http\Middleware\EnsureSudo;
+use Nawasara\AuthPrimitives\Auth\Sudo;
 
 class CoreServiceProvider extends ServiceProvider
 {
@@ -29,8 +27,6 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerLivewire();
 
         $this->registerSocialiteProviders();
-
-        $this->registerMiddleware();
 
         $this->registerSudoLogoutHook();
     }
@@ -49,22 +45,6 @@ class CoreServiceProvider extends ServiceProvider
     protected function registerSudoLogoutHook(): void
     {
         Event::listen(Logout::class, fn () => Sudo::forget());
-    }
-
-    /**
-     * Register the `sudo` route-middleware alias. Apply it to any route
-     * performing a critical action:
-     *
-     *   Route::get('db/drop/{name}', ...)->middleware(['auth', 'sudo']);
-     *
-     * EnsureSudo bounces requests without an active sudo window through
-     * the Keycloak OTP step-up first.
-     */
-    protected function registerMiddleware(): void
-    {
-        $router = $this->app->make(Router::class);
-
-        $router->aliasMiddleware('sudo', EnsureSudo::class);
     }
 
     /**
@@ -95,6 +75,36 @@ class CoreServiceProvider extends ServiceProvider
 
         if (config('nawasara.use_fortify', true) && class_exists(\Laravel\Fortify\Fortify::class)) {
             $this->app->register(\Nawasara\Core\FortifyServiceProvider::class);
+        }
+
+        $this->aliasSudoPrimitives();
+    }
+
+    /**
+     * Aliases the old `Nawasara\Core\…` sudo classes to their new homes
+     * in `Nawasara\AuthPrimitives\…`. The classes themselves were moved
+     * out of core into the standalone primitives package; the aliases
+     * keep any third-party or pre-existing import working until the
+     * next major when these can be dropped.
+     *
+     * class_alias is no-op if the alias name already exists (e.g. another
+     * provider raced us), so it is safe to call unconditionally.
+     */
+    protected function aliasSudoPrimitives(): void
+    {
+        $aliases = [
+            \Nawasara\AuthPrimitives\Auth\Sudo::class => \Nawasara\Core\Auth\Sudo::class,
+            \Nawasara\AuthPrimitives\Attributes\RequiresSudo::class => \Nawasara\Core\Attributes\RequiresSudo::class,
+            \Nawasara\AuthPrimitives\Traits\WithSudo::class => \Nawasara\Core\Traits\WithSudo::class,
+            \Nawasara\AuthPrimitives\Http\Middleware\EnsureSudo::class => \Nawasara\Core\Http\Middleware\EnsureSudo::class,
+            \Nawasara\AuthPrimitives\Exceptions\SudoRequiredException::class => \Nawasara\Core\Exceptions\SudoRequiredException::class,
+        ];
+
+        foreach ($aliases as $real => $legacy) {
+            if (! class_exists($legacy, autoload: false) && ! trait_exists($legacy, autoload: false)) {
+                // class_alias works for both classes and traits in PHP 8.
+                class_alias($real, $legacy);
+            }
         }
     }
 

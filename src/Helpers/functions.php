@@ -1,8 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Auth;
-use Nawasara\Core\Auth\Sudo;
 use Nawasara\Core\Models\Setting;
+
+// Note: sudo_active() and sudo_remaining_seconds() live in
+// nawasara/auth-primitives — see packages/nawasara-auth-primitives/
+// src/Helpers/functions.php. Core depends on auth-primitives, so they
+// are still available app-wide; the move just keeps the primitives
+// reusable by domain packages that don't depend on core.
 
 if (! function_exists('brand')) {
     /**
@@ -38,40 +42,5 @@ if (! function_exists('setting')) {
         } catch (\Throwable $e) {
             return $default;
         }
-    }
-}
-
-if (! function_exists('sudo_active')) {
-    /**
-     * Whether the current session holds a valid sudo window — i.e. the
-     * user recently completed the Keycloak OTP step-up.
-     *
-     * Use in Blade to toggle UI affordances:
-     *
-     *   @if (sudo_active())
-     *       <button wire:click="dropDatabase">Hapus</button>
-     *   @endif
-     *
-     * Gating the actual action still belongs to the `sudo` middleware or
-     * the #[RequiresSudo] attribute — this is only for display.
-     */
-    function sudo_active(): bool
-    {
-        $userId = (int) Auth::id();
-
-        return $userId > 0 && Sudo::isActive($userId);
-    }
-}
-
-if (! function_exists('sudo_remaining_seconds')) {
-    /**
-     * Seconds left in the current sudo window, or 0 when not active.
-     * Handy for a countdown badge.
-     */
-    function sudo_remaining_seconds(): int
-    {
-        $userId = (int) Auth::id();
-
-        return $userId > 0 ? Sudo::remainingSeconds($userId) : 0;
     }
 }

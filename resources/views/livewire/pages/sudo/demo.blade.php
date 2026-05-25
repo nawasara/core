@@ -18,7 +18,7 @@
                     Status sudo window
                 </p>
                 <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-                    Window berlaku {{ \Nawasara\Core\Auth\Sudo::windowMinutes() }} menit
+                    Window berlaku {{ \Nawasara\AuthPrimitives\Auth\Sudo::windowMinutes() }} menit
                     sejak konfirmasi OTP terakhir.
                 </p>
             </div>

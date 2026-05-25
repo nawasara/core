@@ -36,10 +36,14 @@ class SudoService
     /**
      * ACR value requested from Keycloak and expected back in the ID token.
      * Mapped to LoA 1 in the `nawasara-sso-client` ACR-to-LoA config.
+     *
+     * Read from auth-primitives config: the constant lives in the
+     * primitives package so middleware / attribute / service all share
+     * one definition.
      */
     public function sudoAcr(): string
     {
-        return (string) config('nawasara.sudo.acr', 'sudo');
+        return (string) config('auth-primitives.sudo.acr', 'sudo');
     }
 
     /**
