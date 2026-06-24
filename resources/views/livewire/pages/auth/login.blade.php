@@ -2,8 +2,9 @@
     <div class="min-h-dvh flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8 bg-white dark:bg-gray-900 p-8 rounded-xl shadow-lg">
             <div class="text-center mb-6">
-                <img src="{{ asset('vendor/nawasara-core/assets/images/logo.png') }}" class="h-12 mx-auto mb-2"
-                    alt="Logo Nandur Panguripan" />
+                <div class="flex justify-center mb-3">
+                    <x-nawasara-ui::brand-logo height="h-12" :show-name="true" />
+                </div>
                 <h2 class="mt-2 text-2xl font-bold text-green-800 dark:text-green-300">Login</h2>
                 <p class="mt-1 text-sm text-green-700 dark:text-green-200">Silakan masuk ke akun Anda.</p>
             </div>
