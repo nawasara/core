@@ -10,8 +10,9 @@ $prefix = 'nawasara-core';
 return [
     [
         'workspace' => 'user-management',
-        'label' => 'User Management',
+        'label' => 'Manajemen User',
         'icon' => 'lucide-users',
+        'group' => 'Pengaturan',
         'url' => '',
         'permission' => 'core.user.view',
         'submenu' => [
@@ -36,6 +37,7 @@ return [
         'workspace' => 'settings',
         'label' => 'Pengaturan',
         'icon' => 'lucide-settings',
+        'group' => 'Pengaturan',
         'url' => '',
         'permission' => 'core.branding.manage',
         'submenu' => [
