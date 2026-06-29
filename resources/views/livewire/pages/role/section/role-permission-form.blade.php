@@ -144,9 +144,12 @@
     </div>
 </div>
 
-@push('script')
+{{-- @script (Livewire 3) instead of @push('script') + alpine:init: @script
+     re-runs on every component mount INCLUDING after wire:navigate, so the
+     Alpine.data is never "not defined" on a navigated-to page. @push does not
+     re-run on navigate. See reference_alpine_magic_wire_navigate. --}}
+@script
 <script>
-    document.addEventListener('alpine:init', () => {
         Alpine.data('rolePermissionForm', (config) => ({
             selected: [...(config.initial || [])].map(Number),
             groups: config.groups || {},
@@ -276,6 +279,5 @@
                 }
             },
         }));
-    });
 </script>
-@endpush
+@endscript
