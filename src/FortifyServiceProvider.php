@@ -8,9 +8,18 @@ use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
+use Nawasara\Core\Http\Responses\KeycloakLogoutResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        // RP-initiated logout: replace Fortify's default logout response so
+        // logging out of Nawasara also ends the Keycloak SSO session.
+        $this->app->singleton(LogoutResponseContract::class, KeycloakLogoutResponse::class);
+    }
+
     public function boot(): void
     {
         $config = config('nawasara.auth');

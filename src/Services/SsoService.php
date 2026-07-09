@@ -84,7 +84,90 @@ class SsoService
             'id' => (string) $user->getId(),
             'username' => $username,
             'kominfo_emails' => $this->extractKominfoEmails($user->user ?? []),
+            // Tokens for keeping the Laravel session tied to the Keycloak session:
+            //   refresh_token → periodic liveness check (middleware)
+            //   id_token      → id_token_hint for RP-initiated logout
+            'refresh_token' => $user->refreshToken ?? null,
+            'access_token' => $user->token ?? null,
+            'id_token' => $user->accessTokenResponseBody['id_token'] ?? null,
         ];
+    }
+
+    /**
+     * Exchange a refresh_token for a new token set at the realm token endpoint.
+     * Used by the session-liveness middleware: a successful refresh proves the
+     * Keycloak SSO session is still alive (and slides it forward); a failure
+     * means the SSO session was logged out or revoked.
+     *
+     * Returns:
+     *   - array with new tokens        → session still alive
+     *   - null                         → refresh rejected (invalid_grant) → log out
+     *   - ['error' => 'transport']     → Keycloak unreachable → DON'T log out (blip)
+     *
+     * @return array<string,mixed>|null
+     */
+    public function refreshToken(string $refreshToken): ?array
+    {
+        $driver = $this->driver();
+        if ($driver !== 'keycloak') {
+            return null; // only keycloak supported for now
+        }
+
+        $base = rtrim((string) Vault::get('sso', 'base_url'), '/');
+        $realm = (string) (Vault::get('sso', 'realm') ?: 'master');
+        $url = "{$base}/realms/{$realm}/protocol/openid-connect/token";
+
+        try {
+            $response = Http::asForm()->timeout(8)->post($url, [
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $refreshToken,
+                'client_id' => (string) Vault::get('sso', 'client_id'),
+                'client_secret' => (string) Vault::get('sso', 'client_secret'),
+            ]);
+        } catch (\Throwable $e) {
+            // Transport error (Keycloak unreachable) — return a distinct signal
+            // so the caller can decide NOT to log the user out on a blip.
+            return ['error' => 'transport'];
+        }
+
+        if (! $response->successful()) {
+            // 400 invalid_grant = session ended/revoked → caller logs out.
+            return null;
+        }
+
+        $body = $response->json();
+
+        return [
+            'access_token' => (string) ($body['access_token'] ?? ''),
+            'refresh_token' => (string) ($body['refresh_token'] ?? $refreshToken),
+            'id_token' => $body['id_token'] ?? null,
+        ];
+    }
+
+    /**
+     * Build the Keycloak RP-initiated logout URL (end_session_endpoint) so
+     * logging out of Nawasara also ends the Keycloak SSO session.
+     */
+    public function logoutUrl(?string $idToken, string $postLogoutRedirect): ?string
+    {
+        if ($this->driver() !== 'keycloak') {
+            return null;
+        }
+
+        $base = rtrim((string) Vault::get('sso', 'base_url'), '/');
+        $realm = (string) (Vault::get('sso', 'realm') ?: 'master');
+        $endpoint = "{$base}/realms/{$realm}/protocol/openid-connect/logout";
+
+        $params = ['post_logout_redirect_uri' => $postLogoutRedirect];
+        if ($idToken) {
+            $params['id_token_hint'] = $idToken;
+        } else {
+            // Without an id_token_hint Keycloak requires client_id to honour
+            // the redirect.
+            $params['client_id'] = (string) Vault::get('sso', 'client_id');
+        }
+
+        return $endpoint.'?'.http_build_query($params);
     }
 
     /**

@@ -29,6 +29,21 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerSocialiteProviders();
 
         $this->registerSudoLogoutHook();
+
+        $this->registerKeycloakSessionGuard();
+    }
+
+    /**
+     * Append the Keycloak session-liveness check to the `web` middleware group
+     * so it runs for every web route across all packages (not just core). It
+     * no-ops for guests and local logins; only SSO sessions with a stored
+     * refresh token trigger the periodic realm check.
+     */
+    protected function registerKeycloakSessionGuard(): void
+    {
+        $router = $this->app['router'];
+        $router->aliasMiddleware('keycloak.session', \Nawasara\Core\Http\Middleware\EnsureKeycloakSession::class);
+        $router->pushMiddlewareToGroup('web', \Nawasara\Core\Http\Middleware\EnsureKeycloakSession::class);
     }
 
     /**
@@ -44,7 +59,18 @@ class CoreServiceProvider extends ServiceProvider
      */
     protected function registerSudoLogoutHook(): void
     {
-        Event::listen(Logout::class, fn () => Sudo::forget());
+        Event::listen(Logout::class, function () {
+            Sudo::forget();
+
+            // Capture the SSO id_token BEFORE Fortify invalidates the session,
+            // so KeycloakLogoutResponse can use it as id_token_hint for
+            // RP-initiated logout. The Logout event fires inside Auth::logout(),
+            // ahead of session()->invalidate().
+            if (session()->has('sso.refresh_token')) {
+                \Nawasara\Core\Http\Responses\KeycloakLogoutResponse::$wasSso = true;
+                \Nawasara\Core\Http\Responses\KeycloakLogoutResponse::$idToken = session('sso.id_token');
+            }
+        });
     }
 
     /**

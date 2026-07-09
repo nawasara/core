@@ -41,6 +41,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SSO session binding
+    |--------------------------------------------------------------------------
+    | Keeps the Laravel session tied to the Keycloak SSO session.
+    |
+    | check_interval: seconds between refresh-token liveness checks against
+    |   Keycloak (EnsureKeycloakSession middleware). Lower = faster detection of
+    |   a Keycloak logout, more realm round-trips. 300s (5 min) is a good
+    |   balance. A Keycloak logout is reflected in Nawasara within this window.
+    |
+    | rp_logout: when true, logging out of Nawasara also ends the Keycloak SSO
+    |   session (RP-initiated logout via end_session_endpoint).
+    */
+    'sso' => [
+        'check_interval' => env('NAWASARA_SSO_CHECK_INTERVAL', 300),
+        'rp_logout' => env('NAWASARA_SSO_RP_LOGOUT', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Webmail SSO Bridge
     |--------------------------------------------------------------------------
     | Auto-login user ke webmail (cPanel/Roundcube) lewat WHM

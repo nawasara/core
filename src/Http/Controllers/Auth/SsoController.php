@@ -92,6 +92,7 @@ class SsoController extends Controller
             $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
 
             Auth::login($user, true);
+            $this->storeSsoTokens($userData);
             return redirect()->intended('/home');
         }
 
@@ -131,7 +132,27 @@ class SsoController extends Controller
         $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
 
         Auth::login($user, true);
+        $this->storeSsoTokens($userData);
         return redirect()->intended('/home');
+    }
+
+    /**
+     * Persist the Keycloak tokens into the session so the app can keep the
+     * Laravel session tied to the Keycloak session:
+     *   - refresh_token → periodic liveness check (EnsureKeycloakSession)
+     *   - id_token      → id_token_hint for RP-initiated logout
+     * Also stamps the initial check time so the middleware doesn't refresh on
+     * the very first request.
+     *
+     * @param  array<string,mixed>  $userData
+     */
+    protected function storeSsoTokens(array $userData): void
+    {
+        session([
+            'sso.refresh_token' => $userData['refresh_token'] ?? null,
+            'sso.id_token' => $userData['id_token'] ?? null,
+            'sso.checked_at' => now()->timestamp,
+        ]);
     }
 
     /**
