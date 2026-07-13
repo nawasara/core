@@ -206,11 +206,13 @@ class DashboardStatsService
 
         return Cache::remember('dashboard.stats.opd', self::CACHE_TTL_SECONDS, function () {
             $total = \Nawasara\Registry\Models\Opd::query()->count();
-            $withPic = \Nawasara\Registry\Models\Opd::query()
-                ->whereHas('pics', fn ($q) => $q->where('is_primary', true))
+            // PIC was replaced by user-based membership; count OPDs that have at
+            // least one active member as the "assigned" figure.
+            $withMembers = \Nawasara\Registry\Models\Opd::query()
+                ->whereHas('members')
                 ->count();
 
-            $unassigned = $total - $withPic;
+            $unassigned = $total - $withMembers;
 
             return [
                 'key' => 'opd',
@@ -219,8 +221,8 @@ class DashboardStatsService
                 'icon' => 'lucide-building-2',
                 'color' => 'info',
                 'description' => $unassigned > 0
-                    ? "{$unassigned} belum punya PIC"
-                    : "Semua OPD sudah punya PIC",
+                    ? "{$unassigned} belum punya anggota"
+                    : "Semua OPD sudah punya anggota",
             ];
         });
     }
