@@ -56,6 +56,10 @@ class PermissionSeeder extends Seeder
         // it touches Keycloak attributes + can auto-provision Laravel users —
         // a larger blast radius than the per-row manual UI.
         Permission::firstOrCreate(['name' => 'core.email-link.import', 'guard_name' => 'web']);
+
+        // Changelog author permission. Reading the Riwayat Update page needs no
+        // permission (any logged-in user); only writing/publishing is gated.
+        Permission::firstOrCreate(['name' => 'core.changelog.manage', 'guard_name' => 'web']);
     }
 
     public function roleGivePermission()

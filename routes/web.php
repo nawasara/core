@@ -84,6 +84,14 @@ Route::middleware(['web'])->group(function () {
 
         Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
 
+        // Riwayat Update (changelog) — readable by any logged-in user; the
+        // manage screen is permission-gated below.
+        Route::get('changelog', \Nawasara\Core\Livewire\Changelog\Index::class)
+            ->name('nawasara-core.changelog.index');
+        Route::get('changelog/manage', \Nawasara\Core\Livewire\Changelog\Manage::class)
+            ->middleware(PermissionMiddleware::using('core.changelog.manage'))
+            ->name('nawasara-core.changelog.manage');
+
         // Webmail SSO bridge — sengaja di top-level path supaya gampang
         // dipasang link "Buka Email" dari portal ASN tanpa nested URL.
         // Permission webmail.session.launch di-attach ke role `guest` +
