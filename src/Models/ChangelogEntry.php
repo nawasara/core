@@ -84,6 +84,23 @@ class ChangelogEntry extends Model
             ->count();
     }
 
+    /**
+     * Published entries a user hasn't seen yet, newest first. Drives the
+     * login "What's New" modal. Capped so the modal never renders a huge list.
+     *
+     * @return \Illuminate\Support\Collection<int, ChangelogEntry>
+     */
+    public static function unreadFor(int $userId, int $limit = 8): \Illuminate\Support\Collection
+    {
+        $lastSeen = ChangelogRead::where('user_id', $userId)->value('last_seen_at');
+
+        return self::published()
+            ->when($lastSeen, fn ($q) => $q->where('published_at', '>', $lastSeen))
+            ->orderByDesc('published_at')
+            ->limit($limit)
+            ->get();
+    }
+
     /** Stamp that this user has now seen everything up to now. */
     public static function markSeen(int $userId): void
     {
