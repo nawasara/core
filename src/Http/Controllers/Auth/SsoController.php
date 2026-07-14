@@ -91,7 +91,13 @@ class SsoController extends Controller
 
             $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
 
-            Auth::login($user, true);
+            // NO remember-me for SSO: a remember cookie silently re-authenticates
+            // the user after their session expires WITHOUT going through this
+            // callback, so no sso.* tokens are stored and EnsureKeycloakSession
+            // can never tie the session to Keycloak's lifecycle. An SSO session
+            // must live and die with Keycloak — when it expires, the user
+            // re-authenticates through the realm (and is bounced if logged out).
+            Auth::login($user);
             $this->storeSsoTokens($userData);
             return redirect()->intended('/home');
         }
@@ -131,7 +137,8 @@ class SsoController extends Controller
 
         $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
 
-        Auth::login($user, true);
+        // No remember-me for SSO — see the note on the other Auth::login above.
+        Auth::login($user);
         $this->storeSsoTokens($userData);
         return redirect()->intended('/home');
     }
