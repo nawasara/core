@@ -64,12 +64,21 @@ class SudoController extends Controller
 
         $intended = $this->sudo->pullIntended();
 
+        // Outcomes are flashed as a toast, not just withErrors(): the app layout
+        // renders the toaster on every page but does not render an $errors bag,
+        // so a bare withErrors() left the user staring at an unchanged page with
+        // no idea why nothing happened.
         try {
             $verified = $this->sudo->verifyCallback();
         } catch (\Throwable $e) {
             Log::warning('[sudo] callback failed: '.$e->getMessage());
 
             return redirect()->to($intended)
+                ->with('toast', [
+                    'type' => 'error',
+                    'message' => 'Verifikasi sudo gagal: '.$e->getMessage(),
+                    'options' => [],
+                ])
                 ->withErrors(['sudo' => 'Verifikasi sudo gagal: '.$e->getMessage()]);
         }
 
@@ -81,12 +90,24 @@ class SudoController extends Controller
             ]);
 
             return redirect()->to($intended)
+                ->with('toast', [
+                    'type' => 'error',
+                    'message' => 'Konfirmasi sudo belum lengkap — verifikasi tambahan (OTP) tidak terpenuhi. Hubungi admin bila berulang.',
+                    'options' => ['duration' => 9000],
+                ])
                 ->withErrors(['sudo' => 'Konfirmasi sudo tidak lengkap. Coba lagi.']);
         }
 
         Sudo::confirm((int) Auth::id());
 
+        // Tell the user the window is open AND that the action must be repeated:
+        // the step-up aborts the original action, it does not replay it.
         return redirect()->to($intended)
+            ->with('toast', [
+                'type' => 'success',
+                'message' => 'Mode sudo aktif '.Sudo::windowMinutes().' menit — silakan ulangi aksi tadi.',
+                'options' => ['duration' => 8000],
+            ])
             ->with('status', 'Mode sudo aktif selama '.Sudo::windowMinutes().' menit.');
     }
 }
