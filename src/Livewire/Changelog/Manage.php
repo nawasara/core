@@ -87,7 +87,7 @@ class Manage extends Component
         }
 
         $this->resetForm();
-        $this->dispatch('close-modal', 'changelog-form');
+        $this->dispatch('modal-close:changelog-form');
         $this->dispatch('toast', type: 'success', message: 'Catatan update disimpan.');
     }
 
