@@ -101,6 +101,18 @@ class EmailLink extends Component
             ->get();
     }
 
+    /**
+     * Kandidat user untuk ditautkan ke mailbox.
+     *
+     * Berbeda dengan picker di membership/VPN, di sini pencarian tetap ke tabel
+     * `users` lokal — mapping mailbox hanya bermakna untuk orang yang sudah
+     * punya akun, dan membuat akun baru cuma demi memetakan mailbox akan
+     * menghasilkan user tak terpakai. Yang diperbaiki: nama yang ditampilkan
+     * diambil dari Keycloak (via KeycloakProfile) supaya konsisten dengan
+     * seluruh aplikasi, bukan dari kolom `users.name` yang bisa basi.
+     *
+     * @return \Illuminate\Support\Collection<int, array{id:int, name:string, email:?string, username:?string}>
+     */
     #[Computed]
     public function userOptions()
     {
@@ -108,7 +120,7 @@ class EmailLink extends Component
             return collect();
         }
 
-        return User::query()
+        $users = User::query()
             ->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->formUserSearch.'%')
                     ->orWhere('email', 'like', '%'.$this->formUserSearch.'%')
@@ -116,7 +128,61 @@ class EmailLink extends Component
             })
             ->orderBy('name')
             ->limit(15)
-            ->get(['id', 'name', 'email', 'username']);
+            ->get(['id', 'name', 'email', 'username', 'keycloak_id']);
+
+        return $users->map(fn (User $u) => [
+            'id' => $u->id,
+            'name' => $this->displayName($u),
+            'email' => $u->email,
+            'username' => $u->username,
+        ]);
+    }
+
+    /**
+     * Nama tampilan: dari snapshot Keycloak kalau tersedia, jatuh ke kolom
+     * lokal kalau package keycloak tidak terpasang atau orangnya tak ada di
+     * snapshot.
+     */
+    protected function displayName(User $user): string
+    {
+        if (class_exists(\Nawasara\Keycloak\Support\KeycloakProfile::class)) {
+            try {
+                return \Nawasara\Keycloak\Support\KeycloakProfile::for($user)->name;
+            } catch (\Throwable $e) {
+                // Snapshot bermasalah bukan alasan halaman ini gagal render.
+            }
+        }
+
+        return $user->name ?: ($user->username ?? '—');
+    }
+
+    /**
+     * User yang muncul di halaman ini (baris link + sesi webmail), di-preload
+     * sekali supaya blade tidak memanggil User::find() di dalam loop.
+     *
+     * @return \Illuminate\Support\Collection<int, User>
+     */
+    #[Computed]
+    public function usersOnPage()
+    {
+        $ids = $this->links->pluck('user_id')
+            ->merge($this->recentSessions->pluck('user_id'))
+            ->filter()
+            ->unique();
+
+        if ($ids->isEmpty()) {
+            return collect();
+        }
+
+        return User::whereIn('id', $ids)->get()->keyBy('id');
+    }
+
+    /** Nama tampilan untuk satu user_id di halaman ini. */
+    public function displayNameFor(?int $userId): ?string
+    {
+        $user = $userId ? $this->usersOnPage->get($userId) : null;
+
+        return $user ? $this->displayName($user) : null;
     }
 
     /**
@@ -160,13 +226,20 @@ class EmailLink extends Component
         $this->editingId = $link->id;
         $this->formUserId = (string) $link->user_id;
         $this->formMailbox = $link->email_account;
-        $this->formUserSearch = $user ? "{$user->name} ({$user->email})" : '';
+        $this->formUserSearch = $user ? $this->displayName($user).' ('.$user->email.')' : '';
         $this->mailboxSearch = $link->email_account;
 
         $this->dispatch('modal-open:email-link-form');
     }
 
-    public function pickUser(int $userId, string $label): void
+    /**
+     * Pilih user dari hasil pencarian.
+     *
+     * Index merujuk posisi di hasil yang dihitung ulang server-side — id dan
+     * label tidak lagi dioper lewat atribut DOM, yang dulu memakai addslashes()
+     * dan pecah untuk nama ber-apostrof.
+     */
+    public function pickUser(int $index): void
     {
         // Gate even though save() also gates — these public methods are
         // dispatchable from the browser (Livewire wire:click), so without
@@ -176,8 +249,17 @@ class EmailLink extends Component
         // these via the JS console.
         Gate::authorize('core.email-link.manage');
 
-        $this->formUserId = (string) $userId;
-        $this->formUserSearch = $label;
+        $picked = $this->userOptions[$index] ?? null;
+        if (! $picked) {
+            $this->toastError('Pilihan tidak valid, coba cari ulang.');
+
+            return;
+        }
+
+        $this->formUserId = (string) $picked['id'];
+        $this->formUserSearch = $picked['email']
+            ? "{$picked['name']} ({$picked['email']})"
+            : $picked['name'];
     }
 
     public function pickMailbox(string $email): void
@@ -240,7 +322,7 @@ class EmailLink extends Component
 
             $this->dispatch('modal-close:email-link-form');
             $this->resetForm();
-            unset($this->links, $this->totalsBySource);
+            unset($this->links, $this->totalsBySource, $this->usersOnPage);
         } catch (\Throwable $e) {
             $this->toastError($e->getMessage());
         }
@@ -253,7 +335,7 @@ class EmailLink extends Component
         try {
             UserEmailLink::where('id', $id)->delete();
             $this->toastSuccess('Link dihapus. Resolver akan fall back ke claim Keycloak (kalau ada).');
-            unset($this->links, $this->totalsBySource);
+            unset($this->links, $this->totalsBySource, $this->usersOnPage);
         } catch (\Throwable $e) {
             $this->toastError($e->getMessage());
         }
@@ -271,7 +353,7 @@ class EmailLink extends Component
             ->where('source', UserEmailLink::SOURCE_SSO_ATTRIBUTE)
             ->delete();
 
-        unset($this->links, $this->totalsBySource);
+        unset($this->links, $this->totalsBySource, $this->usersOnPage);
         $this->toastSuccess("Pruned {$count} cached SSO link. Akan re-cache otomatis saat user login.");
     }
 

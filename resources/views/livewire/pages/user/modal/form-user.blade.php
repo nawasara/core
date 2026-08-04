@@ -1,4 +1,5 @@
-{{-- ui-lint-skip: auth-type segmented uses $set() magic which doesn't fit segmented-control API; needs setAuthType() Livewire method first --}}
+{{-- ui-lint-skip: auth-type segmented control belum punya padanan komponen yang
+     mendukung dua tombol dengan warna berbeda per state --}}
 <div>
     <form wire:submit="store" class="space-y-2" x-data="{
         selectedRoles: @entangle('form.roles') ?? [],
@@ -11,18 +12,15 @@
         }
     }">
         {{-- Auth Type Toggle --}}
-        {{-- TODO: migrate to <x-nawasara-ui::segmented-control> after adding
-             setAuthType($value) method to FormUser livewire component (current
-             $set magic syntax doesn't fit segmented-control API). --}}
         <div>
             <x-nawasara-ui::form.label value="Tipe User" required />
             <div class="flex rounded-lg overflow-hidden border border-gray-200 dark:border-neutral-700">
-                <button type="button" wire:click="$set('form.auth_type', 'local')"
+                <button type="button" wire:click="setAuthType('local')"
                     class="flex-1 py-2 px-4 text-sm font-medium text-center transition-colors
                     {{ $form->auth_type === 'local' ? 'bg-emerald-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:text-neutral-300' }}">
                     User Biasa
                 </button>
-                <button type="button" wire:click="$set('form.auth_type', 'sso')"
+                <button type="button" wire:click="setAuthType('sso')"
                     class="flex-1 py-2 px-4 text-sm font-medium text-center transition-colors
                     {{ $form->auth_type === 'sso' ? 'bg-cyan-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:text-neutral-300' }}">
                     User SSO
@@ -33,19 +31,92 @@
             @enderror
         </div>
 
-        <x-nawasara-ui::form.input id="name" name="name" label="Name" placeholder="Your name" useError="true"
-            errorVariable="form.name" autofocus wire:model.defer="form.name" />
+        @if ($form->auth_type === 'sso' && $this->ssoDirectoryAvailable)
+            {{-- Identitas user SSO datang dari Keycloak, tidak diketik: mengetik
+                 manual berarti salah satu huruf saja sudah membuat akun yang
+                 tak pernah bisa login. --}}
+            @if ($form->keycloak_id)
+                <div class="rounded-lg border border-cyan-200 bg-cyan-50 p-3 dark:border-cyan-800 dark:bg-cyan-900/20">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                                {{ $form->name }}
+                            </p>
+                            <p class="truncate text-xs text-neutral-600 dark:text-neutral-300">
+                                {{ $form->username }}@if ($form->email) · {{ $form->email }} @endif
+                            </p>
+                            <p class="mt-1 text-xs text-cyan-700 dark:text-cyan-400">
+                                Identitas diambil dari Keycloak
+                            </p>
+                        </div>
+                        @unless ($form->user)
+                            <x-nawasara-ui::button color="neutral" variant="outline" size="sm"
+                                wire:click="clearSsoUser">
+                                Ganti
+                            </x-nawasara-ui::button>
+                        @endunless
+                    </div>
+                </div>
+            @else
+                <div>
+                    <x-nawasara-ui::form.label value="Cari Orang di Keycloak" required />
+                    <x-nawasara-ui::form.input
+                        wire:model.live.debounce.400ms="ssoSearch"
+                        placeholder="Ketik nama, username, atau email (min. 2 huruf)…"
+                        autocomplete="off" />
+                    @error('form.keycloak_id')
+                        <span class="text-sm text-red-500">{{ $message }}</span>
+                    @enderror
 
-        <div>
+                    <div class="mt-2 max-h-56 overflow-y-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        @forelse ($this->ssoResults as $idx => $person)
+                            <button type="button"
+                                wire:key="sso-{{ $person['kc_id'] }}"
+                                wire:click="pickSsoUser({{ $idx }})"
+                                class="flex w-full items-center justify-between gap-3 border-b border-neutral-100 px-3 py-2.5 text-left last:border-0 hover:bg-cyan-50 dark:border-neutral-800 dark:hover:bg-cyan-900/20">
+                                <span class="min-w-0">
+                                    <span class="block truncate text-sm font-medium text-neutral-800 dark:text-neutral-100">{{ $person['name'] }}</span>
+                                    <span class="block truncate text-xs text-neutral-500 dark:text-neutral-400">
+                                        @if ($person['nip'])
+                                            NIP {{ $person['nip'] }}
+                                        @elseif ($person['email'])
+                                            {{ $person['email'] }}
+                                        @else
+                                            {{ $person['username'] }}
+                                        @endif
+                                    </span>
+                                </span>
+                                <span class="shrink-0 text-xs font-medium text-cyan-700 dark:text-cyan-400">Pilih</span>
+                            </button>
+                        @empty
+                            <div class="px-3 py-5 text-center text-sm text-neutral-500 dark:text-neutral-400">
+                                @if (mb_strlen(trim($ssoSearch)) < 2)
+                                    Ketik minimal 2 huruf untuk mencari.
+                                @else
+                                    Tidak ada yang cocok, atau semuanya sudah punya akun Nawasara.
+                                @endif
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            @endif
+        @else
+            @if ($form->auth_type === 'sso')
+                <p class="rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+                    Direktori Keycloak belum tersedia — jalankan <code>keycloak:sync</code> dulu.
+                    Sementara ini identitas diisi manual dan harus persis sama dengan Keycloak.
+                </p>
+            @endif
+
+            <x-nawasara-ui::form.input id="name" name="name" label="Name" placeholder="Your name" useError="true"
+                errorVariable="form.name" autofocus wire:model.defer="form.name" />
+
             <x-nawasara-ui::form.input id="username" name="username" label="Username" placeholder="Username"
                 useError="true" errorVariable="form.username" wire:model.defer="form.username" />
-            @if ($form->auth_type === 'sso')
-                <p class="text-xs text-cyan-700 dark:text-cyan-400 mt-1">Username harus sama dengan username di Keycloak</p>
-            @endif
-        </div>
 
-        <x-nawasara-ui::form.input id="email" name="email" type="email" label="Email"
-            placeholder="Your email" wire:model.defer="form.email" useError="true" errorVariable="form.email" />
+            <x-nawasara-ui::form.input id="email" name="email" type="email" label="Email"
+                placeholder="Your email" wire:model.defer="form.email" useError="true" errorVariable="form.email" />
+        @endif
 
         <div>
             <x-nawasara-ui::form.label for="roles" value="Roles" required />

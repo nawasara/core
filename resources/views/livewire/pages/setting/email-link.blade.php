@@ -77,13 +77,13 @@
             :title="'Links ('.$this->links->total().' total)'">
             <x-slot:table>
                 @forelse ($this->links as $link)
-                    @php
-                        $user = \App\Models\User::find($link->user_id);
-                    @endphp
+                    {{-- User di-preload lewat $this->usersOnPage — jangan panggil
+                         User::find() di sini, itu satu query per baris. --}}
+                    @php $user = $this->usersOnPage->get($link->user_id); @endphp
                     <tr wire:key="link-{{ $link->id }}">
                         <td class="px-6 py-3 text-sm">
                             @if ($user)
-                                <div class="font-medium text-gray-800 dark:text-neutral-200">{{ $user->name }}</div>
+                                <div class="font-medium text-gray-800 dark:text-neutral-200">{{ $this->displayNameFor($link->user_id) }}</div>
                                 <div class="text-xs text-gray-500 dark:text-neutral-400 font-mono">{{ $user->email }}</div>
                             @else
                                 <span class="text-gray-400 italic">User #{{ $link->user_id }} (deleted)</span>
@@ -164,10 +164,9 @@
                         </thead>
                         <tbody>
                             @foreach ($this->recentSessions as $s)
-                                @php $u = \App\Models\User::find($s->user_id); @endphp
                                 <tr class="border-t border-gray-100 dark:border-neutral-700">
                                     <td class="py-2 pr-3 font-mono text-gray-600 dark:text-neutral-400">{{ $s->created_at->format('d M H:i:s') }}</td>
-                                    <td class="py-2 pr-3 text-gray-700 dark:text-neutral-300">{{ $u->name ?? '#'.$s->user_id }}</td>
+                                    <td class="py-2 pr-3 text-gray-700 dark:text-neutral-300">{{ $this->displayNameFor($s->user_id) ?? '#'.$s->user_id }}</td>
                                     <td class="py-2 pr-3 font-mono text-gray-700 dark:text-neutral-300">{{ $s->email_account ?? '—' }}</td>
                                     <td class="py-2 pr-3">{{ $s->match_strategy ?? '—' }}</td>
                                     <td class="py-2 pr-3">
@@ -205,12 +204,15 @@
                         placeholder="Cari nama / email / username (min 2 karakter)" />
                     @if (strlen($formUserSearch) >= 2 && $this->userOptions->isNotEmpty() && ! $formUserId)
                         <div class="mt-1 max-h-48 overflow-y-auto border border-gray-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800">
-                            @foreach ($this->userOptions as $opt)
+                            {{-- Pemilihan pakai index, bukan id+label lewat atribut:
+                                 addslashes() dulu memecah nama ber-apostrof. --}}
+                            @foreach ($this->userOptions as $idx => $opt)
                                 <button type="button"
-                                    wire:click="pickUser({{ $opt->id }}, '{{ addslashes($opt->name.' ('.$opt->email.')') }}')"
+                                    wire:key="picker-user-{{ $opt['id'] }}"
+                                    wire:click="pickUser({{ $idx }})"
                                     class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-neutral-700">
-                                    <div class="font-medium">{{ $opt->name }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-neutral-400 font-mono">{{ $opt->email }}</div>
+                                    <div class="font-medium text-gray-800 dark:text-neutral-200">{{ $opt['name'] }}</div>
+                                    <div class="text-xs text-gray-500 dark:text-neutral-400 font-mono">{{ $opt['email'] }}</div>
                                 </button>
                             @endforeach
                         </div>

@@ -69,12 +69,13 @@ class SsoController extends Controller
                 ->withErrors(['sso' => 'IdP tidak mengirim username/email.']);
         }
 
-        // Match by username dulu (preferred_username Keycloak — stable),
-        // fallback ke email kalau username belum pernah ada di DB
-        $user = $username ? User::where('username', $username)->first() : null;
-        if (! $user && $email) {
-            $user = User::where('email', $email)->first();
-        }
+        // Match by keycloak_id (sub) dulu — stabil terhadap rename — lalu
+        // username, lalu email. Urutan ini dipusatkan di provisioner supaya
+        // sama persis dengan jalur provisioning lain (registry, form user).
+        $provisioner = $this->provisioner();
+        $user = $provisioner
+            ? $provisioner->findLocal($userData['id'] ?? null, $username, $email)
+            : $this->findLocalFallback($username, $email);
 
         if ($user) {
             // Reject hijack — user lokal tidak boleh login lewat SSO
@@ -83,11 +84,17 @@ class SsoController extends Controller
                     ->withErrors(['sso' => 'Akun ini terdaftar sebagai akun lokal. Login pakai password.']);
             }
 
-            $user->update(array_filter([
-                'name' => $userData['name'] ?? null,
-                'email' => $email,
-            ]));
-
+            if ($provisioner) {
+                // Menyegarkan nama/email sekaligus mengunci tautan keycloak_id
+                // untuk baris lama yang dulu ketemu lewat string match.
+                $provisioner->fromClaims($userData);
+                $user->refresh();
+            } else {
+                $user->update(array_filter([
+                    'name' => $userData['name'] ?? null,
+                    'email' => $email,
+                ]));
+            }
 
             $this->syncEmailLinks($user, $userData['kominfo_emails'] ?? []);
 
@@ -110,22 +117,9 @@ class SsoController extends Controller
 
         // Auto-provision: create user dengan role default
         try {
-            $user = DB::transaction(function () use ($username, $email, $userData) {
-                $user = User::create([
-                    'name' => $userData['name'] ?? $username ?? 'SSO User',
-                    'username' => $username ?? Str::before($email, '@'),
-                    'email' => $email ?? ($username.'@sso.local'),
-                    'password' => bcrypt(Str::random(40)), // unused, just satisfy NOT NULL
-                    'auth_type' => 'sso',
-                ]);
-
-                $defaultRole = AuthMode::defaultSsoRole();
-                if (Role::where('name', $defaultRole)->exists()) {
-                    $user->assignRole($defaultRole);
-                }
-
-                return $user;
-            });
+            $user = $provisioner
+                ? $provisioner->fromClaims($userData)
+                : $this->createFallback($username, $email, $userData);
         } catch (\Throwable $e) {
             Log::error('[sso] auto-provision failed: '.$e->getMessage(), [
                 'username' => $username,
@@ -141,6 +135,59 @@ class SsoController extends Controller
         Auth::login($user);
         $this->storeSsoTokens($userData);
         return redirect()->intended('/home');
+    }
+
+    /**
+     * KeycloakUserProvisioner kalau package nawasara/keycloak terpasang.
+     *
+     * Core sengaja tidak hard-depend ke package keycloak — login SSO harus
+     * tetap jalan di instalasi yang hanya memasang core. Kalau package-nya ada
+     * (kasus normal), provisioner dipakai supaya aturan penautan dan pemberian
+     * role default identik dengan jalur provisioning lain.
+     */
+    protected function provisioner(): ?object
+    {
+        $class = '\Nawasara\Keycloak\Support\KeycloakUserProvisioner';
+
+        return class_exists($class) ? app($class) : null;
+    }
+
+    /** Pencocokan username→email untuk instalasi tanpa package keycloak. */
+    protected function findLocalFallback(?string $username, ?string $email): ?User
+    {
+        $user = $username ? User::where('username', $username)->first() : null;
+
+        if (! $user && $email) {
+            $user = User::where('email', $email)->first();
+        }
+
+        return $user;
+    }
+
+    /**
+     * Auto-provision untuk instalasi tanpa package keycloak.
+     *
+     * @param  array<string,mixed>  $userData
+     */
+    protected function createFallback(?string $username, ?string $email, array $userData): User
+    {
+        return DB::transaction(function () use ($username, $email, $userData) {
+            $user = User::create([
+                'name' => $userData['name'] ?? $username ?? 'SSO User',
+                'username' => $username ?? Str::before($email, '@'),
+                'email' => $email ?? ($username.'@sso.local'),
+                'password' => bcrypt(Str::random(40)), // unused — login selalu lewat SSO
+                'auth_type' => 'sso',
+                'keycloak_id' => $userData['id'] ?? null,
+            ]);
+
+            $defaultRole = AuthMode::defaultSsoRole();
+            if (Role::where('name', $defaultRole)->exists()) {
+                $user->assignRole($defaultRole);
+            }
+
+            return $user;
+        });
     }
 
     /**

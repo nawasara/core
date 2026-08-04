@@ -24,6 +24,13 @@ class UserForm extends Form
 
     public $auth_type = 'local';
 
+    /**
+     * Keycloak `sub` untuk user SSO. Diisi saat admin memilih orang dari
+     * direktori — bukan diketik. Identitas (name/username/email) ikut terisi
+     * dari sana dan tidak lagi diketik manual.
+     */
+    public $keycloak_id;
+
     public $user;
 
     public function rules()
@@ -44,6 +51,15 @@ class UserForm extends Form
                 Rule::unique('users', 'username')->ignore($this->user),
             ],
             'auth_type' => 'required|in:local,sso',
+            // User SSO wajib berasal dari direktori Keycloak. Tanpa ini admin
+            // bisa mengetik username asal-asalan yang tidak pernah cocok dengan
+            // siapa pun di realm — akun tercipta tapi selamanya tak bisa login.
+            'keycloak_id' => [
+                $this->auth_type === 'sso' ? 'required' : 'nullable',
+                'string',
+                'max:64',
+                Rule::unique('users', 'keycloak_id')->ignore($this->user),
+            ],
             'roles' => 'required',
             'password' => $passwordRules,
             'email' => [
@@ -61,6 +77,8 @@ class UserForm extends Form
 
         return [
             'password.regex' => 'The :attribute '.$password_message,
+            'keycloak_id.required' => 'Pilih orang dari direktori Keycloak terlebih dahulu.',
+            'keycloak_id.unique' => 'Orang ini sudah punya akun Nawasara.',
         ];
     }
 
@@ -84,8 +102,16 @@ class UserForm extends Form
 
         if ($this->auth_type === 'sso') {
             $payload['password'] = null;
-        } elseif ($this->password) {
-            $payload['password'] = bcrypt($this->password);
+            $payload['keycloak_id'] = $this->keycloak_id;
+        } else {
+            // Diturunkan jadi user lokal — lepas tautan Keycloak, kalau tidak
+            // baris ini tetap memegang `sub` orang lain dan menghalangi mereka
+            // ter-provision belakangan (kolomnya unique).
+            $payload['keycloak_id'] = null;
+
+            if ($this->password) {
+                $payload['password'] = bcrypt($this->password);
+            }
         }
 
         // User update: LogsActivity on User auto-captures name + email +
@@ -127,6 +153,7 @@ class UserForm extends Form
         $this->username = $user->username;
         $this->email = $user->email;
         $this->auth_type = $user->auth_type ?? 'local';
+        $this->keycloak_id = $user->keycloak_id;
 
         $this->roles = $user->roles->pluck('id')->toArray();
     }
