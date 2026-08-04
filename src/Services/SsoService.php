@@ -33,7 +33,7 @@ class SsoService
 
         if ($driver === 'keycloak') {
             $base['base_url'] = rtrim((string) Vault::get('sso', 'base_url'), '/');
-            $base['realms'] = (string) (Vault::get('sso', 'realm') ?: 'master');
+            $base['realms'] = trim((string) (Vault::get('sso', 'realm') ?: 'master'), '/');
         }
 
         Config::set("services.{$driver}", $base);
@@ -114,7 +114,7 @@ class SsoService
         }
 
         $base = rtrim((string) Vault::get('sso', 'base_url'), '/');
-        $realm = (string) (Vault::get('sso', 'realm') ?: 'master');
+        $realm = trim((string) (Vault::get('sso', 'realm') ?: 'master'), '/');
         $url = "{$base}/realms/{$realm}/protocol/openid-connect/token";
 
         try {
@@ -155,7 +155,7 @@ class SsoService
         }
 
         $base = rtrim((string) Vault::get('sso', 'base_url'), '/');
-        $realm = (string) (Vault::get('sso', 'realm') ?: 'master');
+        $realm = trim((string) (Vault::get('sso', 'realm') ?: 'master'), '/');
         $endpoint = "{$base}/realms/{$realm}/protocol/openid-connect/logout";
 
         $params = ['post_logout_redirect_uri' => $postLogoutRedirect];
@@ -216,7 +216,7 @@ class SsoService
 
         $driver = $this->driver();
         $base = rtrim((string) Vault::get('sso', 'base_url'), '/');
-        $realm = (string) (Vault::get('sso', 'realm') ?: 'master');
+        $realm = trim((string) (Vault::get('sso', 'realm') ?: 'master'), '/');
 
         try {
             $url = match ($driver) {
