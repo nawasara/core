@@ -102,16 +102,18 @@ class EmailLink extends Component
     }
 
     /**
-     * Kandidat user untuk ditautkan ke mailbox.
+     * Kandidat untuk ditautkan ke mailbox, dicari di direktori Keycloak.
      *
-     * Berbeda dengan picker di membership/VPN, di sini pencarian tetap ke tabel
-     * `users` lokal — mapping mailbox hanya bermakna untuk orang yang sudah
-     * punya akun, dan membuat akun baru cuma demi memetakan mailbox akan
-     * menghasilkan user tak terpakai. Yang diperbaiki: nama yang ditampilkan
-     * diambil dari Keycloak (via KeycloakProfile) supaya konsisten dengan
-     * seluruh aplikasi, bukan dari kolom `users.name` yang bisa basi.
+     * Halaman ini justru dipakai saat claim `kominfo_email` gagal atau kosong —
+     * dan itu paling sering menimpa pegawai yang belum pernah login, sehingga
+     * belum ada barisnya di tabel `users`. Mencari di tabel lokal membuat
+     * mereka mustahil dipetakan, padahal merekalah kasus utamanya. Yang dipilih
+     * akan di-provision saat disimpan.
      *
-     * @return \Illuminate\Support\Collection<int, array{id:int, name:string, email:?string, username:?string}>
+     * Fallback ke tabel lokal kalau package keycloak tidak terpasang atau
+     * snapshot-nya belum pernah di-sync.
+     *
+     * @return \Illuminate\Support\Collection<int, array{kc_id:?string, id:?int, name:string, email:?string, subtitle:string}>
      */
     #[Computed]
     public function userOptions()
@@ -120,7 +122,11 @@ class EmailLink extends Component
             return collect();
         }
 
-        $users = User::query()
+        if ($this->directoryAvailable()) {
+            return collect($this->searchDirectory());
+        }
+
+        return User::query()
             ->where(function ($q) {
                 $q->where('name', 'like', '%'.$this->formUserSearch.'%')
                     ->orWhere('email', 'like', '%'.$this->formUserSearch.'%')
@@ -128,14 +134,57 @@ class EmailLink extends Component
             })
             ->orderBy('name')
             ->limit(15)
-            ->get(['id', 'name', 'email', 'username', 'keycloak_id']);
+            ->get(['id', 'name', 'email', 'username', 'keycloak_id'])
+            ->map(fn (User $u) => [
+                'kc_id' => $u->keycloak_id,
+                'id' => $u->id,
+                'name' => $this->displayName($u),
+                'email' => $u->email,
+                'subtitle' => $u->email ?: (string) $u->username,
+            ]);
+    }
 
-        return $users->map(fn (User $u) => [
-            'id' => $u->id,
-            'name' => $this->displayName($u),
-            'email' => $u->email,
-            'username' => $u->username,
-        ]);
+    /** Snapshot Keycloak terpasang DAN sudah pernah ter-sync. */
+    protected function directoryAvailable(): bool
+    {
+        if (! class_exists(\Nawasara\Keycloak\Models\KeycloakUser::class)) {
+            return false;
+        }
+
+        try {
+            return \Nawasara\Keycloak\Models\KeycloakUser::query()->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Cari orang di snapshot Keycloak. Yang sudah punya akun lokal tetap
+     * ditampilkan — satu orang boleh punya beberapa mailbox, jadi tidak ada
+     * yang perlu disaring; `id` diisi supaya pemilihan tidak mem-provision ulang.
+     *
+     * @return array<int, array{kc_id:string, id:?int, name:string, email:?string, subtitle:string}>
+     */
+    protected function searchDirectory(): array
+    {
+        $rows = \Nawasara\Keycloak\Models\KeycloakUser::query()
+            ->search($this->formUserSearch)
+            ->where('enabled', true)
+            ->limit(15)
+            ->get();
+
+        $byKcId = User::whereIn('keycloak_id', $rows->pluck('user_id')->filter()->all())
+            ->pluck('id', 'keycloak_id');
+        $byUsername = User::whereIn('username', $rows->pluck('username')->filter()->all())
+            ->pluck('id', 'username');
+
+        return $rows->map(fn ($kc) => [
+            'kc_id' => $kc->user_id,
+            'id' => $byKcId[$kc->user_id] ?? $byUsername[$kc->username] ?? null,
+            'name' => $kc->full_name ?: ($kc->username ?? '—'),
+            'email' => $kc->email,
+            'subtitle' => $kc->nip ? 'NIP '.$kc->nip : ($kc->email ?: (string) $kc->username),
+        ])->all();
     }
 
     /**
@@ -177,10 +226,17 @@ class EmailLink extends Component
         return User::whereIn('id', $ids)->get()->keyBy('id');
     }
 
-    /** Nama tampilan untuk satu user_id di halaman ini. */
+    /**
+     * Nama tampilan untuk satu user_id. Memakai koleksi ter-preload untuk baris
+     * tabel; user di luar itu (mis. yang baru dipilih di form) di-fetch sendiri.
+     */
     public function displayNameFor(?int $userId): ?string
     {
-        $user = $userId ? $this->usersOnPage->get($userId) : null;
+        if (! $userId) {
+            return null;
+        }
+
+        $user = $this->usersOnPage->get($userId) ?? User::find($userId);
 
         return $user ? $this->displayName($user) : null;
     }
@@ -256,10 +312,53 @@ class EmailLink extends Component
             return;
         }
 
-        $this->formUserId = (string) $picked['id'];
+        $userId = $picked['id'];
+
+        // Orang dari direktori yang belum pernah jadi user Nawasara di-provision
+        // sekarang juga, supaya formUserId menunjuk baris nyata dan aturan
+        // exists:users,id di save() tetap berlaku apa adanya.
+        if (! $userId) {
+            $user = $this->provisionFromDirectory($picked['kc_id'] ?? null);
+            if (! $user) {
+                $this->toastError('Gagal menyiapkan akun Nawasara untuk user ini.');
+
+                return;
+            }
+            $userId = $user->id;
+            unset($this->userOptions);
+        }
+
+        $this->formUserId = (string) $userId;
         $this->formUserSearch = $picked['email']
             ? "{$picked['name']} ({$picked['email']})"
             : $picked['name'];
+    }
+
+    /**
+     * Buat user lokal dari snapshot Keycloak lewat provisioner bersama — aturan
+     * penautan dan pemberian role default identik dengan jalur lain (login SSO,
+     * membership registry, PJ zoom, pemilik VPN).
+     */
+    protected function provisionFromDirectory(?string $keycloakId): ?User
+    {
+        if (! $keycloakId || ! class_exists(\Nawasara\Keycloak\Support\KeycloakUserProvisioner::class)) {
+            return null;
+        }
+
+        $kc = \Nawasara\Keycloak\Models\KeycloakUser::where('user_id', $keycloakId)->first();
+        if (! $kc) {
+            return null;
+        }
+
+        try {
+            return app(\Nawasara\Keycloak\Support\KeycloakUserProvisioner::class)->fromSnapshot($kc);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('[email-link] gagal provision user dari Keycloak: '.$e->getMessage(), [
+                'keycloak_id' => $keycloakId,
+            ]);
+
+            return null;
+        }
     }
 
     public function pickMailbox(string $email): void

@@ -201,25 +201,31 @@
                 <div>
                     <x-nawasara-ui::form.label value="User" />
                     <x-nawasara-ui::form.input wire:model.live.debounce.300ms="formUserSearch"
-                        placeholder="Cari nama / email / username (min 2 karakter)" />
+                        placeholder="Cari nama / NIP / email (min 2 karakter)" />
                     @if (strlen($formUserSearch) >= 2 && $this->userOptions->isNotEmpty() && ! $formUserId)
                         <div class="mt-1 max-h-48 overflow-y-auto border border-gray-200 dark:border-neutral-700 rounded-lg bg-white dark:bg-neutral-800">
                             {{-- Pemilihan pakai index, bukan id+label lewat atribut:
                                  addslashes() dulu memecah nama ber-apostrof. --}}
                             @foreach ($this->userOptions as $idx => $opt)
                                 <button type="button"
-                                    wire:key="picker-user-{{ $opt['id'] }}"
+                                    wire:key="picker-user-{{ $opt['kc_id'] ?? $opt['id'] ?? $idx }}"
                                     wire:click="pickUser({{ $idx }})"
-                                    class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-neutral-700">
-                                    <div class="font-medium text-gray-800 dark:text-neutral-200">{{ $opt['name'] }}</div>
-                                    <div class="text-xs text-gray-500 dark:text-neutral-400 font-mono">{{ $opt['email'] }}</div>
+                                    class="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-neutral-700">
+                                    <span class="min-w-0">
+                                        <span class="block truncate font-medium text-gray-800 dark:text-neutral-200">{{ $opt['name'] }}</span>
+                                        <span class="block truncate font-mono text-xs text-gray-500 dark:text-neutral-400">{{ $opt['subtitle'] }}</span>
+                                    </span>
+                                    @unless ($opt['id'])
+                                        <x-nawasara-ui::badge color="info">Akun baru</x-nawasara-ui::badge>
+                                    @endunless
                                 </button>
                             @endforeach
                         </div>
                     @endif
                     @if ($formUserId)
                         <p class="text-xs text-green-600 dark:text-green-400 mt-1">
-                            <x-lucide-check class="size-3 inline" /> User terpilih (id #{{ $formUserId }})
+                            <x-lucide-check class="size-3 inline" />
+                            {{ $this->displayNameFor((int) $formUserId) ?? 'User terpilih' }}
                         </p>
                     @endif
                     @error('formUserId') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
@@ -252,6 +258,8 @@
                 <div class="text-xs text-gray-500 dark:text-neutral-400 bg-gray-50 dark:bg-neutral-900 p-3 rounded-lg">
                     Manual link akan menggantikan claim Keycloak <code class="font-mono">kominfo_email</code> untuk user ini.
                     Untuk kembali ke auto-resolve, hapus link manual.
+                    Pencarian user mengambil data dari direktori Keycloak — pegawai yang
+                    belum pernah login Nawasara akan dibuatkan akun otomatis saat dipilih.
                 </div>
             </form>
 
