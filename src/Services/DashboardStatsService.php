@@ -57,11 +57,11 @@ class DashboardStatsService
      */
     protected function dnsHealth(): ?array
     {
-        if (! $this->user->can('cloudflare.health.view')) {
+        if (!$this->user->can('cloudflare.health.view')) {
             return null;
         }
 
-        if (! class_exists(\Nawasara\Cloudflare\Models\EndpointHealth::class)) {
+        if (!class_exists(\Nawasara\Cloudflare\Models\EndpointHealth::class)) {
             return null;
         }
 
@@ -77,7 +77,7 @@ class DashboardStatsService
             return [
                 'key' => 'dns_health',
                 'label' => 'DNS Health',
-                'value' => $pct.'%',
+                'value' => $pct . '%',
                 'icon' => 'lucide-globe',
                 'color' => $pct >= 95 ? 'success' : ($pct >= 80 ? 'warning' : 'danger'),
                 'description' => "{$ok} dari {$total} endpoint sehat",
@@ -91,11 +91,11 @@ class DashboardStatsService
      */
     protected function syncSuccessRate(): ?array
     {
-        if (! $this->user->can('sync.job.view')) {
+        if (!$this->user->can('sync.job.view')) {
             return null;
         }
 
-        if (! class_exists(\Nawasara\Sync\Models\SyncJob::class)) {
+        if (!class_exists(\Nawasara\Sync\Models\SyncJob::class)) {
             return null;
         }
 
@@ -136,7 +136,7 @@ class DashboardStatsService
                 if ($delta !== 0) {
                     $trend = [
                         'direction' => $delta > 0 ? 'up' : 'down',
-                        'value' => abs($delta).' pp',
+                        'value' => abs($delta) . ' pp',
                     ];
                 }
             }
@@ -144,7 +144,7 @@ class DashboardStatsService
             return [
                 'key' => 'sync_success',
                 'label' => 'Sync Success (24j)',
-                'value' => $pct.'%',
+                'value' => $pct . '%',
                 'icon' => 'lucide-refresh-cw',
                 'color' => $pct >= 95 ? 'success' : ($pct >= 80 ? 'warning' : 'danger'),
                 'trend' => $trend,
@@ -159,11 +159,11 @@ class DashboardStatsService
      */
     protected function totalMailboxes(): ?array
     {
-        if (! $this->user->can('whm.email.view')) {
+        if (!$this->user->can('whm.email.view')) {
             return null;
         }
 
-        if (! class_exists(\Nawasara\Whm\Models\WhmEmailAccount::class)) {
+        if (!class_exists(\Nawasara\Whm\Models\WhmEmailAccount::class)) {
             return null;
         }
 
@@ -196,11 +196,11 @@ class DashboardStatsService
      */
     protected function totalOpd(): ?array
     {
-        if (! $this->user->can('registry.opd.view')) {
+        if (!$this->user->can('registry.opd.view')) {
             return null;
         }
 
-        if (! class_exists(\Nawasara\Registry\Models\Opd::class)) {
+        if (!class_exists(\Nawasara\Registry\Models\Opd::class)) {
             return null;
         }
 
@@ -208,9 +208,19 @@ class DashboardStatsService
             $total = \Nawasara\Registry\Models\Opd::query()->count();
             // PIC was replaced by user-based membership; count OPDs that have at
             // least one active member as the "assigned" figure.
-            $withMembers = \Nawasara\Registry\Models\Opd::query()
-                ->whereHas('members')
-                ->count();
+            // Some deployments use a dedicated membership relation (`members`),
+            // older or lighter setups only have PICs. Use `members` if the
+            // relation exists on the model, otherwise fall back to `pics` to
+            // avoid "Call to undefined method Opd::members()" runtime errors.
+            $opdClass = \Nawasara\Registry\Models\Opd::class;
+            if (method_exists($opdClass, 'members')) {
+                $withMembers = $opdClass::query()->whereHas('members')->count();
+            } elseif (method_exists($opdClass, 'pics')) {
+                $withMembers = $opdClass::query()->whereHas('pics')->count();
+            } else {
+                // No known way to detect members—assume zero assigned.
+                $withMembers = 0;
+            }
 
             $unassigned = $total - $withMembers;
 
