@@ -63,7 +63,7 @@ class SsoService
      * Keycloak claim (defaults `kominfo_email`). Multi-value diserialize
      * sebagai delimited string oleh Keycloak — kita split di sini.
      *
-     * @return array{email:?string, name:?string, id:?string, username:?string, kominfo_emails:array<int,string>}
+     * @return array{email:?string, name:?string, id:?string, username:?string, kominfo_emails:array<int,string>, impersonator:?string}
      */
     public function callback(): array
     {
@@ -78,12 +78,21 @@ class SsoService
             ?? ($user->user['preferred_username'] ?? null)
             ?? ($user->getEmail() ? strtolower(strstr($user->getEmail(), '@', true)) : null);
 
+        // Klaim dari KEDUA token — penanda impersonasi bisa ada di salah satu
+        // saja, bergantung di mana mapper-nya dipasang.
+        $claims = $this->allClaims($user->user ?? [], $user->token ?? null);
+
         return [
             'email' => $user->getEmail(),
             'name' => $user->getName() ?? $username,
             'id' => (string) $user->getId(),
             'username' => $username,
             'kominfo_emails' => $this->extractKominfoEmails($user->user ?? []),
+
+            // Keterangan pelaku bila sesi ini hasil impersonasi admin; null
+            // bila tidak ada penanda. Lihat catatan di `detectImpersonator()`:
+            // null BUKAN jaminan bahwa sesi ini bukan impersonasi.
+            'impersonator' => $this->detectImpersonator($claims),
             // Tokens for keeping the Laravel session tied to the Keycloak session:
             //   refresh_token → periodic liveness check (middleware)
             //   id_token      → id_token_hint for RP-initiated logout
@@ -171,6 +180,147 @@ class SsoService
     }
 
     /**
+     * Nama klaim yang menandai sesi impersonasi.
+     *
+     * ⚠️ **Keycloak TIDAK mengirim satu pun dari ini secara bawaan.**
+     *
+     * Diperiksa di sumber Keycloak 26.7: tombol Impersonate di konsol admin
+     * hanya membuat user session lalu menyetel dua *session note*
+     * (`IMPERSONATOR_ID`, `IMPERSONATOR_USERNAME`) — ia **tidak pernah
+     * menyentuh token**. Tanpa protocol mapper, token hasil impersonasi
+     * **sama persis** dengan token login biasa, dan tidak ada apa pun di
+     * dalamnya yang dapat dibaca aplikasi.
+     *
+     * Klaim `act` (RFC 8693) **tidak ada** di Keycloak 26 — yang ada hanya
+     * `may_act`, dan itu pun khusus token-exchange, jalur yang sama sekali
+     * berbeda dari tombol Impersonate. Jangan menambahkannya ke daftar ini
+     * dengan harapan ia akan menyala.
+     *
+     * Supaya pemeriksaan ini berguna, admin WAJIB menambahkan mapper bawaan
+     * **User Session Note** ke client Nawasara:
+     *
+     *   Clients → nawasara → Client scopes → dedicated → Add mapper →
+     *   From predefined mappers → "Impersonator Username" + "Impersonator User ID"
+     *
+     * Mapper itu menghasilkan klaim BERSARANG `impersonator.username` dan
+     * `impersonator.id`, yang di PHP terbaca sebagai `['impersonator']['username']`.
+     *
+     * ⚠️ Mapper melekat pada SATU client. Client baru menuntut mapper baru.
+     *
+     * @var array<int,string>
+     */
+    protected const IMPERSONATION_CLAIMS = [
+        // Hasil mapper bawaan Keycloak — bersarang.
+        'impersonator',
+        // Nama datar, bila admin menuliskan claim.name sendiri.
+        'impersonator_username',
+        'impersonator_id',
+        // Nama session note apa adanya, bila claim.name disalin mentah.
+        'IMPERSONATOR_ID',
+        'IMPERSONATOR_USERNAME',
+    ];
+
+    /**
+     * Menemukan penanda bahwa sesi ini hasil impersonasi admin.
+     *
+     * Mengembalikan keterangan singkat tentang pelakunya, atau null bila tidak
+     * ada penanda sama sekali.
+     *
+     * ⚠️ **null TIDAK berarti "bukan impersonasi".**
+     *
+     * Tanpa protocol mapper terpasang, Keycloak tidak menaruh apa pun di token
+     * — sehingga fungsi ini SELALU mengembalikan null, bahkan untuk sesi
+     * impersonasi sungguhan. Lihat catatan panjang di
+     * [self::IMPERSONATION_CLAIMS] untuk mapper yang wajib dipasang.
+     *
+     * Karena itu pemeriksaan ini adalah **jaring pengaman, bukan penjaga
+     * utama**. Yang benar-benar menutup celah adalah tidak memberikan role
+     * `impersonation` kepada siapa pun di Keycloak —
+     * lihat `docs/panduan/cabut-akses-master-keycloak.md`.
+     *
+     * @param  array<string,mixed>  $claims  Klaim gabungan ID + access token.
+     */
+    protected function detectImpersonator(array $claims): ?string
+    {
+        foreach (self::IMPERSONATION_CLAIMS as $name) {
+            $value = $claims[$name] ?? null;
+
+            if ($value === null || $value === '' || $value === []) {
+                continue;
+            }
+
+            // Mapper bawaan menghasilkan klaim BERSARANG: claim.name
+            // `impersonator.username` menjadi `['impersonator']['username']`.
+            if (is_array($value)) {
+                $label = $value['username'] ?? $value['id'] ?? null;
+
+                // Objek berisi tetapi tanpa kunci yang dikenali tetap dianggap
+                // penanda — keberadaannya sendiri sudah cukup berarti, dan
+                // mengabaikannya berarti meloloskan sesi yang seharusnya
+                // ditolak.
+                return $name.'='.($label !== null && $label !== ''
+                    ? (string) $label
+                    : json_encode($value));
+            }
+
+            return $name.'='.(string) $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * Klaim dari ID token DAN access token, digabung.
+     *
+     * Socialite hanya menyerahkan klaim dari satu di antaranya, sementara
+     * penanda impersonasi dapat berada di mana saja bergantung pemasangan
+     * mapper-nya — mapper dipasang per-jenis token, dan orang sering hanya
+     * memasang di salah satu.
+     *
+     * @param  array<string,mixed>  $userPayload  Klaim yang sudah diurai Socialite.
+     * @return array<string,mixed>
+     */
+    protected function allClaims(array $userPayload, ?string $accessToken): array
+    {
+        return array_merge($this->decodeJwtPayload($accessToken), $userPayload);
+    }
+
+    /**
+     * Membaca bagian payload sebuah JWT TANPA memverifikasi tanda tangannya.
+     *
+     * ⚠️ Aman **hanya** karena token ini baru saja diambil Socialite langsung
+     * dari endpoint token Keycloak lewat saluran belakang — bukan dari
+     * pengguna. Jangan memakai fungsi ini untuk token yang datang dari
+     * permintaan masuk; di sana tanda tangannya wajib diperiksa.
+     *
+     * @return array<string,mixed>  Kosong bila token tidak ada atau tak terurai.
+     */
+    protected function decodeJwtPayload(?string $jwt): array
+    {
+        if (! $jwt) {
+            return [];
+        }
+
+        $parts = explode('.', $jwt);
+        if (count($parts) !== 3) {
+            return [];
+        }
+
+        // base64url → base64, lalu dilengkapi padding-nya.
+        $payload = strtr($parts[1], '-_', '+/');
+        $payload = str_pad($payload, (int) (ceil(strlen($payload) / 4) * 4), '=');
+
+        $decoded = base64_decode($payload, true);
+        if ($decoded === false) {
+            return [];
+        }
+
+        $data = json_decode($decoded, true);
+
+        return is_array($data) ? $data : [];
+    }
+
+    /**
      * Extract list mailbox @ponorogo.go.id dari custom Keycloak claim.
      *
      * Keycloak attribute biasanya single-value, tapi kalau admin set
@@ -235,12 +385,35 @@ class SsoService
             }
 
             $issuer = $response->json('issuer');
+
             return [
                 'success' => true,
-                'message' => 'OIDC discovery OK. Issuer: '.($issuer ?? 'unknown'),
+                'message' => 'OIDC discovery OK. Issuer: '.($issuer ?? 'unknown')
+                    .' — '.$this->impersonationGuardStatus(),
             ];
         } catch (\Throwable $e) {
             return ['success' => false, 'message' => 'Error: '.$e->getMessage()];
         }
+    }
+
+    /**
+     * Keterangan singkat apakah penolakan sesi impersonasi dapat bekerja.
+     *
+     * Ditempelkan ke hasil Test Connection supaya keadaannya TERLIHAT admin,
+     * bukan tersembunyi di komentar kode. Tanpa protocol mapper, penolakan di
+     * `SsoController` tidak akan pernah menyala — dan pemeriksaan yang diam
+     * memberi rasa aman palsu, yang lebih berbahaya daripada tidak ada
+     * pemeriksaan sama sekali.
+     *
+     * Tidak dapat diperiksa otomatis: mapper hanya terlihat lewat Admin REST
+     * API yang menuntut kredensial admin, dan token impersonasi sungguhan
+     * hanya muncul saat ada yang benar-benar menyamar.
+     */
+    protected function impersonationGuardStatus(): string
+    {
+        return 'Ingat: penolakan sesi impersonasi hanya bekerja bila mapper '
+            .'"Impersonator Username" sudah dipasang di client ini '
+            .'(Client scopes → dedicated → From predefined mappers). '
+            .'Tanpa itu, Keycloak tidak menandai token impersonasi sama sekali.';
     }
 }

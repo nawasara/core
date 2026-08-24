@@ -69,6 +69,40 @@ class SsoController extends Controller
                 ->withErrors(['sso' => 'IdP tidak mengirim username/email.']);
         }
 
+        // Sesi impersonasi admin DITOLAK — diperiksa sebelum kedua jalur login
+        // (user existing maupun auto-provision), supaya tidak ada satu pun
+        // celah yang terlewat.
+        //
+        // ⚠️ **Ini jaring pengaman, BUKAN penjaga utama.**
+        //
+        // Nawasara mengenali orang dari klaim `sub`, dan token impersonasi
+        // membawa `sub` MILIK KORBAN — jadi tanpa penanda tambahan ia tidak
+        // dapat dibedakan dari login yang sah. Penanda itu tidak selalu
+        // dikirim Keycloak; pada banyak pemasangan ia baru ada setelah admin
+        // menambahkan protocol mapper. Karena itu:
+        //
+        //   Yang benar-benar menutup celah = TIDAK memberi role
+        //   `impersonation` kepada siapa pun di Keycloak.
+        //   Lihat docs/panduan/cabut-akses-master-keycloak.md
+        //
+        // Alasannya nyata: satu akun admin master yang dipakai bersama dapat
+        // menyamar menjadi pemegang role `developer` — kuasa penuh atas
+        // Nawasara — tanpa perlu tahu sandinya, dan log Keycloak hanya
+        // mencatat "admin" sehingga pelakunya tak dapat dibedakan.
+        // Ditemukan 24 Agustus 2026.
+        if (! empty($userData['impersonator'])) {
+            Log::warning('[sso] login impersonasi ditolak', [
+                'korban' => $username ?? $email,
+                'pelaku' => $userData['impersonator'],
+                'ip' => request()->ip(),
+            ]);
+
+            return redirect()->route('login')->withErrors([
+                'sso' => 'Sesi impersonasi tidak diizinkan masuk ke Nawasara. '
+                    .'Silakan masuk memakai akun Anda sendiri.',
+            ]);
+        }
+
         // Match by keycloak_id (sub) dulu — stabil terhadap rename — lalu
         // username, lalu email. Urutan ini dipusatkan di provisioner supaya
         // sama persis dengan jalur provisioning lain (registry, form user).
