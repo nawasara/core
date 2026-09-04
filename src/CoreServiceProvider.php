@@ -28,6 +28,14 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->registerSocialiteProviders();
 
+        // Menyiarkan catatan update saat diterbitkan. Observer, bukan
+        // dipanggil dari halamannya: catatan dapat terbit lewat tiga jalan
+        // (dibuat langsung, draf disunting, tombol terbit), dan menaruhnya di
+        // satu jalan saja membuat dua jalan lain diam tanpa terlihat salah.
+        \Nawasara\Core\Models\ChangelogEntry::observe(
+            \Nawasara\Core\Observers\ChangelogEntryObserver::class,
+        );
+
         $this->registerSudoLogoutHook();
 
         $this->registerKeycloakSessionGuard();

@@ -89,4 +89,34 @@ return [
     // of core so domain packages (vault, api, keycloak, ...) can read the
     // same values without depending on core. Edit there, or publish via
     // `php artisan vendor:publish --tag=auth-primitives:config`.
+
+    /*
+    |--------------------------------------------------------------------------
+    | Siaran catatan update
+    |--------------------------------------------------------------------------
+    |
+    | Saat sebuah catatan update DITERBITKAN, kirim juga ke kanal grup — mis.
+    | Telegram, ke topik Pengumuman. Berbeda dari `recipients` surel yang
+    | berisi alamat per orang: kanal di sini menuju satu grup, jadi tujuannya
+    | diambil dari Vault (`chat_id`).
+    |
+    | Hanya saat BERPINDAH menjadi terbit. Menyunting salah ketik pada catatan
+    | yang sudah terbit tidak mengirim ulang — kalau tidak, satu perbaikan
+    | tanda baca akan membangunkan seluruh grup.
+    |
+    | Kosongkan daftarnya untuk mematikan siaran ini sepenuhnya.
+    |
+    */
+    'changelog' => [
+        'broadcast_channels' => array_filter(array_map('trim', explode(',', (string) env(
+            'CHANGELOG_BROADCAST_CHANNELS',
+            'telegram',
+        )))),
+
+        // Kosongkan untuk memakai chat_id dari Vault (yang biasa dipakai).
+        'broadcast_recipients' => [
+            'telegram' => env('CHANGELOG_BROADCAST_TELEGRAM_CHAT_ID'),
+        ],
+    ],
+
 ];
