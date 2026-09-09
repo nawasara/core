@@ -74,7 +74,20 @@ class RolePermissionForm extends Component
         $this->form->store();
 
         $this->alert('success', Constants::NOTIFICATION_SUCCESS_CREATE);
-        $this->redirect(route('nawasara-core.role.index'), navigate: true);
+        // ⚠️ TANPA `navigate: true`.
+        //
+        // wire:navigate menyajikan halaman tujuan dari SNAPSHOT yang disimpan
+        // peramban saat halaman itu terakhir dibuka, lalu memperbaruinya di
+        // belakang layar. Untuk perpindahan biasa itu terasa cepat; setelah
+        // menyimpan, yang muncul lebih dulu justru daftar SEBELUM perubahan —
+        // nama yang baru diubah masih tampil versi lamanya.
+        //
+        // Gejalanya khas dan menyesatkan: "simpannya cepat, tapi datanya
+        // kembali lama". Datanya sudah tersimpan; yang tertinggal tampilannya.
+        //
+        // Redirect penuh memang sedikit lebih lambat, tetapi halaman yang
+        // muncul selalu menggambarkan keadaan setelah penyimpanan.
+        $this->redirect(route('nawasara-core.role.index'));
     }
 
     public function initDataEdit()
