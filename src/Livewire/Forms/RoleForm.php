@@ -20,7 +20,23 @@ class RoleForm extends Form
             'name' => [
                 'required',
                 'max:250',
-                'regex:/^[a-zA-Z\s]+$/',
+
+                // Huruf, angka, spasi, tanda hubung, garis bawah.
+                //
+                // ⚠️ Tanda hubung WAJIB diterima. Pola sebelumnya hanya huruf
+                // dan spasi, sehingga empat peran yang hidup di produksi —
+                // hibah-admin, hibah-operator, lapor-opd-kabid,
+                // lapor-opd-operator — ditolak oleh form yang seharusnya
+                // mengelolanya. Keempatnya lahir dari seeder, yang tidak lewat
+                // sini, jadi kegagalannya baru terlihat saat seseorang membuka
+                // salah satunya lalu menekan Simpan tanpa mengubah apa pun.
+                //
+                // Penamaan berimbuhan tanda hubung memang konvensi peran di
+                // Nawasara (<paket>-<peran>), sama seperti izin yang memakai
+                // titik. Melarangnya di form berarti melarang konvensinya
+                // sendiri.
+                'regex:/^[\pL\pN][\pL\pN\s_-]*$/u',
+
                 new UniqueRole($this->name, $this->role),
             ],
             'permissions' => 'required|array|min:1',
@@ -32,7 +48,7 @@ class RoleForm extends Form
         return [
             'name.required' => 'Role is required.',
             'name.max' => 'Role name max 250 character.',
-            'name.regex' => 'Format invalid.',
+            'name.regex' => 'Nama peran hanya boleh berisi huruf, angka, spasi, tanda hubung, dan garis bawah — serta harus diawali huruf atau angka.',
             'permissions.required' => 'Please select at least one permission.',
             'permissions.array' => 'Invalid permissions format.',
         ];
