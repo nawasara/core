@@ -24,7 +24,16 @@ class Table extends Component
     #[Computed]
     public function items()
     {
-        return Role::search($this->search)->orderByDefault()->paginate(100);
+        // withCount, BUKAN memuat relasinya lalu ->count() di blade.
+        //
+        // Blade hanya menampilkan ANGKA, tetapi $item->permissions->count()
+        // menarik seluruh baris relasi untuk setiap peran — sembilan peran
+        // menghasilkan 18 query tambahan (9 permissions + 9 users) hanya untuk
+        // menghitung. withCount menyelesaikannya di dalam satu query yang sama.
+        return Role::search($this->search)
+            ->withCount(['permissions', 'users'])
+            ->orderByDefault()
+            ->paginate(100);
     }
 
     public function render()

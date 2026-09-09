@@ -40,11 +40,11 @@
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                        {{ $item->permissions->count() ?? 0 }}
+                        {{ $item->permissions_count ?? 0 }}
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
-                        {{ $item->users->count() ?? 0 }}
+                        {{ $item->users_count ?? 0 }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-neutral-200">
                         {{ date_format_human($item->created_at) }}
