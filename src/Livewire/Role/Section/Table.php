@@ -10,6 +10,7 @@ use Livewire\WithPagination;
 use Nawasara\Core\Attributes\RequiresSudo;
 use Nawasara\Core\Constants\Constants;
 use Nawasara\Core\Models\Role;
+use Nawasara\Core\Support\RoleAssignmentGuard;
 use Nawasara\Core\Traits\WithSudo;
 use Nawasara\Toaster\Concerns\HasToaster;
 
@@ -42,6 +43,14 @@ class Table extends Component
             ->layout('nawasara-ui::components.layouts.app');
     }
 
+    /**
+     * Hapus role.
+     *
+     * Audit keamanan 15 Oktober 2026, temuan T6: dipanggil lewat event
+     * `confirm-delete`, jalur yang tidak dievaluasi #[RequiresSudo] karena
+     * Livewire memanggil `__dispatch`, bukan `delete`. Penjaga yang berlaku
+     * di kedua jalur adalah requireSudo() imperatif di bawah.
+     */
     #[On('confirm-delete')]
     #[RequiresSudo(reason: 'menghapus role')]
     public function delete($id)
@@ -49,6 +58,24 @@ class Table extends Component
         Gate::authorize('core.role.delete');
 
         $model = Role::findOrFail($id);
+
+        // Temuan T10: role developer hanya boleh dihapus developer.
+        $denied = RoleAssignmentGuard::checkRoleManagement(
+            auth()->user()?->getRoleNames()->all() ?? [],
+            $model->name,
+        );
+
+        if ($denied !== null) {
+            $this->dispatch('close-modal', id: 'modalConfirmDelete');
+            $this->alert('error', $denied);
+
+            return;
+        }
+
+        if (! $this->requireSudo('menghapus role')) {
+            return;
+        }
+
         $model->delete();
 
         /* close modal */

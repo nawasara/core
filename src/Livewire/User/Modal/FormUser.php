@@ -3,20 +3,25 @@
 namespace Nawasara\Core\Livewire\User\Modal;
 
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\Features\SupportLockedProperties\CannotUpdateLockedPropertyException;
+use Nawasara\AuthPrimitives\Traits\WithSudo;
 use Nawasara\Core\Constants\Constants;
 use Nawasara\Core\Livewire\Forms\UserForm;
-use Nawasara\Core\Livewire\User\Section\Table;
+use Nawasara\Core\Support\RoleAssignmentGuard;
 use Nawasara\Toaster\Concerns\HasToaster;
 use Spatie\Permission\Models\Role;
 
 class FormUser extends Component
 {
     use HasToaster;
+    use WithSudo;
 
     public UserForm $form;
 
@@ -26,6 +31,15 @@ class FormUser extends Component
 
     public $roles;
 
+    /**
+     * Parameter dari pembuka modal; `params.id` menentukan user yang diedit.
+     *
+     * #[Locked]: audit keamanan 15 Oktober 2026, temuan T10. Tanpa kunci,
+     * browser dapat mengganti `params.id` setelah mount (izin dicek untuk
+     * user A, lalu yang disimpan user B) atau menghapusnya untuk berpindah
+     * mode. Browser tidak pernah menulis properti ini.
+     */
+    #[Locked]
     public $params = [];
 
     /** Kata kunci pencarian direktori Keycloak (khusus mode SSO). */
@@ -40,13 +54,55 @@ class FormUser extends Component
         $this->params = $params;
         $this->initDataEdit();
     }
-    
+
     public function initDataEdit()
     {
         if (!isset($this->params['id'])) return;
 
-        $user = User::find($this->params['id']);
+        $user = User::with('roles')->findOrFail($this->params['id']);
+
+        // Audit keamanan 15 Oktober 2026, temuan T10: akun developer hanya
+        // boleh dibuka untuk diubah oleh developer. Ditolak sejak mount
+        // supaya admin tidak mengisi form yang pasti ditolak saat simpan.
+        $denied = RoleAssignmentGuard::checkUserManagement($this->actorRoleNames(), $user->getRoleNames()->all());
+        if ($denied !== null) {
+            throw new AuthorizationException($denied);
+        }
+
         $this->form->setModel($user);
+    }
+
+    /**
+     * Tolak pembaruan dari browser untuk state yang hanya boleh ditulis
+     * server.
+     *
+     * #[Locked] tidak bekerja pada properti di dalam objek Form (Livewire
+     * hanya membaca atribut milik komponen), jadi penjagaannya di sini.
+     * `form.id` dan `form.user` menentukan baris yang ditulis, sedangkan
+     * `form.keycloak_id` hanya diisi lewat pickSsoUser() dari hasil
+     * direktori. Mengganti objek `form` utuh juga ditolak karena membawa
+     * ketiganya sekaligus.
+     *
+     * Ini lapis kedua. Lapis pertama adalah store() yang tidak lagi membaca
+     * id dari form sama sekali. Audit keamanan 15 Oktober 2026, temuan T10.
+     */
+    public function updating($property): void
+    {
+        $locked = ['form', 'form.id', 'form.user', 'form.keycloak_id'];
+
+        if (in_array($property, $locked, true) || str_starts_with((string) $property, 'form.user.')) {
+            throw new CannotUpdateLockedPropertyException($property);
+        }
+    }
+
+    /**
+     * Nama role milik user yang sedang login.
+     *
+     * @return array<int,string>
+     */
+    protected function actorRoleNames(): array
+    {
+        return auth()->user()?->getRoleNames()->all() ?? [];
     }
 
     /**
@@ -172,11 +228,63 @@ class FormUser extends Component
     {
         Gate::authorize(isset($this->params['id']) ? 'core.user.edit' : 'core.user.create');
 
-        DB::beginTransaction();
+        // Target diambil dari $params yang dikunci, bukan dari form.id.
+        // Mode create (tanpa params.id) selalu membuat user baru.
+        // Audit keamanan 15 Oktober 2026, temuan T10.
+        $target = isset($this->params['id'])
+            ? User::with('roles')->findOrFail($this->params['id'])
+            : null;
 
         $this->form->setRoles($roles);
 
-        $this->form->store();
+        // Role diterima sebagai id dari browser. Petakan ke model nyata: id
+        // yang tidak ada ditolak, bukan dilewati diam-diam, karena nama
+        // role-nya diperlukan untuk aturan developer di bawah.
+        $roleIds = array_values(array_unique(array_map('intval', (array) $this->form->roles)));
+        $requestedRoles = Role::whereIn('id', $roleIds)->get();
+
+        if ($requestedRoles->count() !== count($roleIds)) {
+            $this->addError('form.roles', 'Role yang dipilih tidak valid.');
+
+            return;
+        }
+
+        $this->form->roles = $roleIds;
+
+        // Validasi lebih dulu, sebelum sudo: kalau isian salah, jangan
+        // sampai user dibawa ke langkah OTP lalu ditolak juga.
+        $this->form->user = $target;
+        $this->form->id = $target?->id;
+        $this->form->validate();
+
+        $actorRoles = $this->actorRoleNames();
+        $currentRoles = $target ? $target->getRoleNames()->all() : [];
+        $requestedNames = $requestedRoles->pluck('name')->all();
+        $isSelf = $target !== null && (int) $target->getKey() === (int) auth()->id();
+
+        $denied = $target
+            ? RoleAssignmentGuard::checkUserManagement($actorRoles, $currentRoles)
+            : null;
+        $denied ??= RoleAssignmentGuard::checkRoleAssignment($actorRoles, $currentRoles, $requestedNames, $isSelf);
+
+        if ($denied !== null) {
+            $this->alert('error', $denied);
+
+            return;
+        }
+
+        // Pemberian role adalah aksi kritis, jadi wajib sudo. Dipanggil
+        // imperatif karena store() juga berjalan sebagai listener event
+        // `store`, jalur yang tidak dievaluasi #[RequiresSudo] (temuan T6).
+        // Edit yang tidak mengubah role tidak meminta sudo.
+        if (RoleAssignmentGuard::setsDiffer($currentRoles, $requestedNames)
+            && ! $this->requireSudo('mengubah role user')) {
+            return;
+        }
+
+        DB::beginTransaction();
+
+        $this->form->store($target);
 
         DB::commit();
 

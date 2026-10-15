@@ -54,8 +54,27 @@ class RoleForm extends Form
         ];
     }
 
-    public function store()
+    /**
+     * Simpan role.
+     *
+     * $target WAJIB berasal dari server (komponen memuatnya dari id yang
+     * dikunci), bukan dari $this->id yang dapat diubah lewat payload
+     * Livewire.
+     *
+     * Audit keamanan 15 Oktober 2026, temuan T10: dulu store() memakai
+     * updateOrCreate(['id' => $this->id]). Dalam mode create, id hasil
+     * tamper membuat pemegang `core.role.create` saja MENIMPA role yang
+     * sudah ada, misalnya mengisi role `guest` (role bawaan setiap user SSO
+     * baru) dengan izin apa pun. Sekarang mode create selalu membuat baris
+     * baru.
+     */
+    public function store(?Role $target = null)
     {
+        // Selaraskan state form dengan target dari server sebelum validasi,
+        // supaya UniqueRole membandingkan dengan role yang benar.
+        $this->role = $target;
+        $this->id = $target?->id ?? '';
+
         $this->validate();
 
         $payload = [
@@ -65,9 +84,12 @@ class RoleForm extends Form
 
         /* role: updateOrCreate triggers LogsActivity automatically for
            the model fields (name + guard_name). */
-        $model = Role::updateOrCreate([
-            'id' => $this->id,
-        ], $payload);
+        if ($target) {
+            $target->fill($payload)->save();
+            $model = $target;
+        } else {
+            $model = Role::create($payload);
+        }
 
         /* permissions: Spatie's syncPermissions() is a pivot operation
            and is invisible to the model's LogsActivity trait, so log

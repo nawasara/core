@@ -2,6 +2,7 @@
 
 namespace Nawasara\Core\Livewire\Changelog;
 
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -15,6 +16,12 @@ class Manage extends Component
 {
     use WithPagination;
 
+    /**
+     * Id catatan yang sedang diedit, hanya ditulis server lewat edit() dan
+     * resetForm(). #[Locked] supaya browser tidak dapat mengalihkan simpan ke
+     * catatan lain. Audit keamanan 15 Oktober 2026.
+     */
+    #[Locked]
     public ?int $editingId = null;
 
     #[Validate('required|string|max:150')]

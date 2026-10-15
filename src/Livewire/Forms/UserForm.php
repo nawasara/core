@@ -89,8 +89,27 @@ class UserForm extends Form
         $this->roles = is_int($roles) ? [$roles] : $roles ?? [];
     }
 
-    public function store()
+    /**
+     * Simpan user.
+     *
+     * $target WAJIB berasal dari server (komponen memuatnya dari id yang
+     * dikunci saat mount), bukan dari $this->id atau $this->user. Keduanya
+     * properti publik form yang dapat diubah lewat payload Livewire.
+     *
+     * Audit keamanan 15 Oktober 2026, temuan T10: dulu store() memakai
+     * updateOrCreate(['id' => $this->id]). Dalam mode create, id hasil
+     * tamper membuat pemegang izin create saja MENIMPA user lain (mengganti
+     * email/sandi/role akun mana pun). Sekarang mode create selalu membuat
+     * baris baru, dan mode edit hanya menyentuh $target.
+     */
+    public function store(?User $target = null)
     {
+        // Selaraskan state form dengan target dari server SEBELUM validasi,
+        // supaya aturan unique()->ignore() dan aturan sandi memakai model
+        // yang benar, bukan nilai yang dikirim browser.
+        $this->user = $target;
+        $this->id = $target?->id;
+
         $this->validate();
 
         $payload = [
@@ -116,9 +135,12 @@ class UserForm extends Form
 
         // User update: LogsActivity on User auto-captures name + email +
         // username + auth_type changes (see app/Models/User.php).
-        $user = User::updateOrCreate([
-            'id' => $this->id,
-        ], $payload);
+        if ($target) {
+            $target->fill($payload)->save();
+            $user = $target;
+        } else {
+            $user = User::create($payload);
+        }
 
         // Roles: Spatie's syncRoles is a pivot op, not seen by LogsActivity.
         // Log the diff manually with names rather than IDs so the audit log

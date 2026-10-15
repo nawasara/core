@@ -23,7 +23,9 @@ use Nawasara\Vault\Facades\Vault;
  * It decodes the ID token, verifies the signature against Keycloak's JWKS,
  * and asserts the `acr` claim equals `SUDO_ACR`. Without that check, a plain
  * SSO redirect would satisfy sudo mode and the whole feature would be
- * security theatre.
+ * security theatre. It also asserts the token's `sub` equals the session
+ * user's `keycloak_id`, so the step-up must be done by the SAME person
+ * (audit keamanan 15 Oktober 2026, temuan T6).
  *
  * Session window after a successful step-up is owned by SudoController
  * (`sudo_confirmed_at`); this service only proves the step-up happened.
@@ -32,6 +34,18 @@ class SudoService
 {
     /** Session key holding the redirect_uri override used for the sudo leg. */
     protected const REDIRECT_OVERRIDE_KEY = '_sudo_redirect_uri';
+
+    /** Hasil verifyCallback(): step-up sah dan milik user yang sedang login. */
+    public const OUTCOME_OK = 'ok';
+
+    /** Tidak ada id_token, atau tanda tangannya tidak sah. */
+    public const OUTCOME_INVALID_TOKEN = 'invalid_token';
+
+    /** Klaim `acr` bukan nilai sudo: OTP tidak dijalankan. */
+    public const OUTCOME_ACR_MISMATCH = 'acr_mismatch';
+
+    /** Step-up diselesaikan oleh akun Keycloak LAIN dari pemilik sesi. */
+    public const OUTCOME_SUBJECT_MISMATCH = 'subject_mismatch';
 
     /**
      * ACR value requested from Keycloak and expected back in the ID token.
@@ -82,30 +96,49 @@ class SudoService
      * `prompt=login`     → defensive: even if ACR mapping were misread,
      *                      Keycloak is asked to actively re-authenticate
      *                      rather than silently reuse the SSO session.
+     * `login_hint`       → mengisi username pemilik sesi di layar login
+     *                      Keycloak. Ini kenyamanan dan petunjuk, BUKAN
+     *                      penjaga: user masih dapat menggantinya. Penjaga
+     *                      sebenarnya adalah pencocokan `sub` di
+     *                      verifyCallback(). Audit keamanan 15 Oktober 2026,
+     *                      temuan T6.
      */
-    public function redirect()
+    public function redirect(?string $loginHint = null)
     {
         $this->hydrateSocialiteConfig();
 
+        $params = [
+            'acr_values' => $this->sudoAcr(),
+            'prompt' => 'login',
+        ];
+
+        if (is_string($loginHint) && $loginHint !== '') {
+            $params['login_hint'] = $loginHint;
+        }
+
         return Socialite::driver('keycloak')
-            ->with([
-                'acr_values' => $this->sudoAcr(),
-                'prompt' => 'login',
-            ])
+            ->with($params)
             ->redirect();
     }
 
     /**
      * Handle the Keycloak callback for the sudo leg.
      *
-     * Returns true ONLY when the ID token is signature-valid AND its `acr`
-     * claim equals SUDO_ACR — i.e. the user genuinely completed the OTP
-     * step-up. Any failure (no id_token, bad signature, wrong acr) returns
-     * false; the caller treats that as "sudo not granted".
+     * Returns OUTCOME_OK ONLY when the ID token is signature-valid, its
+     * `acr` claim equals SUDO_ACR, AND its `sub` equals $expectedSubject
+     * (the `keycloak_id` of the user who owns this session). Any other
+     * outcome means "sudo not granted".
+     *
+     * Kenapa `sub` wajib dicocokkan (audit keamanan 15 Oktober 2026, temuan
+     * T6): dengan `prompt=login`, layar Keycloak menerima akun SIAPA PUN.
+     * Penyerang yang membajak sesi admin dapat menyelesaikan step-up dengan
+     * akun Keycloak miliknya sendiri, lengkap dengan OTP-nya sendiri, dan
+     * sebelum perbaikan ini jendela sudo tetap terbuka untuk sesi admin.
+     * Itu persis ancaman yang mau ditutup sudo.
      *
      * @throws \Throwable on transport errors from Socialite (bad code, etc.)
      */
-    public function verifyCallback(): bool
+    public function verifyCallback(?string $expectedSubject): string
     {
         $this->hydrateSocialiteConfig();
 
@@ -113,15 +146,43 @@ class SudoService
 
         $idToken = $user->accessTokenResponseBody['id_token'] ?? null;
         if (! is_string($idToken) || $idToken === '') {
-            return false;
+            return self::OUTCOME_INVALID_TOKEN;
         }
 
         $claims = $this->decodeIdToken($idToken);
         if ($claims === null) {
-            return false;
+            return self::OUTCOME_INVALID_TOKEN;
         }
 
-        return $this->acrClaim($claims) === $this->sudoAcr();
+        return self::evaluateClaims($claims, $this->sudoAcr(), $expectedSubject);
+    }
+
+    /**
+     * Nilai klaim ID token yang SUDAH terverifikasi tanda tangannya.
+     *
+     * Murni (tanpa config, tanpa HTTP) supaya dapat diuji langsung. Urutan
+     * pemeriksaan: identitas dulu, baru `acr`. Subjek yang kosong di sisi
+     * mana pun selalu ditolak: user lokal tanpa `keycloak_id` tidak punya
+     * identitas Keycloak yang dapat dicocokkan, jadi tidak boleh menerima
+     * sudo dari akun Keycloak mana pun.
+     *
+     * @param  array<string,mixed>  $claims
+     */
+    public static function evaluateClaims(array $claims, string $expectedAcr, ?string $expectedSubject): string
+    {
+        $sub = $claims['sub'] ?? null;
+
+        if (! is_string($expectedSubject) || $expectedSubject === ''
+            || ! is_string($sub) || $sub === ''
+            || ! hash_equals($expectedSubject, $sub)) {
+            return self::OUTCOME_SUBJECT_MISMATCH;
+        }
+
+        if (self::acrFromClaims($claims) !== $expectedAcr) {
+            return self::OUTCOME_ACR_MISMATCH;
+        }
+
+        return self::OUTCOME_OK;
     }
 
     /**
@@ -172,7 +233,7 @@ class SudoService
      *
      * @param  array<string,mixed>  $claims
      */
-    protected function acrClaim(array $claims): ?string
+    protected static function acrFromClaims(array $claims): ?string
     {
         $acr = $claims['acr'] ?? null;
 

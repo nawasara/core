@@ -3,10 +3,16 @@
 namespace Nawasara\Core\Livewire\Role;
 
 use Illuminate\Support\Facades\Gate;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 class Form extends Component
 {
+    /**
+     * Id role dari URL. #[Locked] supaya browser tidak dapat menggantinya
+     * setelah izin dicek di mount(). Audit keamanan 15 Oktober 2026, T10.
+     */
+    #[Locked]
     public $id;
     public function mount($id = null)
     {

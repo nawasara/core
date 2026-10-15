@@ -9,9 +9,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Nawasara\AuthPrimitives\Attributes\RequiresSudo;
+use Nawasara\AuthPrimitives\Traits\WithSudo;
 use Nawasara\Core\Jobs\ProcessEmailLinkImport;
 use Nawasara\Core\Models\EmailLinkImport;
 use Nawasara\Core\Models\UserEmailLink;
@@ -34,13 +37,21 @@ class EmailLink extends Component
     use HasBrowserToast;
     use WithFileUploads;
     use WithPagination;
+    use WithSudo;
 
     public string $search = '';
     public string $sourceFilter = '';
     public int $perPage = 25;
 
     // Form modal state
+    //
+    // $editingId dan $formUserId hanya ditulis server (openEdit, pickUser,
+    // resetForm), tidak pernah lewat wire:model. #[Locked] supaya browser
+    // tidak dapat mengalihkan simpan ke link atau user lain di luar alur
+    // pencarian. Audit keamanan 15 Oktober 2026.
+    #[Locked]
     public ?int $editingId = null;
+    #[Locked]
     public string $formUserId = '';
     public string $formMailbox = '';
     public string $formUserSearch = '';
@@ -427,6 +438,15 @@ class EmailLink extends Component
         }
     }
 
+    /**
+     * Hapus manual link.
+     *
+     * Wajib sudo sesuai AGENTS.md bagian 6. Audit keamanan 15 Oktober 2026,
+     * temuan S6: aksi hapus ini dulu hanya bergantung pada Gate. Dipanggil
+     * langsung lewat wire:click (bukan listener event), jadi atribut
+     * #[RequiresSudo] memang dievaluasi di jalur ini.
+     */
+    #[RequiresSudo(reason: 'menghapus manual link email')]
     public function delete(int $id): void
     {
         Gate::authorize('core.email-link.manage');

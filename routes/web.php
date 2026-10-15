@@ -35,8 +35,13 @@ Route::middleware(['web'])->group(function () {
             ->middleware(PermissionMiddleware::using('core.role.view'))
             ->name('nawasara-core.role.index');
 
+        // `sudo` di level route: langkah OTP diminta SEBELUM form dibuka.
+        // Simpan juga memeriksa sudo (RolePermissionForm::saveRole), tetapi
+        // kalau pemeriksaan itu yang pertama kali memicu redirect, pilihan
+        // izin yang sudah dicentang hilang. Audit keamanan 15 Oktober 2026,
+        // temuan T10.
         Route::get('role/form/{id?}', Form::class)
-            ->middleware(PermissionMiddleware::using('core.role.create|core.role.edit'))
+            ->middleware([PermissionMiddleware::using('core.role.create|core.role.edit'), 'sudo'])
             ->name('nawasara-core.role.form');
 
         Route::get('branding', BrandingIndex::class)
