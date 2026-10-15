@@ -26,6 +26,12 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->registerLivewire();
 
+        // Komponen yang boleh dimuat lewat modal dinamis (nawasara-modal).
+        // Modal menolak nama lain; lihat LivewireModal.
+        if (class_exists(\Nawasara\Modal\Livewire\LivewireModal::class)) {
+            \Nawasara\Modal\Livewire\LivewireModal::allow('nawasara-core.user.modal.form-user');
+        }
+
         $this->registerSocialiteProviders();
 
         // Menyiarkan catatan update saat diterbitkan. Observer, bukan

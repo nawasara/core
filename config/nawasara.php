@@ -24,7 +24,7 @@ return [
     */
     'auth' => [
         'features' => [
-            'registration' => true,
+            'registration' => false,
             'reset-passwords' => true,
             'email-verification' => true,
             'two-factor-auth' => false,

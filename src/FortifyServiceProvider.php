@@ -6,6 +6,7 @@ use App\Models\User;
 use Livewire\Livewire;
 use Illuminate\Http\Request;
 use Laravel\Fortify\Fortify;
+use Nawasara\Core\Auth\AuthMode;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Contracts\LogoutResponse as LogoutResponseContract;
@@ -45,14 +46,21 @@ class FortifyServiceProvider extends ServiceProvider
     public function loginByUsernameOrEmail()
     {
         Fortify::authenticateUsing(function (Request $request) {
+            // Mode "SSO saja" harus benar-benar menutup login sandi. Dulu
+            // pemeriksaan ini hanya ada di tampilan form, sementara POST
+            // /login tetap menerima sandi (audit keamanan 15 Oktober 2026).
+            if (! AuthMode::isLocalEnabled()) {
+                return null;
+            }
+
             $field = 'email';
             if (! self::isValidEmail($request->email)) {
                 $field = 'username';
             }
 
             $user = User::where($field, $request->email)->first();
-            if ($user &&
-                Hash::check($request->password, $user->password)) {
+            if ($user && $user->password &&
+                Hash::check((string) $request->password, $user->password)) {
                 return $user;
             }
         });
