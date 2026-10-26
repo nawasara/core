@@ -18,7 +18,11 @@
         {{-- button action --}}
         <x-slot name="actions">
             <x-nawasara-ui::page.actions>
-                <x-nawasara-ui::button color="success" href="{{ route('nawasara-core.role.form') }}" wire:navigate
+                {{-- Tanpa wire:navigate: route form berlapis `sudo` yang dapat
+                     mengalihkan ke Keycloak, dan fetch wire:navigate tidak
+                     dapat mengikuti pengalihan lintas domain. Lihat
+                     section/table.blade.php. --}}
+                <x-nawasara-ui::button color="success" href="{{ route('nawasara-core.role.form') }}"
                     permission="core.role.create">
                     <x-slot:icon><x-lucide-plus class="size-4" /></x-slot:icon>
                     Tambah Role

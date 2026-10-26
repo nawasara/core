@@ -20,7 +20,7 @@
 
             <div class="flex items-center gap-3 lg:pb-1">
                 <div class="text-sm text-gray-600 dark:text-neutral-400">
-                    <span class="font-bold text-gray-900 dark:text-white" x-text="selected.length"></span>
+                    <span class="font-bold text-gray-900 dark:text-white" x-text="count"></span>
                     /
                     <span x-text="totalPermissions"></span>
                     <span class="hidden sm:inline">permission</span>
@@ -123,7 +123,7 @@
                                 <div class="flex flex-wrap gap-1.5">
                                     <template x-for="perm in perms" :key="perm.id">
                                         <label class="cursor-pointer">
-                                            <input type="checkbox" :value="perm.id" x-model.number="selected" class="sr-only peer" />
+                                            <input type="checkbox" :checked="has(perm.id)" x-on:change="toggle(perm.id)" class="sr-only peer" />
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors
                                                 peer-checked:bg-green-100 peer-checked:border-green-300 peer-checked:text-green-800
                                                 dark:peer-checked:bg-green-900/40 dark:peer-checked:border-green-700 dark:peer-checked:text-green-300
@@ -150,134 +150,158 @@
      re-run on navigate. See reference_alpine_magic_wire_navigate. --}}
 @script
 <script>
-        Alpine.data('rolePermissionForm', (config) => ({
-            selected: [...(config.initial || [])].map(Number),
-            groups: config.groups || {},
-            search: '',
-            collapsed: {},
-            saving: false,
+        // ⚠️ Pilihan izin dan pohon grup SENGAJA di luar data reaktif Alpine.
+        //
+        // Dulu `selected` (array reaktif) dicek dengan selected.includes(id)
+        // di setiap kotak centang, setiap modul, dan setiap grup. Pada array
+        // reaktif, includes() mencatat ketergantungan ke SETIAP elemennya:
+        // 224 izin dengan 117 tercentang berarti sekitar 2.000 panggilan
+        // x 117 elemen, kira-kira 230 ribu pencatatan saat halaman dibuka,
+        // dan semuanya diulang setiap satu kotak diklik. Halaman edit role
+        // terasa sangat lambat dan berat (Oktober 2026).
+        //
+        // Sekarang pilihan disimpan di Set biasa, id per grup dan per modul
+        // dihitung sekali, dan tampilan bergantung pada SATU angka reaktif
+        // (`rev`) yang dinaikkan setiap pilihan berubah.
+        Alpine.data('rolePermissionForm', (config) => {
+            const groups = config.groups || {};
+            const chosen = new Set((config.initial || []).map(Number));
+            const prefixIdMap = {};
+            const moduleIdMap = {};
+            let total = 0;
 
-            label(s) {
-                if (!s) return '';
-                return String(s).replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            },
+            for (const prefix in groups) {
+                prefixIdMap[prefix] = [];
+                for (const module in groups[prefix]) {
+                    const ids = groups[prefix][module].map(p => Number(p.id));
+                    moduleIdMap[prefix + '\u0000' + module] = ids;
+                    prefixIdMap[prefix].push(...ids);
+                    total += ids.length;
+                }
+            }
 
-            get totalPermissions() {
-                let count = 0;
-                for (const prefix in this.groups) {
-                    for (const module in this.groups[prefix]) {
-                        count += this.groups[prefix][module].length;
+            const countIn = (ids) => {
+                let n = 0;
+                for (const id of ids) if (chosen.has(id)) n++;
+                return n;
+            };
+
+            return {
+                rev: 0,
+                count: chosen.size,
+                totalPermissions: total,
+                search: '',
+                collapsed: {},
+                saving: false,
+
+                touch() {
+                    this.rev++;
+                    this.count = chosen.size;
+                },
+
+                label(s) {
+                    if (!s) return '';
+                    return String(s).replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                },
+
+                get filteredGroups() {
+                    if (!this.search) return groups;
+                    const q = this.search.toLowerCase();
+                    const result = {};
+                    for (const prefix in groups) {
+                        const modules = {};
+                        for (const module in groups[prefix]) {
+                            const matched = groups[prefix][module].filter(p => {
+                                const haystack = `${prefix}.${module}.${p.name}`.toLowerCase();
+                                return haystack.includes(q);
+                            });
+                            if (matched.length) modules[module] = matched;
+                        }
+                        if (Object.keys(modules).length) result[prefix] = modules;
                     }
-                }
-                return count;
-            },
+                    return result;
+                },
 
-            get filteredGroups() {
-                if (!this.search) return this.groups;
-                const q = this.search.toLowerCase();
-                const result = {};
-                for (const prefix in this.groups) {
-                    const modules = {};
-                    for (const module in this.groups[prefix]) {
-                        const matched = this.groups[prefix][module].filter(p => {
-                            const haystack = `${prefix}.${module}.${p.name}`.toLowerCase();
-                            return haystack.includes(q);
-                        });
-                        if (matched.length) modules[module] = matched;
+                has(id) {
+                    this.rev;
+                    return chosen.has(Number(id));
+                },
+
+                toggle(id) {
+                    id = Number(id);
+                    chosen.has(id) ? chosen.delete(id) : chosen.add(id);
+                    this.touch();
+                },
+
+                prefixSelectedCount(prefix) {
+                    this.rev;
+                    return countIn(prefixIdMap[prefix] || []);
+                },
+
+                prefixTotal(prefix) {
+                    return (prefixIdMap[prefix] || []).length;
+                },
+
+                prefixAllSelected(prefix) {
+                    const total = this.prefixTotal(prefix);
+                    return total > 0 && this.prefixSelectedCount(prefix) === total;
+                },
+
+                prefixSomeSelected(prefix) {
+                    return this.prefixSelectedCount(prefix) > 0;
+                },
+
+                moduleSelectedCount(prefix, module) {
+                    this.rev;
+                    return countIn(moduleIdMap[prefix + '\u0000' + module] || []);
+                },
+
+                moduleAllSelected(prefix, module) {
+                    const ids = moduleIdMap[prefix + '\u0000' + module] || [];
+                    return ids.length > 0 && this.moduleSelectedCount(prefix, module) === ids.length;
+                },
+
+                moduleSomeSelected(prefix, module) {
+                    return this.moduleSelectedCount(prefix, module) > 0;
+                },
+
+                setMany(ids, on) {
+                    for (const id of ids) on ? chosen.add(id) : chosen.delete(id);
+                    this.touch();
+                },
+
+                toggleAllInPrefix(prefix) {
+                    this.setMany(prefixIdMap[prefix] || [], !this.prefixAllSelected(prefix));
+                },
+
+                toggleAllInModule(prefix, module) {
+                    this.setMany(moduleIdMap[prefix + '\u0000' + module] || [], !this.moduleAllSelected(prefix, module));
+                },
+
+                toggleCollapse(prefix) {
+                    this.collapsed[prefix] = !this.collapsed[prefix];
+                },
+
+                selectAll() {
+                    for (const prefix in prefixIdMap) for (const id of prefixIdMap[prefix]) chosen.add(id);
+                    this.touch();
+                },
+
+                clearAll() {
+                    chosen.clear();
+                    this.touch();
+                },
+
+                async save() {
+                    if (this.saving) return;
+                    this.saving = true;
+                    try {
+                        await this.$wire.dispatch('save-role', { permission: [...chosen] });
+                    } finally {
+                        setTimeout(() => this.saving = false, 2000);
                     }
-                    if (Object.keys(modules).length) result[prefix] = modules;
-                }
-                return result;
-            },
-
-            prefixIds(prefix) {
-                const ids = [];
-                const modules = this.groups[prefix] || {};
-                for (const module in modules) {
-                    for (const p of modules[module]) ids.push(p.id);
-                }
-                return ids;
-            },
-
-            moduleIds(prefix, module) {
-                return ((this.groups[prefix] || {})[module] || []).map(p => p.id);
-            },
-
-            prefixSelectedCount(prefix) {
-                return this.prefixIds(prefix).filter(id => this.selected.includes(id)).length;
-            },
-
-            prefixTotal(prefix) {
-                return this.prefixIds(prefix).length;
-            },
-
-            prefixAllSelected(prefix) {
-                const ids = this.prefixIds(prefix);
-                return ids.length > 0 && ids.every(id => this.selected.includes(id));
-            },
-
-            prefixSomeSelected(prefix) {
-                return this.prefixSelectedCount(prefix) > 0;
-            },
-
-            moduleAllSelected(prefix, module) {
-                const ids = this.moduleIds(prefix, module);
-                return ids.length > 0 && ids.every(id => this.selected.includes(id));
-            },
-
-            moduleSomeSelected(prefix, module) {
-                return this.moduleSelectedCount(prefix, module) > 0;
-            },
-
-            moduleSelectedCount(prefix, module) {
-                return this.moduleIds(prefix, module).filter(id => this.selected.includes(id)).length;
-            },
-
-            toggleAllInPrefix(prefix) {
-                const ids = this.prefixIds(prefix);
-                if (this.prefixAllSelected(prefix)) {
-                    this.selected = this.selected.filter(id => !ids.includes(id));
-                } else {
-                    const merged = new Set([...this.selected, ...ids]);
-                    this.selected = [...merged];
-                }
-            },
-
-            toggleAllInModule(prefix, module) {
-                const ids = this.moduleIds(prefix, module);
-                if (this.moduleAllSelected(prefix, module)) {
-                    this.selected = this.selected.filter(id => !ids.includes(id));
-                } else {
-                    const merged = new Set([...this.selected, ...ids]);
-                    this.selected = [...merged];
-                }
-            },
-
-            toggleCollapse(prefix) {
-                this.collapsed[prefix] = !this.collapsed[prefix];
-            },
-
-            selectAll() {
-                const all = [];
-                for (const prefix in this.groups) {
-                    all.push(...this.prefixIds(prefix));
-                }
-                this.selected = all;
-            },
-
-            clearAll() {
-                this.selected = [];
-            },
-
-            async save() {
-                if (this.saving) return;
-                this.saving = true;
-                try {
-                    await this.$wire.dispatch('save-role', { permission: this.selected });
-                } finally {
-                    setTimeout(() => this.saving = false, 2000);
-                }
-            },
-        }));
+                },
+            };
+        });
 </script>
 @endscript

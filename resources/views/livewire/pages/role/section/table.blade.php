@@ -12,12 +12,21 @@
                             @endphp
                             @php
                                 $menuItems = [
+                                    // ⚠️ `href` biasa, BUKAN href-navigate.
+                                    // Route form berlapis middleware `sudo`:
+                                    // di luar jendela sudo ia mengalihkan ke
+                                    // Keycloak. wire:navigate mengambil
+                                    // halaman lewat fetch (sudah sejak hover),
+                                    // fetch tidak dapat mengikuti pengalihan
+                                    // lintas domain (CORS), lalu navigasinya
+                                    // tersendat sebelum jatuh ke muat ulang
+                                    // biasa. Itu yang membuat Edit terasa
+                                    // sangat lambat (Oktober 2026).
                                     [
-                                        'type' => 'href-navigate',
+                                        'type' => 'href',
                                         'label' => 'Edit',
                                         'url' => route('nawasara-core.role.form', ['id' => $item->id]),
                                         'color' => 'text-gray-800',
-                                        'navigate' => true,
                                         'permission' => 'core.role.edit',
                                     ],
                                     [
