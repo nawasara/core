@@ -21,7 +21,7 @@
                     title="Belum ada catatan"
                     description="Klik 'Tambah Update' untuk menulis catatan pertama." />
             @else
-                <x-nawasara-ui::table stickyLast :headers="['Judul', 'Kategori', 'Tanggal', 'Status', '']">
+                <x-nawasara-ui::table stickyLast :headers="['Judul', 'Kategori', 'Tanggal', '']">
                     <x-slot:table>
                         @foreach ($entries as $entry)
                             <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50">
@@ -32,19 +32,20 @@
                                             <x-nawasara-ui::badge color="warning">Besar</x-nawasara-ui::badge>
                                         @endif
                                     </div>
+                                    {{-- Status di bawah nama, bukan kolom sendiri: terlihat tanpa menggulir ke kanan. --}}
+                                    <div class="mt-1">
+                                        @if ($entry->isPublished())
+                                            <x-nawasara-ui::badge color="success">Terbit</x-nawasara-ui::badge>
+                                        @else
+                                            <x-nawasara-ui::badge color="neutral">Draft</x-nawasara-ui::badge>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-4 py-3">
                                     <x-nawasara-ui::badge :color="$entry->categoryColor()">{{ $entry->categoryLabel() }}</x-nawasara-ui::badge>
                                 </td>
                                 <td class="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
                                     {{ $entry->published_at?->translatedFormat('d M Y') ?? '—' }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    @if ($entry->isPublished())
-                                        <x-nawasara-ui::badge color="success">Terbit</x-nawasara-ui::badge>
-                                    @else
-                                        <x-nawasara-ui::badge color="neutral">Draft</x-nawasara-ui::badge>
-                                    @endif
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <x-nawasara-ui::dropdown-menu-action :id="$entry->id" :items="[
