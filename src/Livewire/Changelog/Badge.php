@@ -15,15 +15,19 @@ class Badge extends Component
 {
     public int $unread = 0;
 
+    /** False for guests: the sparkle is not rendered at all. */
+    public bool $visible = true;
+
     public function mount(): void
     {
+        $this->visible = ChangelogEntry::visibleTo(auth()->user());
         $this->refreshCount();
     }
 
     #[On('changelog-seen')]
     public function refreshCount(): void
     {
-        $this->unread = ($id = auth()->id())
+        $this->unread = ($this->visible && ($id = auth()->id()))
             ? ChangelogEntry::unreadCountFor($id)
             : 0;
     }

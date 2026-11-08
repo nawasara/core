@@ -66,6 +66,29 @@ class ChangelogEntry extends Model
         return $query->whereNotNull('published_at')->where('published_at', '<=', now());
     }
 
+    /**
+     * Whether a user gets the changelog at all (badge, popup, page).
+     *
+     * Guests are SSO users who landed with the default role and nothing else:
+     * release notes about panels they cannot open are noise to them. The rule
+     * follows the role in effect, so an admin who switched to guest sees what a
+     * guest sees, while an admin who merely still carries a leftover guest role
+     * keeps the changelog.
+     */
+    public static function visibleTo($user): bool
+    {
+        if (! $user || ! method_exists($user, 'getRoleNames')) {
+            return (bool) $user;
+        }
+
+        $active = session('active_role');
+        if ($active && $user->hasRole($active)) {
+            return $active !== 'guest';
+        }
+
+        return $user->getRoleNames()->reject(fn ($r) => $r === 'guest')->isNotEmpty();
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');

@@ -29,7 +29,7 @@ class WhatsNew extends Component
     public function mount(): void
     {
         $userId = auth()->id();
-        if (! $userId) {
+        if (! $userId || ! ChangelogEntry::visibleTo(auth()->user())) {
             return;
         }
 

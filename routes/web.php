@@ -89,7 +89,8 @@ Route::middleware(['web'])->group(function () {
 
         Route::get('switch-role', SwitchRole::class)->name('nawasara-core.switch-role');
 
-        // Riwayat Update (changelog) — readable by any logged-in user; the
+        // Riwayat Update (changelog) — readable by any logged-in user except
+        // guests (enforced in the component, ChangelogEntry::visibleTo); the
         // manage screen is permission-gated below.
         Route::get('changelog', \Nawasara\Core\Livewire\Changelog\Index::class)
             ->name('nawasara-core.changelog.index');
