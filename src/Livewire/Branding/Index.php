@@ -29,9 +29,11 @@ class Index extends Component
         $this->appName = Setting::get('branding.app_name', 'Nawasara');
         $this->appSubtitle = Setting::get('branding.app_subtitle', '');
 
-        $this->currentLogo = Setting::get('branding.logo');
-        $this->currentLogoDark = Setting::get('branding.logo_dark');
-        $this->currentFavicon = Setting::get('branding.favicon');
+        // Pratinjau memakai URL rute (brand()), bukan URL /storage mentah —
+        // yang terakhir 404 di produksi dan tampil sebagai gambar rusak.
+        $this->currentLogo = brand('logo');
+        $this->currentLogoDark = brand('logo_dark');
+        $this->currentFavicon = brand('favicon');
     }
 
     public function save(): void
@@ -58,19 +60,22 @@ class Index extends Component
         $changedFiles = [];
 
         if ($this->logo) {
-            $this->currentLogo = Setting::setFile('branding.logo', $this->logo);
+            Setting::setFile('branding.logo', $this->logo);
+            $this->currentLogo = brand('logo');
             $this->logo = null;
             $changedFiles[] = 'logo';
         }
 
         if ($this->logoDark) {
-            $this->currentLogoDark = Setting::setFile('branding.logo_dark', $this->logoDark);
+            Setting::setFile('branding.logo_dark', $this->logoDark);
+            $this->currentLogoDark = brand('logo_dark');
             $this->logoDark = null;
             $changedFiles[] = 'logo_dark';
         }
 
         if ($this->favicon) {
-            $this->currentFavicon = Setting::setFile('branding.favicon', $this->favicon);
+            Setting::setFile('branding.favicon', $this->favicon);
+            $this->currentFavicon = brand('favicon');
             $this->favicon = null;
             $changedFiles[] = 'favicon';
         }

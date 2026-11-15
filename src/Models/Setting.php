@@ -95,7 +95,11 @@ class Setting extends Model
 
     public static function forget(string $key): void
     {
+        // Query-builder delete() tidak memicu event `deleted`, jadi cache
+        // tidak ikut bersih lewat booted(). Tanpa flush ini, "Hapus favicon"
+        // di Branding baru berlaku setelah cache kedaluwarsa (1 jam).
         self::where('key', $key)->delete();
+        self::flushCache();
     }
 
     protected static function allCached(): array

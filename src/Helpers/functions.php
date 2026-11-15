@@ -20,14 +20,25 @@ if (! function_exists('brand')) {
      *   - favicon    (file URL, default: null)
      *
      * Returns default if setting doesn't exist or table not yet migrated.
+     *
+     * File keys (logo, logo_dark, favicon, og_image) return a URL to the
+     * nawasara.branding.asset route — never the raw /storage URL, which 404s
+     * in production — and fall back to $default when the file is missing, so
+     * a lost upload shows the bundled mark instead of a broken image.
      */
     function brand(string $key, mixed $default = null): mixed
     {
         try {
-            return Setting::get("branding.{$key}", $default);
+            $value = Setting::get("branding.{$key}", $default);
         } catch (\Throwable $e) {
             return $default;
         }
+
+        if (in_array($key, \Nawasara\Core\Support\BrandingAsset::KEYS, true) && $value !== $default) {
+            return \Nawasara\Core\Support\BrandingAsset::url($key, $value) ?? $default;
+        }
+
+        return $value;
     }
 }
 

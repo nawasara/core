@@ -12,6 +12,12 @@ use Nawasara\Core\Livewire\User\Index;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 
 Route::middleware(['web'])->group(function () {
+    // Berkas Branding (logo/favicon/OG) — publik, tanpa ekstensi di URL.
+    // Lihat Nawasara\Core\Support\BrandingAsset.
+    Route::get('/nawasara-branding/{key}', \Nawasara\Core\Http\Controllers\BrandingAssetController::class)
+        ->where('key', 'logo|logo_dark|favicon|og_image')
+        ->name('nawasara.branding.asset');
+
     // Auth — single login route, mode (local/sso/both) di-handle oleh
     // Nawasara\Core\Livewire\Auth\Login berdasarkan AuthMode setting.
     Route::get('/login', Login::class)
